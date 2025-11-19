@@ -9,420 +9,250 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
-import { NotificationService } from './notification.service';
-import type { SendNotificationRequest } from './notification.service';
-import { NotificationTemplateService } from './notification-template.service';
-import { NotificationPreferencesService, NotificationPreference } from './notification-preferences.service';
+import { NotificationService, CreateNotificationDto, SendNotificationDto } from './notification.service';
 import { Permissions } from '../../common/decorators/permissions.decorator';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../common/guards/permissions.guard';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 @Controller('notifications')
+@UseGuards(JwtAuthGuard, PermissionsGuard)
 export class NotificationController {
-  constructor(
-    private readonly notificationService: NotificationService,
-    private readonly templateService: NotificationTemplateService,
-    private readonly preferencesService: NotificationPreferencesService,
-  ) {}
-
-  // ========== إرسال الإشعارات ==========
+  constructor(private readonly notificationService: NotificationService) {}
 
   /**
-   * إرسال إشعار فوري
+   * إرسال إشعار لمستخدم واحد
    */
   @Post('send')
   @Permissions('notifications.send')
   async sendNotification(
-    @Body() request: SendNotificationRequest,
-    @Query('userId') userId?: string,
+    @Body() dto: CreateNotificationDto,
   ) {
-    return this.notificationService.sendNotification(request, userId);
+    return this.notificationService.sendNotificationToUser(dto);
   }
 
   /**
-   * إرسال إشعار باستخدام قالب
+   * إرسال إشعار جماعي
    */
-  @Post('send-template/:templateName')
-  @Permissions('notifications.send')
-  async sendTemplatedNotification(
-    @Param('templateName') templateName: string,
+  @Post('broadcast')
+  @Permissions('notifications.broadcast')
+  async broadcastNotification(
+    @Body() dto: SendNotificationDto,
+  ) {
+    return this.notificationService.sendBulkNotification(dto);
+  }
+
+  /**
+   * تسجيل اشتراك دفعي
+   */
+  @Post('register-device')
+  @HttpCode(HttpStatus.OK)
+  async registerDevice(
     @Body() body: {
-      recipientId: string;
-      recipientType?: 'user' | 'customer' | 'supplier' | 'admin';
-      variables: Record<string, any>;
+      deviceId: string;
+      deviceName?: string;
+      subscription: {
+        endpoint: string;
+        keys: {
+          p256dh: string;
+          auth: string;
+        };
+      };
+      userId?: string;
     },
-    @Query('userId') userId?: string,
   ) {
-    return this.notificationService.sendTemplatedNotification(
-      templateName,
-      body.variables,
-      body.recipientId,
-      body.recipientType,
-      userId,
-    );
+    return this.notificationService.registerPushSubscription({
+      deviceId: body.deviceId,
+      deviceName: body.deviceName,
+      endpoint: body.subscription.endpoint,
+      keys: body.subscription.keys,
+      userId: body.userId,
+    });
   }
 
   /**
-   * إرسال إشعارات جماعية
+   * إلغاء اشتراك دفعي
    */
-  @Post('send-bulk')
-  @Permissions('notifications.send_bulk')
-  async sendBulkNotifications(
-    @Body() body: {
-      notifications: SendNotificationRequest[];
-    },
-    @Query('userId') userId?: string,
+  @Post('unsubscribe/:subscriptionId')
+  @Permissions('notifications.manage')
+  @HttpCode(HttpStatus.OK)
+  async unsubscribeDevice(
+    @Param('subscriptionId') subscriptionId: string,
   ) {
-    return this.notificationService.sendBulkNotifications(body.notifications, userId);
+    await this.notificationService.unregisterPushSubscription(subscriptionId);
+    return { message: 'تم إلغاء الاشتراك بنجاح' };
   }
 
   /**
-   * جدولة إشعار لوقت لاحق
+   * الحصول على مفتاح VAPID العام
    */
-  @Post('schedule')
-  @Permissions('notifications.schedule')
-  async scheduleNotification(
-    @Body() body: {
-      notification: SendNotificationRequest;
-      scheduledAt: string;
-    },
-    @Query('userId') userId?: string,
+  @Get('vapid-public-key')
+  async getVapidPublicKey() {
+    // في الإنتاج، يجب الحصول على المفتاح من متغيرات البيئة
+    return {
+      publicKey: process.env.VAPID_PUBLIC_KEY || 'BLXHQZ5Rd7KdUbFxqjBfhK7RHFjKzZs8wBzMq2YYpG5K4J8M4nT4K8K8K8K8K8K8K8K8K8K8K8K8K8K8K8K8K8K8K8K8K',
+    };
+  }
+
+  /**
+   * الحصول على إشعارات المستخدم
+   */
+  @Get('user')
+  async getUserNotifications(
+    @CurrentUser('id') userId: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+    @Query('unreadOnly') unreadOnly?: string,
+    @Query('category') category?: string,
   ) {
-    const scheduledAt = new Date(body.scheduledAt);
-    return this.notificationService.scheduleNotification(body.notification, scheduledAt, userId);
+    const options = {
+      limit: limit ? parseInt(limit) : 20,
+      offset: offset ? parseInt(offset) : 0,
+      unreadOnly: unreadOnly === 'true',
+      category,
+    };
+
+    return this.notificationService.getUserNotifications(userId, options);
   }
 
-  // ========== إدارة القوالب ==========
-
   /**
-   * إنشاء قالب إشعار جديد
+   * تحديث حالة الإشعار كمقروء
    */
-  @Post('templates')
-  @Permissions('notifications.templates.create')
-  async createTemplate(
-    @Body() body: any,
-    @Query('userId') userId?: string,
+  @Put(':id/read')
+  async markAsRead(
+    @Param('id') notificationId: string,
+    @CurrentUser('id') userId: string,
   ) {
-    return this.templateService.createTemplate(body, userId);
+    await this.notificationService.markNotificationAsRead(notificationId, userId);
+    return { message: 'تم تحديث حالة الإشعار' };
   }
 
   /**
-   * تحديث قالب إشعار
+   * حذف إشعار
    */
-  @Put('templates/:templateId')
-  @Permissions('notifications.templates.update')
-  async updateTemplate(
-    @Param('templateId') templateId: string,
-    @Body() body: any,
-    @Query('userId') userId?: string,
+  @Delete(':id')
+  async deleteNotification(
+    @Param('id') notificationId: string,
+    @CurrentUser('id') userId: string,
   ) {
-    return this.templateService.updateTemplate(templateId, body, userId);
+    await this.notificationService.deleteNotification(notificationId, userId);
+    return { message: 'تم حذف الإشعار' };
   }
-
-  /**
-   * حذف قالب إشعار
-   */
-  @Delete('templates/:templateId')
-  @Permissions('notifications.templates.delete')
-  async deleteTemplate(
-    @Param('templateId') templateId: string,
-    @Query('userId') userId?: string,
-  ) {
-    await this.templateService.deleteTemplate(templateId, userId);
-    return { message: 'تم حذف القالب بنجاح' };
-  }
-
-  /**
-   * الحصول على قالب إشعار
-   */
-  @Get('templates/:templateId')
-  @Permissions('notifications.templates.read')
-  async getTemplate(@Param('templateId') templateId: string) {
-    return this.templateService.getTemplate(templateId);
-  }
-
-  /**
-   * البحث في قوالب الإشعارات
-   */
-  @Get('templates')
-  @Permissions('notifications.templates.read')
-  async searchTemplates(@Query() query: any) {
-    return this.templateService.searchTemplates(query);
-  }
-
-  /**
-   * الحصول على القالب الافتراضي لحدث معين
-   */
-  @Get('templates/default/:event/:type')
-  @Permissions('notifications.templates.read')
-  async getDefaultTemplate(
-    @Param('event') event: string,
-    @Param('type') type: string,
-  ) {
-    return this.templateService.getDefaultTemplate(event, type);
-  }
-
-  /**
-   * الحصول على المتغيرات المتاحة لقالب
-   */
-  @Get('templates/variables/:event/:module')
-  @Permissions('notifications.templates.read')
-  async getTemplateVariables(
-    @Param('event') event: string,
-    @Param('module') module: string,
-  ) {
-    return this.templateService.getTemplateVariables(event, module);
-  }
-
-  /**
-   * معاينة قالب مع متغيرات
-   */
-  @Post('templates/:templateId/preview')
-  @Permissions('notifications.templates.read')
-  async previewTemplate(
-    @Param('templateId') templateId: string,
-    @Body() body: { variables: Record<string, any> },
-  ) {
-    return this.templateService.previewTemplate(templateId, body.variables);
-  }
-
-  /**
-   * استنساخ قالب
-   */
-  @Post('templates/:templateId/clone')
-  @Permissions('notifications.templates.create')
-  async cloneTemplate(
-    @Param('templateId') templateId: string,
-    @Body() body: { newName: string },
-    @Query('userId') userId?: string,
-  ) {
-    return this.templateService.cloneTemplate(templateId, body.newName, userId);
-  }
-
-  /**
-   * الحصول على قائمة الأحداث المتاحة
-   */
-  @Get('events')
-  @Permissions('notifications.read')
-  async getAvailableEvents() {
-    return this.templateService.getAvailableEvents();
-  }
-
-  // ========== تفضيلات الإشعارات ==========
-
-  /**
-   * الحصول على تفضيلات المستخدم
-   */
-  @Get('preferences/:userId')
-  @Permissions('notifications.preferences.read')
-  async getUserPreferences(@Param('userId') userId: string) {
-    return this.preferencesService.getUserPreferences(userId);
-  }
-
-  /**
-   * تحديث تفضيلات المستخدم
-   */
-  @Put('preferences/:userId')
-  @Permissions('notifications.preferences.update')
-  async updateUserPreferences(
-    @Param('userId') userId: string,
-    @Body() body: { preferences: NotificationPreference[] },
-    @Query('updatedBy') updatedBy?: string,
-  ) {
-    await this.preferencesService.updateUserPreferences(userId, body.preferences, updatedBy);
-    return { message: 'تم تحديث التفضيلات بنجاح' };
-  }
-
-  /**
-   * إعادة تعيين تفضيلات المستخدم للافتراضية
-   */
-  @Post('preferences/:userId/reset')
-  @Permissions('notifications.preferences.update')
-  async resetUserPreferences(
-    @Param('userId') userId: string,
-    @Query('resetBy') resetBy?: string,
-  ) {
-    await this.preferencesService.resetUserPreferences(userId, resetBy);
-    return { message: 'تم إعادة تعيين التفضيلات للافتراضية' };
-  }
-
-  /**
-   * الحصول على التفضيلات الافتراضية
-   */
-  @Get('preferences/default')
-  @Permissions('notifications.preferences.read')
-  async getDefaultPreferences() {
-    return this.preferencesService.getDefaultPreferences();
-  }
-
-  /**
-   * إحصائيات تفضيلات الإشعارات
-   */
-  @Get('preferences/stats')
-  @Permissions('notifications.preferences.read')
-  async getPreferencesStats() {
-    return this.preferencesService.getPreferencesStats();
-  }
-
-  /**
-   * تصدير تفضيلات المستخدم
-   */
-  @Get('preferences/:userId/export')
-  @Permissions('notifications.preferences.read')
-  async exportUserPreferences(@Param('userId') userId: string) {
-    return this.preferencesService.exportUserPreferences(userId);
-  }
-
-  /**
-   * استيراد تفضيلات المستخدم
-   */
-  @Post('preferences/:userId/import')
-  @Permissions('notifications.preferences.update')
-  async importUserPreferences(
-    @Param('userId') userId: string,
-    @Body() body: any,
-    @Query('importedBy') importedBy?: string,
-  ) {
-    await this.preferencesService.importUserPreferences(userId, body, importedBy);
-    return { message: 'تم استيراد التفضيلات بنجاح' };
-  }
-
-  // ========== إحصائيات وتقارير ==========
 
   /**
    * إحصائيات الإشعارات
    */
   @Get('stats')
-  @Permissions('notifications.read')
   async getNotificationStats(
-    @Query('branchId') branchId?: string,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
+    @CurrentUser('id') userId: string,
   ) {
-    const start = startDate ? new Date(startDate) : undefined;
-    const end = endDate ? new Date(endDate) : undefined;
-
-    return this.notificationService.getNotificationStats(branchId, start, end);
+    return this.notificationService.getNotificationStats(userId);
   }
 
   /**
-   * إنشاء تقرير الإشعارات
+   * إرسال إشعار ترحيب للمستخدم الجديد
    */
-  @Get('reports')
-  @Permissions('notifications.read')
-  async getNotificationReport(
-    @Query('branchId') branchId?: string,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
-    @Query('type') type?: string,
-    @Query('status') status?: string,
-    @Query('format') format: 'json' | 'csv' = 'json',
-  ) {
-    // TODO: تنفيذ إنشاء التقرير
-    return {
-      report: {
-        branchId,
-        dateRange: { startDate, endDate },
-        filters: { type, status },
-        format,
-      },
-      data: [],
-      message: 'سيتم تنفيذ إنشاء تقرير الإشعارات قريباً',
-    };
-  }
-
-  // ========== إدارة النظام ==========
-
-  /**
-   * إنشاء القوالب الافتراضية
-   */
-  @Post('templates/default/create')
-  @Permissions('notifications.templates.create')
-  async createDefaultTemplates() {
-    await this.templateService.createDefaultTemplates();
-    return { message: 'تم إنشاء القوالب الافتراضية بنجاح' };
-  }
-
-  /**
-   * إنشاء تفضيلات افتراضية لمستخدم جديد
-   */
-  @Post('preferences/:userId/default')
-  @Permissions('notifications.preferences.update')
-  async createDefaultPreferencesForUser(@Param('userId') userId: string) {
-    await this.preferencesService.createDefaultPreferencesForUser(userId);
-    return { message: 'تم إنشاء التفضيلات الافتراضية للمستخدم' };
-  }
-
-  /**
-   * تحديث التفضيلات الافتراضية العامة
-   */
-  @Put('preferences/global')
-  @Permissions('notifications.preferences.update')
-  async updateGlobalPreferences(
-    @Body() updates: any,
-    @Query('updatedBy') updatedBy?: string,
-  ) {
-    await this.preferencesService.updateGlobalPreferences(updates, updatedBy);
-    return { message: 'تم تحديث التفضيلات الافتراضية العامة' };
-  }
-
-  // ========== معلومات النظام ==========
-
-  /**
-   * معلومات مزودي الخدمة
-   */
-  @Get('providers/info')
-  @Permissions('notifications.read')
-  async getProvidersInfo() {
-    // TODO: إرجاع معلومات جميع المزودين
-    return {
-      email: {
-        providers: ['sendgrid', 'mailgun', 'ses', 'smtp'],
-        current: 'sendgrid',
-      },
-      sms: {
-        providers: ['twilio', 'aws_sns', 'messagebird', 'nexmo', 'local'],
-        current: 'twilio',
-      },
-      whatsapp: {
-        providers: ['whatsapp_business', '360dialog', 'twilio', 'local'],
-        current: 'whatsapp_business',
-      },
-    };
-  }
-
-  /**
-   * اختبار إرسال إشعار
-   */
-  @Post('test')
+  @Post('welcome/:userId')
   @Permissions('notifications.send')
-  async testNotification(
+  async sendWelcomeNotification(
+    @Param('userId') userId: string,
+  ) {
+    await this.notificationService.sendWelcomeNotification(userId);
+    return { message: 'تم إرسال إشعار الترحيب' };
+  }
+
+  /**
+   * إرسال تنبيه مخزون منخفض
+   */
+  @Post('alerts/low-stock')
+  @Permissions('notifications.send')
+  async sendLowStockAlert(
     @Body() body: {
-      type: 'email' | 'sms' | 'whatsapp' | 'push' | 'in_app';
-      recipient: string;
-      message?: string;
+      userId: string;
+      productName: string;
+      currentStock: number;
+      minStock: number;
     },
   ) {
-    const testMessage = body.message || `رسالة اختبار من نظام الإشعارات - ${new Date().toISOString()}`;
+    await this.notificationService.sendLowStockAlert(
+      body.userId,
+      body.productName,
+      body.currentStock,
+      body.minStock,
+    );
+    return { message: 'تم إرسال تنبيه المخزون المنخفض' };
+  }
 
-    const request: SendNotificationRequest = {
-      title: 'اختبار النظام',
-      message: testMessage,
-      type: body.type,
-      recipientId: body.recipient,
-      recipientType: 'admin',
-    };
+  /**
+   * إرسال تنبيه مبيعات عالية
+   */
+  @Post('alerts/high-sales')
+  @Permissions('notifications.send')
+  async sendHighSalesAlert(
+    @Body() body: {
+      userId: string;
+      period: string;
+      salesAmount: number;
+      growth: number;
+    },
+  ) {
+    await this.notificationService.sendHighSalesAlert(
+      body.userId,
+      body.period,
+      body.salesAmount,
+      body.growth,
+    );
+    return { message: 'تم إرسال تنبيه المبيعات العالية' };
+  }
 
-    // إضافة المعلومات حسب النوع
-    switch (body.type) {
-      case 'email':
-        request.recipientEmail = body.recipient;
-        break;
-      case 'sms':
-      case 'whatsapp':
-        request.recipientPhone = body.recipient;
-        break;
-    }
+  // ========== ADMIN ENDPOINTS ==========
 
-    return this.notificationService.sendNotification(request, 'system');
+  /**
+   * إحصائيات عامة للإشعارات (للمدراء)
+   */
+  @Get('admin/stats')
+  @Permissions('notifications.admin')
+  async getAdminStats() {
+    return this.notificationService.getNotificationStats();
+  }
+
+  /**
+   * تنظيف الإشعارات القديمة
+   */
+  @Post('admin/cleanup')
+  @Permissions('notifications.admin')
+  async cleanupOldNotifications(
+    @Query('days') days?: string,
+  ) {
+    const daysToKeep = days ? parseInt(days) : 30;
+    const deletedCount = await this.notificationService.cleanupOldNotifications(daysToKeep);
+    return { message: `تم حذف ${deletedCount} إشعار قديم` };
+  }
+
+  /**
+   * إرسال إشعار اختباري
+   */
+  @Post('admin/test')
+  @Permissions('notifications.admin')
+  async sendTestNotification(
+    @Body() body: { userId: string },
+    @CurrentUser('id') senderId: string,
+  ) {
+    await this.notificationService.sendNotificationToUser({
+      userId: body.userId,
+      title: 'إشعار اختباري',
+      body: `تم إرسال هذا الإشعار بواسطة ${senderId} للاختبار`,
+      type: 'push',
+      category: 'system',
+      data: {
+        test: true,
+        senderId,
+        timestamp: new Date().toISOString(),
+      },
+    });
+
+    return { message: 'تم إرسال الإشعار الاختباري' };
   }
 }

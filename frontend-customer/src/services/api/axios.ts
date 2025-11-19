@@ -1,6 +1,8 @@
 import axios, { AxiosError } from 'axios';
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { toast } from 'react-hot-toast';
+import { isMockModeEnabled } from '@/config/mock.config';
+import { mockApi } from '@/mocks/services/mock-api';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1';
 const TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || '10000');
@@ -27,6 +29,35 @@ const api: AxiosInstance = axios.create({
     'Accept': 'application/json',
   },
 });
+
+// Override request method to support mock mode
+const originalRequest = api.request.bind(api);
+api.request = async function <T = any, D = any>(
+  config: AxiosRequestConfig<D>
+): Promise<AxiosResponse<T, D>> {
+  // Check if mock mode is enabled
+  if (isMockModeEnabled()) {
+    try {
+      // Initialize mock services if not already done
+      if (!mockApi.isEnabled()) {
+        await import('@/mocks/services');
+      }
+      
+      // Handle request through mock API
+      return await mockApi.handleRequest(config) as AxiosResponse<T, D>;
+    } catch (error: any) {
+      // If mock handler fails, fall through to real API (or rethrow)
+      if (error.response) {
+        throw error;
+      }
+      // If no handler found, try real API
+      return originalRequest<T, D>(config);
+    }
+  }
+  
+  // Use real API
+  return originalRequest<T, D>(config);
+};
 
 // Request interceptor for adding auth token
 api.interceptors.request.use(

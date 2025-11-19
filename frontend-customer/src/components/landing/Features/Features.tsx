@@ -107,7 +107,11 @@ export const Features: React.FC = () => {
 
         <Grid container spacing={4}>
           {features.map((feature) => (
-            <Grid item xs={12} sm={6} md={4} key={feature.id}>
+            <Grid 
+             size={{ xs: 12, sm: 6, md: 4 }}
+             component="div"
+             key={feature.id}
+             >
               <Card
                 sx={{
                   height: '100%',

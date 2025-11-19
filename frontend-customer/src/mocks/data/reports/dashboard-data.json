@@ -1,0 +1,58 @@
+{
+  "overview": {
+    "totalRevenue": 29750000,
+    "totalRevenueChange": 12.5,
+    "totalOrders": 1250,
+    "totalOrdersChange": 8.3,
+    "totalCustomers": 450,
+    "totalCustomersChange": 15.2,
+    "averageOrderValue": 23800,
+    "averageOrderValueChange": 4.1
+  },
+  "charts": {
+    "revenueByPeriod": [
+      { "period": "2024-01", "revenue": 2100000, "orders": 95 },
+      { "period": "2024-02", "revenue": 2350000, "orders": 102 },
+      { "period": "2024-03", "revenue": 2800000, "orders": 118 },
+      { "period": "2024-04", "revenue": 3200000, "orders": 135 },
+      { "period": "2024-05", "revenue": 3850000, "orders": 152 },
+      { "period": "2024-06", "revenue": 4500000, "orders": 168 }
+    ],
+    "salesByCategory": [
+      { "category": "مواد غذائية", "revenue": 8500000, "percentage": 28.6 },
+      { "category": "مشروبات", "revenue": 6200000, "percentage": 20.8 },
+      { "category": "منتجات الألبان", "revenue": 4800000, "percentage": 16.1 },
+      { "category": "منتجات التنظيف", "revenue": 3500000, "percentage": 11.8 },
+      { "category": "منتجات العناية الشخصية", "revenue": 4200000, "percentage": 14.1 },
+      { "category": "أخرى", "revenue": 2550000, "percentage": 8.6 }
+    ],
+    "topProducts": [
+      { "productId": "prod-1", "productName": "أرز بسمتي - 5 كيلو", "revenue": 1250000, "quantity": 350 },
+      { "productId": "prod-3", "productName": "زيت نباتي - 5 لتر", "revenue": 980000, "quantity": 78 },
+      { "productId": "prod-6", "productName": "شاي أحمر - 500 جرام", "revenue": 850000, "quantity": 240 },
+      { "productId": "prod-8", "productName": "حليب كامل الدسم - لتر", "revenue": 720000, "quantity": 400 },
+      { "productId": "prod-2", "productName": "سكر أبيض - 2 كيلو", "revenue": 680000, "quantity": 240 }
+    ],
+    "customerGrowth": [
+      { "period": "2024-01", "customers": 320 },
+      { "period": "2024-02", "customers": 345 },
+      { "period": "2024-03", "customers": 375 },
+      { "period": "2024-04", "customers": 400 },
+      { "period": "2024-05", "customers": 425 },
+      { "period": "2024-06", "customers": 450 }
+    ]
+  },
+  "alerts": {
+    "lowStockItems": 12,
+    "overduePayments": 3,
+    "pendingOrders": 5,
+    "expiringProducts": 0
+  },
+  "recentActivity": [
+    { "type": "sale", "description": "فاتورة مبيعات INV-2024-0001", "amount": 138750, "date": "2024-06-10T10:00:00.000Z", "reference": "INV-2024-0001" },
+    { "type": "payment", "description": "دفعة من العميل أحمد محمد", "amount": 138750, "date": "2024-06-10T10:00:00.000Z", "reference": "PAY-001" },
+    { "type": "sale", "description": "فاتورة مبيعات INV-2024-0002", "amount": 97750, "date": "2024-06-08T10:00:00.000Z", "reference": "INV-2024-0002" },
+    { "type": "purchase", "description": "شراء من المورد شركة المواد الغذائية", "amount": 500000, "date": "2024-06-05T10:00:00.000Z", "reference": "PO-001" }
+  ]
+}
+

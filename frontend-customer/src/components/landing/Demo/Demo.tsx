@@ -25,7 +25,7 @@ export const Demo: React.FC = () => {
     >
       <Container maxWidth="lg">
         <Grid container spacing={4} alignItems="center">
-          <Grid item xs={12} md={6}>
+          <Grid  size={{ xs: 12, md: 6 }}>
             <Typography
               variant="h2"
               sx={{
@@ -79,7 +79,10 @@ export const Demo: React.FC = () => {
               </Button>
             </Box>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid 
+           size={{ xs: 12, md: 6 }}
+           component="div"
+           >
             <Paper
               elevation={4}
               sx={{

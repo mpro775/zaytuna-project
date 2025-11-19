@@ -1,0 +1,42 @@
+[
+  {
+    "id": "trans-1",
+    "date": "2024-06-10T10:00:00.000Z",
+    "description": "فاتورة مبيعات INV-2024-0001",
+    "reference": "INV-2024-0001",
+    "type": "sale",
+    "debitAccountId": "acc-1",
+    "creditAccountId": "acc-3",
+    "amount": 138750,
+    "currencyId": "YER",
+    "createdBy": "user-3",
+    "createdAt": "2024-06-10T10:00:00.000Z"
+  },
+  {
+    "id": "trans-2",
+    "date": "2024-06-08T10:00:00.000Z",
+    "description": "فاتورة مبيعات INV-2024-0002",
+    "reference": "INV-2024-0002",
+    "type": "sale",
+    "debitAccountId": "acc-1",
+    "creditAccountId": "acc-3",
+    "amount": 97750,
+    "currencyId": "YER",
+    "createdBy": "user-3",
+    "createdAt": "2024-06-08T10:00:00.000Z"
+  },
+  {
+    "id": "trans-3",
+    "date": "2024-06-05T10:00:00.000Z",
+    "description": "شراء من المورد",
+    "reference": "PO-001",
+    "type": "purchase",
+    "debitAccountId": "acc-4",
+    "creditAccountId": "acc-2",
+    "amount": 500000,
+    "currencyId": "YER",
+    "createdBy": "user-5",
+    "createdAt": "2024-06-05T10:00:00.000Z"
+  }
+]
+

@@ -1,0 +1,93 @@
+[
+  {
+    "id": "warehouse-1",
+    "name": "المخزن الرئيسي",
+    "nameEn": "Main Warehouse",
+    "code": "WH001",
+    "location": "الفرع الرئيسي - الطابق الأول",
+    "locationEn": "Main Branch - First Floor",
+    "branchId": "branch-1",
+    "branch": {
+      "id": "branch-1",
+      "name": "الفرع الرئيسي"
+    },
+    "isActive": true,
+    "totalItems": 1250,
+    "totalValue": 45000000,
+    "createdAt": "2024-01-01T10:00:00.000Z",
+    "updatedAt": "2024-01-01T10:00:00.000Z"
+  },
+  {
+    "id": "warehouse-2",
+    "name": "مخزن صنعاء",
+    "nameEn": "Sana'a Warehouse",
+    "code": "WH002",
+    "location": "فرع صنعاء - الطابق الأرضي",
+    "locationEn": "Sana'a Branch - Ground Floor",
+    "branchId": "branch-2",
+    "branch": {
+      "id": "branch-2",
+      "name": "فرع صنعاء"
+    },
+    "isActive": true,
+    "totalItems": 850,
+    "totalValue": 28000000,
+    "createdAt": "2024-01-15T10:00:00.000Z",
+    "updatedAt": "2024-01-15T10:00:00.000Z"
+  },
+  {
+    "id": "warehouse-3",
+    "name": "مخزن عدن",
+    "nameEn": "Aden Warehouse",
+    "code": "WH003",
+    "location": "فرع عدن - المستودع",
+    "locationEn": "Aden Branch - Storage",
+    "branchId": "branch-3",
+    "branch": {
+      "id": "branch-3",
+      "name": "فرع عدن"
+    },
+    "isActive": true,
+    "totalItems": 620,
+    "totalValue": 19500000,
+    "createdAt": "2024-02-01T10:00:00.000Z",
+    "updatedAt": "2024-02-01T10:00:00.000Z"
+  },
+  {
+    "id": "warehouse-4",
+    "name": "مخزن التوزيع",
+    "nameEn": "Distribution Warehouse",
+    "code": "WH004",
+    "location": "الفرع الرئيسي - المبنى الخلفي",
+    "locationEn": "Main Branch - Back Building",
+    "branchId": "branch-1",
+    "branch": {
+      "id": "branch-1",
+      "name": "الفرع الرئيسي"
+    },
+    "isActive": true,
+    "totalItems": 450,
+    "totalValue": 16500000,
+    "createdAt": "2024-01-10T10:00:00.000Z",
+    "updatedAt": "2024-01-10T10:00:00.000Z"
+  },
+  {
+    "id": "warehouse-5",
+    "name": "مخزن المواد الغذائية",
+    "nameEn": "Food Warehouse",
+    "code": "WH005",
+    "location": "الفرع الرئيسي - المبرد",
+    "locationEn": "Main Branch - Cold Storage",
+    "branchId": "branch-1",
+    "branch": {
+      "id": "branch-1",
+      "name": "الفرع الرئيسي"
+    },
+    "isActive": true,
+    "totalItems": 320,
+    "totalValue": 12000000,
+    "createdAt": "2024-01-05T10:00:00.000Z",
+    "updatedAt": "2024-01-05T10:00:00.000Z"
+  }
+]
+

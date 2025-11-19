@@ -89,7 +89,11 @@ export const LandingFooter: React.FC = () => {
       <Container maxWidth="lg">
         <Grid container spacing={4}>
           {footerSections.map((section) => (
-            <Grid item xs={6} sm={4} md={3} key={section.title}>
+            <Grid 
+             size={{ xs: 6, sm: 4, md: 3 }}
+             component="div"
+             key={section.title}
+             >
               <Typography
                 variant="h6"
                 sx={{ mb: 2, fontWeight: 600, color: 'primary.light' }}
@@ -122,7 +126,10 @@ export const LandingFooter: React.FC = () => {
             </Grid>
           ))}
 
-          <Grid item xs={12} sm={4} md={3}>
+          <Grid 
+           size={{ xs: 12, sm: 4, md: 3 }}
+           component="div"
+           >
             <Typography
               variant="h6"
               sx={{ mb: 2, fontWeight: 600, color: 'primary.light' }}

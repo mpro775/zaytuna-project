@@ -1,0 +1,81 @@
+[
+  {
+    "id": "branch-1",
+    "name": "الفرع الرئيسي",
+    "nameEn": "Main Branch",
+    "code": "BR001",
+    "address": "شارع الزبيري، صنعاء",
+    "addressEn": "Al-Zubairi Street, Sana'a",
+    "phone": "+967 1 234 567",
+    "email": "main@zaytuna.com",
+    "managerId": "user-2",
+    "manager": {
+      "id": "user-2",
+      "name": "فاطمة علي"
+    },
+    "isActive": true,
+    "totalSales": 15000000,
+    "totalRevenue": 14250000,
+    "totalUsers": 3,
+    "createdAt": "2024-01-01T10:00:00.000Z",
+    "updatedAt": "2024-01-01T10:00:00.000Z"
+  },
+  {
+    "id": "branch-2",
+    "name": "فرع صنعاء",
+    "nameEn": "Sana'a Branch",
+    "code": "BR002",
+    "address": "شارع حدة، صنعاء",
+    "addressEn": "Hadda Street, Sana'a",
+    "phone": "+967 1 234 568",
+    "email": "sanaa@zaytuna.com",
+    "managerId": "user-4",
+    "manager": {
+      "id": "user-4",
+      "name": "سارة أحمد"
+    },
+    "isActive": true,
+    "totalSales": 8500000,
+    "totalRevenue": 8075000,
+    "totalUsers": 2,
+    "createdAt": "2024-01-15T10:00:00.000Z",
+    "updatedAt": "2024-01-15T10:00:00.000Z"
+  },
+  {
+    "id": "branch-3",
+    "name": "فرع عدن",
+    "nameEn": "Aden Branch",
+    "code": "BR003",
+    "address": "شارع الجمهورية، عدن",
+    "addressEn": "Al-Jumhuriya Street, Aden",
+    "phone": "+967 2 234 567",
+    "email": "aden@zaytuna.com",
+    "managerId": null,
+    "manager": null,
+    "isActive": true,
+    "totalSales": 6200000,
+    "totalRevenue": 5890000,
+    "totalUsers": 1,
+    "createdAt": "2024-02-01T10:00:00.000Z",
+    "updatedAt": "2024-02-01T10:00:00.000Z"
+  },
+  {
+    "id": "branch-4",
+    "name": "فرع تعز",
+    "nameEn": "Taiz Branch",
+    "code": "BR004",
+    "address": "شارع 26 سبتمبر، تعز",
+    "addressEn": "26 September Street, Taiz",
+    "phone": "+967 4 234 567",
+    "email": "taiz@zaytuna.com",
+    "managerId": null,
+    "manager": null,
+    "isActive": false,
+    "totalSales": 0,
+    "totalRevenue": 0,
+    "totalUsers": 0,
+    "createdAt": "2024-03-01T10:00:00.000Z",
+    "updatedAt": "2024-03-01T10:00:00.000Z"
+  }
+]
+

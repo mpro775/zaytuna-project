@@ -1,0 +1,43 @@
+{
+  "summary": {
+    "totalSales": 1250,
+    "totalRevenue": 29750000,
+    "totalTax": 4462500,
+    "totalDiscount": 1250000,
+    "totalInvoices": 1250,
+    "averageOrderValue": 23800,
+    "topSellingProducts": [
+      { "productId": "prod-1", "productName": "أرز بسمتي - 5 كيلو", "quantity": 350, "revenue": 1250000 },
+      { "productId": "prod-3", "productName": "زيت نباتي - 5 لتر", "quantity": 78, "revenue": 980000 },
+      { "productId": "prod-6", "productName": "شاي أحمر - 500 جرام", "quantity": 240, "revenue": 850000 },
+      { "productId": "prod-8", "productName": "حليب كامل الدسم - لتر", "quantity": 400, "revenue": 720000 },
+      { "productId": "prod-2", "productName": "سكر أبيض - 2 كيلو", "quantity": 240, "revenue": 680000 }
+    ]
+  },
+  "byPeriod": [
+    { "period": "2024-01", "sales": 95, "revenue": 2100000, "invoices": 95 },
+    { "period": "2024-02", "sales": 102, "revenue": 2350000, "invoices": 102 },
+    { "period": "2024-03", "sales": 118, "revenue": 2800000, "invoices": 118 },
+    { "period": "2024-04", "sales": 135, "revenue": 3200000, "invoices": 135 },
+    { "period": "2024-05", "sales": 152, "revenue": 3850000, "invoices": 152 },
+    { "period": "2024-06", "sales": 168, "revenue": 4500000, "invoices": 168 }
+  ],
+  "byBranch": [
+    { "branchId": "branch-1", "branchName": "الفرع الرئيسي", "sales": 750, "revenue": 17850000, "invoices": 750 },
+    { "branchId": "branch-2", "branchName": "فرع صنعاء", "sales": 350, "revenue": 8330000, "invoices": 350 },
+    { "branchId": "branch-3", "branchName": "فرع عدن", "sales": 150, "revenue": 3570000, "invoices": 150 }
+  ],
+  "byCustomer": [
+    { "customerId": "cust-1", "customerName": "أحمد محمد علي", "sales": 45, "revenue": 850000, "invoices": 45, "lastPurchase": "2024-06-10T10:00:00.000Z" },
+    { "customerId": "cust-3", "customerName": "خالد إبراهيم محمد", "sales": 38, "revenue": 1500000, "invoices": 38, "lastPurchase": "2024-06-12T10:00:00.000Z" },
+    { "customerId": "cust-2", "customerName": "فاطمة حسن أحمد", "sales": 32, "revenue": 420000, "invoices": 32, "lastPurchase": "2024-06-08T10:00:00.000Z" },
+    { "customerId": "cust-6", "customerName": "عائشة علي حسن", "sales": 28, "revenue": 580000, "invoices": 28, "lastPurchase": "2024-06-11T10:00:00.000Z" },
+    { "customerId": "cust-9", "customerName": "عبدالرحمن سعيد علي", "sales": 25, "revenue": 920000, "invoices": 25, "lastPurchase": "2024-06-13T10:00:00.000Z" }
+  ],
+  "byPaymentMethod": [
+    { "method": "cash", "amount": 17850000, "count": 750, "percentage": 60 },
+    { "method": "card", "amount": 8925000, "count": 375, "percentage": 30 },
+    { "method": "credit", "amount": 2975000, "count": 125, "percentage": 10 }
+  ]
+}
+

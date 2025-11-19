@@ -177,6 +177,126 @@
     "main": "Main Branch",
     "secondary": "Secondary Branch"
   },
+  "products": {
+    "title": "Products Management",
+    "noProducts": "No products found",
+    "actions": {
+      "addProduct": "Add Product",
+      "bulkDelete": "Delete Selected"
+    },
+    "selectedCount": "{{count}} products selected",
+    "confirmDelete": {
+      "title": "Confirm Deletion",
+      "message": "Are you sure you want to delete this product? This action cannot be undone."
+    },
+    "confirmBulkDelete": {
+      "title": "Confirm Bulk Deletion",
+      "message": "Are you sure you want to delete {{count}} products? This action cannot be undone."
+    },
+    "stats": {
+      "total": "Total Products",
+      "active": "Active Products",
+      "lowStock": "Low Stock",
+      "outOfStock": "Out of Stock"
+    },
+    "table": {
+      "image": "Image",
+      "name": "Product Name",
+      "category": "Category",
+      "price": "Price",
+      "stock": "Stock",
+      "status": "Status",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "stock": {
+      "inStock": "In Stock",
+      "lowStock": "Low Stock",
+      "outOfStock": "Out of Stock"
+    },
+    "search": {
+      "placeholder": "Search products..."
+    },
+    "filters": {
+      "category": "Category",
+      "status": "Status",
+      "allCategories": "All Categories",
+      "allStatuses": "All Statuses"
+    },
+    "form": {
+      "createTitle": "Add New Product",
+      "editTitle": "Edit Product",
+      "basicInfo": "Basic Information",
+      "name": "Product Name",
+      "sku": "SKU",
+      "category": "Category",
+      "barcode": "Barcode",
+      "description": "Description",
+      "pricing": "Pricing Information",
+      "basePrice": "Base Price",
+      "costPrice": "Cost Price",
+      "reorderPoint": "Reorder Point",
+      "inventory": "Inventory Information",
+      "unit": "Unit",
+      "isActive": "Product is Active",
+      "variants": "Variants",
+      "addVariant": "Add Variant",
+      "variantName": "Variant Name",
+      "variantValue": "Variant Value",
+      "priceModifier": "Price Modifier",
+      "variantStock": "Variant Stock",
+      "images": "Images",
+      "existingImages": "Existing Images",
+      "newImages": "New Images",
+      "primary": "Primary"
+    },
+    "messages": {
+      "created": "Product created successfully",
+      "updated": "Product updated successfully",
+      "deleted": "Product deleted successfully",
+      "bulkDeleted": "{{count}} products deleted successfully",
+      "imageUploaded": "Image uploaded successfully",
+      "imageDeleted": "Image deleted successfully",
+      "stockUpdated": "Stock updated successfully"
+    },
+    "errors": {
+      "createFailed": "Failed to create product",
+      "updateFailed": "Failed to update product",
+      "deleteFailed": "Failed to delete product",
+      "bulkDeleteFailed": "Failed to delete products",
+      "imageUploadFailed": "Failed to upload image",
+      "imageDeleteFailed": "Failed to delete image",
+      "stockUpdateFailed": "Failed to update stock"
+    }
+  },
+  "categories": {
+    "title": "Category Management",
+    "tree": "Category Tree",
+    "add": "Add Category",
+    "edit": "Edit Category",
+    "name": "Category Name",
+    "description": "Description",
+    "parent": "Parent Category",
+    "noParent": "Root Category",
+    "addSubcategory": "Add Subcategory",
+    "noCategories": "No categories found",
+    "inactive": "Inactive",
+    "confirmDelete": "Are you sure you want to delete this category?",
+    "messages": {
+      "created": "Category created successfully",
+      "updated": "Category updated successfully",
+      "deleted": "Category deleted successfully"
+    },
+    "errors": {
+      "createFailed": "Failed to create category",
+      "updateFailed": "Failed to update category",
+      "deleteFailed": "Failed to delete category"
+    }
+  },
   "table": {
     "noData": "No data available",
     "loading": "Loading...",

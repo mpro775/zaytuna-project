@@ -6,7 +6,7 @@ import { Toaster } from 'react-hot-toast';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { CircularProgress, Box } from '@mui/material';
-import { AuthProvider } from '@/contexts';
+import { AuthProvider, SyncProvider, useAuth } from '@/contexts';
 import { ProtectedRoute } from '@/components/routing';
 import { MainLayout } from '@/components/layout';
 import './App.css';
@@ -18,6 +18,18 @@ const Landing = React.lazy(() => import('@/pages/Landing'));
 const Dashboard = React.lazy(() => import('@/pages/Dashboard'));
 const Login = React.lazy(() => import('@/pages/Login'));
 const NotFound = React.lazy(() => import('@/pages/NotFound'));
+const Products = React.lazy(() => import('@/pages/Products/Products'));
+const ProductForm = React.lazy(() => import('@/pages/Products/ProductForm'));
+const Inventory = React.lazy(() => import('@/pages/Inventory/Inventory'));
+const StockMovements = React.lazy(() => import('@/pages/Inventory/StockMovements'));
+const Customers = React.lazy(() => import('@/pages/Customers/Customers'));
+const CustomerForm = React.lazy(() => import('@/pages/Customers/CustomerForm'));
+const Suppliers = React.lazy(() => import('@/pages/Suppliers/Suppliers'));
+const SupplierForm = React.lazy(() => import('@/pages/Suppliers/SupplierForm'));
+const Branches = React.lazy(() => import('@/pages/Branches/Branches'));
+const BranchForm = React.lazy(() => import('@/pages/Branches/BranchForm'));
+const Warehouses = React.lazy(() => import('@/pages/Warehouses/Warehouses'));
+const WarehouseForm = React.lazy(() => import('@/pages/Warehouses/WarehouseForm'));
 
 // Create Query Client
 const queryClient = new QueryClient({
@@ -179,6 +191,31 @@ const LoadingSpinner: React.FC = () => (
   </Box>
 );
 
+// Sync Provider Wrapper - يحتاج إلى معرف المستخدم من Auth
+const SyncProviderWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
+
+  // إنشاء معرف جهاز فريد
+  const deviceId = React.useMemo(() => {
+    const stored = localStorage.getItem('zaytuna_device_id');
+    if (stored) return stored;
+
+    const newId = crypto.randomUUID();
+    localStorage.setItem('zaytuna_device_id', newId);
+    return newId;
+  }, []);
+
+  if (!user) {
+    return <>{children}</>;
+  }
+
+  return (
+    <SyncProvider deviceId={deviceId} userId={user.id}>
+      {children}
+    </SyncProvider>
+  );
+};
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -186,8 +223,9 @@ function App() {
         <CssBaseline />
         <Router>
           <AuthProvider>
-            <Suspense fallback={<LoadingSpinner />}>
-              <Routes>
+            <SyncProviderWrapper>
+              <Suspense fallback={<LoadingSpinner />}>
+                <Routes>
                 {/* Public Landing Page */}
                 <Route
                   path="/"
@@ -220,10 +258,193 @@ function App() {
                   }
                 />
 
+                {/* Products Routes */}
+                <Route
+                  path="/products"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <Products />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/products/new"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <ProductForm mode="create" />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/products/:id/edit"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <ProductForm mode="edit" />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Inventory Routes */}
+                <Route
+                  path="/inventory"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <Inventory />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/inventory/movements"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <StockMovements />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Customers Routes */}
+                <Route
+                  path="/customers"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <Customers />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/customers/new"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <CustomerForm />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/customers/:id/edit"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <CustomerForm />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Suppliers Routes */}
+                <Route
+                  path="/suppliers"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <Suppliers />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/suppliers/new"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <SupplierForm />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/suppliers/:id/edit"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <SupplierForm />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Branches Routes */}
+                <Route
+                  path="/branches"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <Branches />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/branches/new"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <BranchForm />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/branches/:id/edit"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <BranchForm />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Warehouses Routes */}
+                <Route
+                  path="/warehouses"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <Warehouses />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/warehouses/new"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <WarehouseForm />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/warehouses/:id/edit"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <WarehouseForm />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
                 {/* 404 Route */}
                 <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
+                </Routes>
+              </Suspense>
+            </SyncProviderWrapper>
           </AuthProvider>
         </Router>
         <Toaster

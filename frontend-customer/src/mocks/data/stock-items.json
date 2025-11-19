@@ -1,0 +1,133 @@
+[
+  {
+    "id": "stock-1",
+    "warehouseId": "warehouse-1",
+    "productVariantId": "prod-1",
+    "quantity": 125,
+    "minStock": 50,
+    "maxStock": 500,
+    "warehouse": {
+      "id": "warehouse-1",
+      "name": "المخزن الرئيسي",
+      "code": "WH001"
+    },
+    "productVariant": {
+      "id": "prod-1",
+      "name": "أرز بسمتي - 5 كيلو",
+      "sku": "SKU000001",
+      "product": {
+        "id": "prod-1",
+        "name": "أرز بسمتي - 5 كيلو"
+      }
+    },
+    "isLowStock": false,
+    "isOverStock": false,
+    "createdAt": "2024-01-05T10:00:00.000Z",
+    "updatedAt": "2024-06-15T10:00:00.000Z"
+  },
+  {
+    "id": "stock-2",
+    "warehouseId": "warehouse-1",
+    "productVariantId": "prod-2",
+    "quantity": 95,
+    "minStock": 80,
+    "maxStock": 400,
+    "warehouse": {
+      "id": "warehouse-1",
+      "name": "المخزن الرئيسي",
+      "code": "WH001"
+    },
+    "productVariant": {
+      "id": "prod-2",
+      "name": "سكر أبيض - 2 كيلو",
+      "sku": "SKU000002",
+      "product": {
+        "id": "prod-2",
+        "name": "سكر أبيض - 2 كيلو"
+      }
+    },
+    "isLowStock": false,
+    "isOverStock": false,
+    "createdAt": "2024-01-05T10:00:00.000Z",
+    "updatedAt": "2024-06-15T10:00:00.000Z"
+  },
+  {
+    "id": "stock-3",
+    "warehouseId": "warehouse-1",
+    "productVariantId": "prod-3",
+    "quantity": 65,
+    "minStock": 40,
+    "maxStock": 300,
+    "warehouse": {
+      "id": "warehouse-1",
+      "name": "المخزن الرئيسي",
+      "code": "WH001"
+    },
+    "productVariant": {
+      "id": "prod-3",
+      "name": "زيت نباتي - 5 لتر",
+      "sku": "SKU000003",
+      "product": {
+        "id": "prod-3",
+        "name": "زيت نباتي - 5 لتر"
+      }
+    },
+    "isLowStock": false,
+    "isOverStock": false,
+    "createdAt": "2024-01-05T10:00:00.000Z",
+    "updatedAt": "2024-06-15T10:00:00.000Z"
+  },
+  {
+    "id": "stock-4",
+    "warehouseId": "warehouse-1",
+    "productVariantId": "prod-4",
+    "quantity": 42,
+    "minStock": 60,
+    "maxStock": 400,
+    "warehouse": {
+      "id": "warehouse-1",
+      "name": "المخزن الرئيسي",
+      "code": "WH001"
+    },
+    "productVariant": {
+      "id": "prod-4",
+      "name": "دقيق أبيض - 10 كيلو",
+      "sku": "SKU000004",
+      "product": {
+        "id": "prod-4",
+        "name": "دقيق أبيض - 10 كيلو"
+      }
+    },
+    "isLowStock": true,
+    "isOverStock": false,
+    "createdAt": "2024-01-05T10:00:00.000Z",
+    "updatedAt": "2024-06-15T10:00:00.000Z"
+  },
+  {
+    "id": "stock-5",
+    "warehouseId": "warehouse-2",
+    "productVariantId": "prod-1",
+    "quantity": 85,
+    "minStock": 50,
+    "maxStock": 500,
+    "warehouse": {
+      "id": "warehouse-2",
+      "name": "مخزن صنعاء",
+      "code": "WH002"
+    },
+    "productVariant": {
+      "id": "prod-1",
+      "name": "أرز بسمتي - 5 كيلو",
+      "sku": "SKU000001",
+      "product": {
+        "id": "prod-1",
+        "name": "أرز بسمتي - 5 كيلو"
+      }
+    },
+    "isLowStock": false,
+    "isOverStock": false,
+    "createdAt": "2024-01-15T10:00:00.000Z",
+    "updatedAt": "2024-06-15T10:00:00.000Z"
+  }
+]
+

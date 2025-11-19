@@ -1,33 +1,19 @@
 import { Module } from '@nestjs/common';
-import { NotificationController } from './notification.controller';
+import { MongooseModule } from '@nestjs/mongoose';
 import { NotificationService } from './notification.service';
-import { NotificationTemplateService } from './notification-template.service';
-import { NotificationPreferencesService } from './notification-preferences.service';
-import { NotificationQueueService } from './notification-queue.service';
-import { EmailProvider } from './providers/email.provider';
-import { SMSProvider } from './providers/sms.provider';
-import { WhatsAppProvider } from './providers/whatsapp.provider';
-import { PrismaService } from '../../shared/database/prisma.service';
-import { AuditModule } from '../audit/audit.module';
+import { NotificationController } from './notification.controller';
+import { Notification, NotificationSchema } from './notification.schema';
+import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [AuditModule],
+  imports: [
+    MongooseModule.forFeature([
+      { name: Notification.name, schema: NotificationSchema }
+    ]),
+    UserModule, // للحصول على بيانات المستخدمين
+  ],
   controllers: [NotificationController],
-  providers: [
-    NotificationService,
-    NotificationTemplateService,
-    NotificationPreferencesService,
-    NotificationQueueService,
-    EmailProvider,
-    SMSProvider,
-    WhatsAppProvider,
-    PrismaService,
-  ],
-  exports: [
-    NotificationService,
-    NotificationTemplateService,
-    NotificationPreferencesService,
-    NotificationQueueService,
-  ],
+  providers: [NotificationService],
+  exports: [NotificationService],
 })
 export class NotificationModule {}

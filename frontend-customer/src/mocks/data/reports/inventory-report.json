@@ -1,0 +1,112 @@
+{
+  "summary": {
+    "totalItems": 1250,
+    "totalValue": 45000000,
+    "lowStockItems": 12,
+    "outOfStockItems": 3,
+    "overStockItems": 5
+  },
+  "byWarehouse": [
+    {
+      "warehouseId": "warehouse-1",
+      "warehouseName": "المخزن الرئيسي",
+      "totalItems": 450,
+      "totalValue": 16500000,
+      "lowStockItems": 5
+    },
+    {
+      "warehouseId": "warehouse-2",
+      "warehouseName": "مخزن صنعاء",
+      "totalItems": 320,
+      "totalValue": 11200000,
+      "lowStockItems": 4
+    },
+    {
+      "warehouseId": "warehouse-3",
+      "warehouseName": "مخزن عدن",
+      "totalItems": 280,
+      "totalValue": 9800000,
+      "lowStockItems": 3
+    },
+    {
+      "warehouseId": "warehouse-4",
+      "warehouseName": "مخزن التوزيع",
+      "totalItems": 200,
+      "totalValue": 7500000,
+      "lowStockItems": 0
+    }
+  ],
+  "lowStockAlerts": [
+    {
+      "productVariantId": "prod-4",
+      "productName": "دقيق أبيض - 10 كيلو",
+      "variantName": "دقيق أبيض - 10 كيلو",
+      "warehouseName": "المخزن الرئيسي",
+      "currentStock": 42,
+      "minStock": 60,
+      "reorderPoint": 60
+    },
+    {
+      "productVariantId": "prod-8",
+      "productName": "حليب كامل الدسم - لتر",
+      "variantName": "حليب كامل الدسم - لتر",
+      "warehouseName": "مخزن صنعاء",
+      "currentStock": 35,
+      "minStock": 50,
+      "reorderPoint": 50
+    }
+  ],
+  "stockMovements": [
+    {
+      "date": "2024-06-10",
+      "productName": "أرز بسمتي - 5 كيلو",
+      "movementType": "sale",
+      "quantity": -2,
+      "warehouseName": "المخزن الرئيسي",
+      "reason": "بيع للعميل"
+    },
+    {
+      "date": "2024-06-10",
+      "productName": "زيت نباتي - 5 لتر",
+      "movementType": "sale",
+      "quantity": -1,
+      "warehouseName": "المخزن الرئيسي",
+      "reason": "بيع للعميل"
+    },
+    {
+      "date": "2024-06-05",
+      "productName": "أرز بسمتي - 5 كيلو",
+      "movementType": "purchase",
+      "quantity": 50,
+      "warehouseName": "المخزن الرئيسي",
+      "reason": "شراء من المورد"
+    }
+  ],
+  "topMovingProducts": [
+    {
+      "productId": "prod-1",
+      "productName": "أرز بسمتي - 5 كيلو",
+      "totalIn": 500,
+      "totalOut": 350,
+      "netMovement": 150,
+      "currentStock": 125
+    },
+    {
+      "productId": "prod-3",
+      "productName": "زيت نباتي - 5 لتر",
+      "totalIn": 200,
+      "totalOut": 135,
+      "netMovement": 65,
+      "currentStock": 65
+    },
+    {
+      "productId": "prod-6",
+      "productName": "شاي أحمر - 500 جرام",
+      "totalIn": 300,
+      "totalOut": 240,
+      "netMovement": 60,
+      "currentStock": 110
+    }
+  ]
+}
+

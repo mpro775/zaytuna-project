@@ -49,10 +49,12 @@
     "inventory": "إدارة المخزون",
     "sales": "إدارة المبيعات",
     "customers": "إدارة العملاء",
+    "suppliers": "إدارة الموردين",
     "reports": "التقارير",
     "settings": "الإعدادات",
     "users": "إدارة المستخدمين",
-    "branches": "إدارة الفروع"
+    "branches": "إدارة الفروع",
+    "warehouses": "إدارة المخازن"
   },
   "dashboard": {
     "title": "لوحة المؤشرات",
@@ -177,6 +179,126 @@
     "main": "الفرع الرئيسي",
     "secondary": "الفرع الثانوي"
   },
+  "products": {
+    "title": "إدارة المنتجات",
+    "noProducts": "لا توجد منتجات",
+    "actions": {
+      "addProduct": "إضافة منتج",
+      "bulkDelete": "حذف المحدد"
+    },
+    "selectedCount": "{{count}} منتج محدد",
+    "confirmDelete": {
+      "title": "تأكيد الحذف",
+      "message": "هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "confirmBulkDelete": {
+      "title": "تأكيد الحذف الجماعي",
+      "message": "هل أنت متأكد من حذف {{count}} منتج؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "stats": {
+      "total": "إجمالي المنتجات",
+      "active": "منتجات نشطة",
+      "lowStock": "مخزون منخفض",
+      "outOfStock": "نفد المخزون"
+    },
+    "table": {
+      "image": "الصورة",
+      "name": "اسم المنتج",
+      "category": "الفئة",
+      "price": "السعر",
+      "stock": "المخزون",
+      "status": "الحالة",
+      "createdAt": "تاريخ الإنشاء",
+      "actions": "الإجراءات"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "stock": {
+      "inStock": "متوفر",
+      "lowStock": "مخزون منخفض",
+      "outOfStock": "نفد المخزون"
+    },
+    "search": {
+      "placeholder": "البحث في المنتجات..."
+    },
+    "filters": {
+      "category": "الفئة",
+      "status": "الحالة",
+      "allCategories": "جميع الفئات",
+      "allStatuses": "جميع الحالات"
+    },
+    "form": {
+      "createTitle": "إضافة منتج جديد",
+      "editTitle": "تعديل المنتج",
+      "basicInfo": "المعلومات الأساسية",
+      "name": "اسم المنتج",
+      "sku": "رمز المنتج (SKU)",
+      "category": "الفئة",
+      "barcode": "الباركود",
+      "description": "الوصف",
+      "pricing": "معلومات التسعير",
+      "basePrice": "السعر الأساسي",
+      "costPrice": "تكلفة الشراء",
+      "reorderPoint": "نقطة إعادة الطلب",
+      "inventory": "معلومات المخزون",
+      "unit": "وحدة القياس",
+      "isActive": "المنتج نشط",
+      "variants": "المتغيرات",
+      "addVariant": "إضافة متغير",
+      "variantName": "اسم المتغير",
+      "variantValue": "قيمة المتغير",
+      "priceModifier": "تعديل السعر",
+      "variantStock": "المخزون",
+      "images": "الصور",
+      "existingImages": "الصور الموجودة",
+      "newImages": "صور جديدة",
+      "primary": "رئيسية"
+    },
+    "messages": {
+      "created": "تم إنشاء المنتج بنجاح",
+      "updated": "تم تحديث المنتج بنجاح",
+      "deleted": "تم حذف المنتج بنجاح",
+      "bulkDeleted": "تم حذف {{count}} منتج بنجاح",
+      "imageUploaded": "تم رفع الصورة بنجاح",
+      "imageDeleted": "تم حذف الصورة بنجاح",
+      "stockUpdated": "تم تحديث المخزون بنجاح"
+    },
+    "errors": {
+      "createFailed": "فشل في إنشاء المنتج",
+      "updateFailed": "فشل في تحديث المنتج",
+      "deleteFailed": "فشل في حذف المنتج",
+      "bulkDeleteFailed": "فشل في حذف المنتجات",
+      "imageUploadFailed": "فشل في رفع الصورة",
+      "imageDeleteFailed": "فشل في حذف الصورة",
+      "stockUpdateFailed": "فشل في تحديث المخزون"
+    }
+  },
+  "categories": {
+    "title": "إدارة الفئات",
+    "tree": "شجرة الفئات",
+    "add": "إضافة فئة",
+    "edit": "تعديل الفئة",
+    "name": "اسم الفئة",
+    "description": "الوصف",
+    "parent": "الفئة الأم",
+    "noParent": "فئة رئيسية",
+    "addSubcategory": "إضافة فئة فرعية",
+    "noCategories": "لا توجد فئات",
+    "inactive": "غير نشط",
+    "confirmDelete": "هل أنت متأكد من حذف هذه الفئة؟",
+    "messages": {
+      "created": "تم إنشاء الفئة بنجاح",
+      "updated": "تم تحديث الفئة بنجاح",
+      "deleted": "تم حذف الفئة بنجاح"
+    },
+    "errors": {
+      "createFailed": "فشل في إنشاء الفئة",
+      "updateFailed": "فشل في تحديث الفئة",
+      "deleteFailed": "فشل في حذف الفئة"
+    }
+  },
   "table": {
     "noData": "لا توجد بيانات",
     "loading": "جارٍ التحميل...",
@@ -193,5 +315,602 @@
     "previous": "السابق",
     "page": "الصفحة",
     "of": "من"
+  },
+  "branches": {
+    "title": "إدارة الفروع",
+    "noBranches": "لا توجد فروع",
+    "addBranch": "إضافة فرع",
+    "editBranch": "تعديل فرع",
+    "actions": {
+      "addBranch": "إضافة فرع",
+      "bulkDelete": "حذف المحدد"
+    },
+    "selectedCount": "{{count}} فرع محدد",
+    "confirmDelete": {
+      "title": "تأكيد الحذف",
+      "message": "هل أنت متأكد من حذف هذا الفرع؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "confirmBulkDelete": {
+      "title": "تأكيد الحذف الجماعي",
+      "message": "هل أنت متأكد من حذف {{count}} فرع؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "stats": {
+      "total": "إجمالي الفروع",
+      "active": "فروع نشطة",
+      "warehouses": "إجمالي المخازن",
+      "users": "إجمالي المستخدمين"
+    },
+    "table": {
+      "code": "الكود",
+      "name": "اسم الفرع",
+      "contact": "التواصل",
+      "stats": "الإحصائيات",
+      "status": "الحالة",
+      "createdAt": "تاريخ الإنشاء",
+      "actions": "الإجراءات"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "search": {
+      "placeholder": "البحث في الفروع..."
+    },
+    "filters": {
+      "status": "الحالة",
+      "allStatuses": "جميع الحالات"
+    },
+    "sections": {
+      "basicInfo": "المعلومات الأساسية",
+      "contactInfo": "معلومات التواصل",
+      "settings": "الإعدادات"
+    },
+    "fields": {
+      "name": "اسم الفرع",
+      "code": "كود الفرع",
+      "address": "العنوان",
+      "phone": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "isActive": "الفرع نشط"
+    },
+    "validation": {
+      "nameRequired": "اسم الفرع مطلوب",
+      "nameMaxLength": "اسم الفرع يجب ألا يزيد عن 255 حرف",
+      "codeRequired": "كود الفرع مطلوب",
+      "codeMaxLength": "كود الفرع يجب ألا يزيد عن 50 حرف",
+      "addressMaxLength": "العنوان يجب ألا يزيد عن 500 حرف",
+      "phoneMaxLength": "رقم الهاتف يجب ألا يزيد عن 50 حرف",
+      "phoneInvalid": "رقم الهاتف غير صحيح",
+      "emailInvalid": "البريد الإلكتروني غير صحيح"
+    },
+    "messages": {
+      "created": "تم إنشاء الفرع بنجاح",
+      "updated": "تم تحديث الفرع بنجاح",
+      "deleted": "تم حذف الفرع بنجاح",
+      "switched": "تم تبديل الفرع بنجاح"
+    },
+    "errors": {
+      "createFailed": "فشل في إنشاء الفرع",
+      "updateFailed": "فشل في تحديث الفرع",
+      "deleteFailed": "فشل في حذف الفرع",
+      "switchFailed": "فشل في تبديل الفرع",
+      "saveFailed": "فشل في حفظ الفرع"
+    }
+  },
+  "warehouses": {
+    "title": "إدارة المخازن",
+    "noWarehouses": "لا توجد مخازن",
+    "addWarehouse": "إضافة مخزن",
+    "editWarehouse": "تعديل مخزن",
+    "actions": {
+      "addWarehouse": "إضافة مخزن",
+      "bulkDelete": "حذف المحدد",
+      "transferStock": "نقل مخزون"
+    },
+    "selectedCount": "{{count}} مخزن محدد",
+    "confirmDelete": {
+      "title": "تأكيد الحذف",
+      "message": "هل أنت متأكد من حذف هذا المخزن؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "confirmBulkDelete": {
+      "title": "تأكيد الحذف الجماعي",
+      "message": "هل أنت متأكد من حذف {{count}} مخزن؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "stats": {
+      "total": "إجمالي المخازن",
+      "active": "مخازن نشطة",
+      "stockValue": "قيمة المخزون",
+      "alerts": "تنبيهات المخزون"
+    },
+    "table": {
+      "code": "الكود",
+      "name": "اسم المخزن",
+      "branch": "الفرع",
+      "contact": "التواصل",
+      "stock": "المخزون",
+      "status": "الحالة",
+      "createdAt": "تاريخ الإنشاء",
+      "actions": "الإجراءات"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "search": {
+      "placeholder": "البحث في المخازن..."
+    },
+    "filters": {
+      "branch": "الفرع",
+      "status": "الحالة",
+      "allBranches": "جميع الفروع",
+      "allStatuses": "جميع الحالات"
+    },
+    "sections": {
+      "basicInfo": "المعلومات الأساسية",
+      "contactInfo": "معلومات التواصل",
+      "settings": "الإعدادات"
+    },
+    "fields": {
+      "name": "اسم المخزن",
+      "code": "كود المخزن",
+      "branch": "الفرع",
+      "address": "العنوان",
+      "phone": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "isActive": "المخزن نشط"
+    },
+    "validation": {
+      "nameRequired": "اسم المخزن مطلوب",
+      "nameMaxLength": "اسم المخزن يجب ألا يزيد عن 255 حرف",
+      "codeRequired": "كود المخزن مطلوب",
+      "codeMaxLength": "كود المخزن يجب ألا يزيد عن 50 حرف",
+      "branchRequired": "الفرع مطلوب",
+      "addressMaxLength": "العنوان يجب ألا يزيد عن 500 حرف",
+      "phoneMaxLength": "رقم الهاتف يجب ألا يزيد عن 50 حرف",
+      "phoneInvalid": "رقم الهاتف غير صحيح",
+      "emailInvalid": "البريد الإلكتروني غير صحيح"
+    },
+    "messages": {
+      "created": "تم إنشاء المخزن بنجاح",
+      "updated": "تم تحديث المخزن بنجاح",
+      "deleted": "تم حذف المخزن بنجاح",
+      "stockTransferred": "تم نقل المخزون بنجاح",
+      "switched": "تم تبديل المخزن بنجاح"
+    },
+    "errors": {
+      "createFailed": "فشل في إنشاء المخزن",
+      "updateFailed": "فشل في تحديث المخزن",
+      "deleteFailed": "فشل في حذف المخزن",
+      "transferFailed": "فشل في نقل المخزون",
+      "switchFailed": "فشل في تبديل المخزن",
+      "saveFailed": "فشل في حفظ المخزن"
+    }
+  },
+  "customers": {
+    "title": "إدارة العملاء",
+    "noCustomers": "لا يوجد عملاء",
+    "addCustomer": "إضافة عميل",
+    "editCustomer": "تعديل العميل",
+    "actions": {
+      "addCustomer": "إضافة عميل",
+      "bulkDelete": "حذف المحدد"
+    },
+    "selectedCount": "{{count}} عميل محدد",
+    "confirmDelete": {
+      "title": "تأكيد الحذف",
+      "message": "هل أنت متأكد من حذف هذا العميل؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "confirmBulkDelete": {
+      "title": "تأكيد الحذف الجماعي",
+      "message": "هل أنت متأكد من حذف {{count}} عميل؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "stats": {
+      "total": "إجمالي العملاء",
+      "active": "عملاء نشطون",
+      "averagePurchase": "متوسط المشتريات",
+      "loyaltyPoints": "نقاط الولاء"
+    },
+    "loyaltyDistribution": "توزيع مستويات الولاء",
+    "tiers": {
+      "platinum": "بلاتيني",
+      "gold": "ذهبي",
+      "silver": "فضي",
+      "bronze": "برونزي",
+      "none": "غير مصنف"
+    },
+    "points": "نقطة",
+    "table": {
+      "name": "اسم العميل",
+      "contact": "التواصل",
+      "loyalty": "الولاء",
+      "purchases": "المشتريات",
+      "status": "الحالة",
+      "createdAt": "تاريخ الإنشاء",
+      "actions": "الإجراءات"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "search": {
+      "placeholder": "البحث في العملاء..."
+    },
+    "filters": {
+      "status": "الحالة",
+      "loyaltyTier": "مستوى الولاء",
+      "allStatuses": "جميع الحالات",
+      "allTiers": "جميع المستويات"
+    },
+    "sections": {
+      "basicInfo": "المعلومات الأساسية",
+      "contactInfo": "معلومات التواصل",
+      "personalInfo": "المعلومات الشخصية",
+      "financialInfo": "المعلومات المالية",
+      "settings": "الإعدادات"
+    },
+    "fields": {
+      "name": "اسم العميل",
+      "taxNumber": "الرقم الضريبي",
+      "phone": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "address": "العنوان",
+      "birthday": "تاريخ الميلاد",
+      "gender": "الجنس",
+      "creditLimit": "حد الائتمان",
+      "marketingConsent": "موافقة على الرسائل التسويقية",
+      "isActive": "العميل نشط"
+    },
+    "gender": {
+      "male": "ذكر",
+      "female": "أنثى",
+      "other": "أخرى"
+    },
+    "taxNumber": "الرقم الضريبي",
+    "lastPurchase": "آخر شراء",
+    "validation": {
+      "nameRequired": "اسم العميل مطلوب",
+      "nameMaxLength": "اسم العميل يجب ألا يزيد عن 255 حرف",
+      "taxNumberMaxLength": "الرقم الضريبي يجب ألا يزيد عن 50 حرف",
+      "phoneMaxLength": "رقم الهاتف يجب ألا يزيد عن 50 حرف",
+      "phoneInvalid": "رقم الهاتف غير صحيح",
+      "emailInvalid": "البريد الإلكتروني غير صحيح",
+      "addressMaxLength": "العنوان يجب ألا يزيد عن 500 حرف",
+      "birthdayInvalid": "تاريخ الميلاد غير صحيح",
+      "genderInvalid": "الجنس غير صحيح",
+      "creditLimitMin": "حد الائتمان يجب أن يكون موجب",
+      "creditLimitMax": "حد الائتمان كبير جداً"
+    },
+    "messages": {
+      "created": "تم إنشاء العميل بنجاح",
+      "updated": "تم تحديث العميل بنجاح",
+      "deleted": "تم حذف العميل بنجاح",
+      "loyaltyUpdated": "تم تحديث نقاط الولاء بنجاح"
+    },
+    "errors": {
+      "createFailed": "فشل في إنشاء العميل",
+      "updateFailed": "فشل في تحديث العميل",
+      "deleteFailed": "فشل في حذف العميل",
+      "saveFailed": "فشل في حفظ العميل",
+      "loyaltyUpdateFailed": "فشل في تحديث نقاط الولاء"
+    }
+  },
+  "suppliers": {
+    "title": "إدارة الموردين",
+    "noSuppliers": "لا يوجد موردون",
+    "addSupplier": "إضافة مورد",
+    "editSupplier": "تعديل المورد",
+    "actions": {
+      "addSupplier": "إضافة مورد",
+      "bulkDelete": "حذف المحدد",
+      "transferStock": "نقل مخزون"
+    },
+    "selectedCount": "{{count}} مورد محدد",
+    "confirmDelete": {
+      "title": "تأكيد الحذف",
+      "message": "هل أنت متأكد من حذف هذا المورد؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "confirmBulkDelete": {
+      "title": "تأكيد الحذف الجماعي",
+      "message": "هل أنت متأكد من حذف {{count}} مورد؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "stats": {
+      "total": "إجمالي الموردين",
+      "active": "موردون نشطون",
+      "outstandingBalance": "الرصيد المستحق",
+      "withBalance": "موردون برصيد"
+    },
+    "outstandingBalanceAlert": "تنبيه الأرصدة المستحقة",
+    "outstandingBalanceMessage": "يوجد {{count}} مورد لديهم أرصدة مستحقة تحتاج للمتابعة.",
+    "more": "أخرى",
+    "table": {
+      "name": "اسم المورد",
+      "contact": "التواصل",
+      "paymentTerms": "شروط الدفع",
+      "financial": "المعاملات المالية",
+      "status": "الحالة",
+      "createdAt": "تاريخ الإنشاء",
+      "actions": "الإجراءات"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "search": {
+      "placeholder": "البحث في الموردين..."
+    },
+    "filters": {
+      "status": "الحالة",
+      "balance": "الرصيد",
+      "allStatuses": "جميع الحالات",
+      "allBalances": "جميع الأرصدة",
+      "hasBalance": "لديه رصيد",
+      "noBalance": "بدون رصيد"
+    },
+    "sections": {
+      "basicInfo": "المعلومات الأساسية",
+      "contactInfo": "معلومات التواصل",
+      "businessInfo": "المعلومات التجارية",
+      "settings": "الإعدادات"
+    },
+    "fields": {
+      "name": "اسم المورد",
+      "contactName": "اسم جهة الاتصال",
+      "taxNumber": "الرقم الضريبي",
+      "phone": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "address": "العنوان",
+      "paymentTerms": "شروط الدفع",
+      "isActive": "المورد نشط"
+    },
+    "contactPerson": "الشخص المسؤول",
+    "outstandingBalance": "مستحق",
+    "totalPurchases": "المشتريات",
+    "paymentTermsPlaceholder": "مثال: 30 يوم، 50% مقدم، إلخ",
+    "validation": {
+      "nameRequired": "اسم المورد مطلوب",
+      "nameMaxLength": "اسم المورد يجب ألا يزيد عن 255 حرف",
+      "contactNameMaxLength": "اسم جهة الاتصال يجب ألا يزيد عن 255 حرف",
+      "taxNumberMaxLength": "الرقم الضريبي يجب ألا يزيد عن 50 حرف",
+      "phoneMaxLength": "رقم الهاتف يجب ألا يزيد عن 50 حرف",
+      "phoneInvalid": "رقم الهاتف غير صحيح",
+      "emailInvalid": "البريد الإلكتروني غير صحيح",
+      "addressMaxLength": "العنوان يجب ألا يزيد عن 500 حرف",
+      "paymentTermsMaxLength": "شروط الدفع يجب ألا تزيد عن 255 حرف"
+    },
+    "messages": {
+      "created": "تم إنشاء المورد بنجاح",
+      "updated": "تم تحديث المورد بنجاح",
+      "deleted": "تم حذف المورد بنجاح"
+    },
+    "errors": {
+      "createFailed": "فشل في إنشاء المورد",
+      "updateFailed": "فشل في تحديث المورد",
+      "deleteFailed": "فشل في حذف المورد",
+      "saveFailed": "فشل في حفظ المورد"
+    }
+  },
+  "settings": {
+    "title": "إعدادات النظام",
+    "save": "حفظ الإعدادات",
+    "saving": "جارٍ الحفظ...",
+    "tabs": {
+      "company": "الشركة",
+      "system": "النظام",
+      "security": "الأمان",
+      "backup": "النسخ الاحتياطي"
+    },
+    "messages": {
+      "companyUpdated": "تم تحديث إعدادات الشركة بنجاح",
+      "systemUpdated": "تم تحديث إعدادات النظام بنجاح",
+      "securityUpdated": "تم تحديث إعدادات الأمان بنجاح",
+      "backupUpdated": "تم تحديث إعدادات النسخ الاحتياطي بنجاح"
+    },
+    "errors": {
+      "companyUpdateFailed": "فشل في تحديث إعدادات الشركة",
+      "systemUpdateFailed": "فشل في تحديث إعدادات النظام",
+      "securityUpdateFailed": "فشل في تحديث إعدادات الأمان",
+      "backupUpdateFailed": "فشل في تحديث إعدادات النسخ الاحتياطي",
+      "saveFailed": "فشل في حفظ الإعدادات"
+    },
+    "company": {
+      "title": "إعدادات الشركة",
+      "name": "اسم الشركة",
+      "description": "وصف الشركة",
+      "address": "العنوان",
+      "phone": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "logo": "شعار الشركة",
+      "uploadLogo": "رفع شعار جديد",
+      "logoHint": "PNG أو JPG أو GIF، الحد الأقصى 5 ميجابايت",
+      "currency": "العملة",
+      "timezone": "المنطقة الزمنية",
+      "language": "اللغة",
+      "fiscalYearStart": "بداية السنة المالية",
+      "dateFormat": "صيغة التاريخ",
+      "timeFormat": "صيغة الوقت",
+      "numberFormat": "صيغة الأرقام",
+      "basicInfo": "المعلومات الأساسية",
+      "contactInfo": "معلومات التواصل",
+      "regionalSettings": "الإعدادات الإقليمية",
+      "formatSettings": "إعدادات التنسيق"
+    },
+    "system": {
+      "title": "إعدادات النظام",
+      "backup": {
+        "title": "إعدادات النسخ الاحتياطي",
+        "enabled": "تفعيل النسخ الاحتياطي",
+        "autoBackup": "النسخ الاحتياطي التلقائي",
+        "frequency": "تكرار النسخ الاحتياطي",
+        "retention": "مدة الاحتفاظ (أيام)",
+        "time": "وقت النسخ الاحتياطي"
+      },
+      "cache": {
+        "title": "إعدادات الكاش",
+        "enabled": "تفعيل الكاش",
+        "ttl": "وقت البقاء (ثواني)"
+      },
+      "actions": {
+        "title": "إجراءات النظام",
+        "clearCache": "مسح الكاش",
+        "clearingCache": "جارٍ مسح الكاش...",
+        "restart": "إعادة تشغيل النظام",
+        "restarting": "جارٍ إعادة التشغيل..."
+      },
+      "memoryUsed": "الذاكرة المستخدمة",
+      "uptime": "وقت التشغيل",
+      "activeUsers": "المستخدمون النشطون",
+      "version": "إصدار النظام"
+    },
+    "security": {
+      "title": "إعدادات الأمان",
+      "passwordPolicy": {
+        "title": "سياسة كلمات المرور",
+        "minLength": "الحد الأدنى للطول",
+        "expirationDays": "فترة الصلاحية (أيام)",
+        "requireUppercase": "يتطلب أحرف كبيرة",
+        "requireLowercase": "يتطلب أحرف صغيرة",
+        "requireNumbers": "يتطلب أرقام",
+        "requireSpecialChars": "يتطلب رموز خاصة"
+      },
+      "sessionManagement": {
+        "title": "إدارة الجلسات",
+        "timeout": "مهلة الجلسة (دقائق)",
+        "maxConcurrentSessions": "الحد الأقصى للجلسات المتزامنة",
+        "forceLogoutOnPasswordChange": "إجبار تسجيل الخروج عند تغيير كلمة المرور"
+      },
+      "twoFactorAuth": {
+        "title": "المصادقة الثنائية",
+        "enabled": "تفعيل المصادقة الثنائية",
+        "required": "المصادقة الثنائية مطلوبة"
+      },
+      "loginSecurity": {
+        "title": "أمان تسجيل الدخول",
+        "maxAttempts": "الحد الأقصى للمحاولات",
+        "lockoutDuration": "مدة القفل (دقائق)"
+      }
+    },
+    "backup": {
+      "title": "إعدادات النسخ الاحتياطي",
+      "manualBackup": "النسخ الاحتياطي اليدوي",
+      "createManualBackup": "إنشاء نسخة احتياطية يدوية",
+      "creatingBackup": "جارٍ إنشاء النسخة الاحتياطية...",
+      "history": {
+        "title": "سجل النسخ الاحتياطي",
+        "noBackups": "لا توجد نسخ احتياطية",
+        "date": "التاريخ",
+        "type": "النوع",
+        "size": "الحجم",
+        "status": "الحالة",
+        "actions": "الإجراءات"
+      },
+      "configuration": {
+        "title": "إعدادات النسخ الاحتياطي",
+        "enabled": "تفعيل النسخ الاحتياطي",
+        "autoBackup": "النسخ الاحتياطي التلقائي",
+        "frequency": "التكرار",
+        "time": "الوقت",
+        "retention": "مدة الاحتفاظ (أيام)"
+      },
+      "content": {
+        "title": "المحتوى المراد نسخه احتياطياً",
+        "database": "قاعدة البيانات",
+        "files": "الملفات",
+        "logs": "السجلات"
+      },
+      "options": {
+        "title": "خيارات إضافية",
+        "compression": "الضغط المفعل",
+        "encryption": "التشفير المفعل"
+      },
+      "destinations": {
+        "title": "وجهات النسخ الاحتياطي",
+        "local": "التخزين المحلي",
+        "s3": "Amazon S3",
+        "ftp": "FTP/SFTP"
+      },
+      "status": {
+        "completed": "مكتمل",
+        "failed": "فاشل",
+        "inProgress": "قيد التنفيذ"
+      },
+      "type": {
+        "manual": "يدوي",
+        "auto": "تلقائي"
+      },
+      "size": {
+        "unknown": "غير معروف"
+      }
+    },
+    "validation": {
+      "companyNameRequired": "اسم الشركة مطلوب",
+      "companyNameMaxLength": "اسم الشركة يجب ألا يزيد عن 255 حرف",
+      "addressRequired": "العنوان مطلوب",
+      "addressMaxLength": "العنوان يجب ألا يزيد عن 500 حرف",
+      "phoneRequired": "رقم الهاتف مطلوب",
+      "phoneInvalid": "رقم الهاتف غير صحيح",
+      "emailRequired": "البريد الإلكتروني مطلوب",
+      "emailInvalid": "البريد الإلكتروني غير صحيح",
+      "taxNumberMaxLength": "الرقم الضريبي يجب ألا يزيد عن 50 حرف",
+      "descriptionMaxLength": "الوصف يجب ألا يزيد عن 1000 حرف",
+      "currencyRequired": "العملة مطلوبة",
+      "timezoneRequired": "المنطقة الزمنية مطلوبة",
+      "languageRequired": "اللغة مطلوبة",
+      "fiscalYearRequired": "بداية السنة المالية مطلوبة",
+      "fiscalYearInvalid": "صيغة تاريخ غير صحيحة",
+      "dateFormatRequired": "صيغة التاريخ مطلوبة",
+      "timeFormatRequired": "صيغة الوقت مطلوبة",
+      "numberFormatRequired": "صيغة الأرقام مطلوبة"
+    },
+    "uploading": "جارٍ الرفع...",
+    "logoUploaded": "تم رفع شعار الشركة بنجاح",
+    "logoUploadFailed": "فشل في رفع شعار الشركة",
+    "invalidLogoType": "نوع الملف غير مدعوم",
+    "logoTooLarge": "حجم الملف كبير جداً",
+    "cacheCleared": "تم مسح الكاش بنجاح",
+    "cacheClearFailed": "فشل في مسح الكاش",
+    "systemRestarted": "تم إعادة تشغيل النظام بنجاح",
+    "systemRestartFailed": "فشل في إعادة تشغيل النظام"
+  },
+  "currencies": {
+    "YER": "ريال يمني (YER)",
+    "USD": "دولار أمريكي (USD)",
+    "EUR": "يورو (EUR)",
+    "SAR": "ريال سعودي (SAR)"
+  },
+  "timezones": {
+    "Asia/Aden": "آسيا/عدن",
+    "Asia/Riyadh": "آسيا/الرياض",
+    "Europe/London": "أوروبا/لندن",
+    "America/New_York": "أمريكا/نيويورك"
+  },
+  "languages": {
+    "ar": "العربية",
+    "en": "الإنجليزية"
+  },
+  "dateFormats": {
+    "DD/MM/YYYY": "يوم/شهر/سنة",
+    "MM/DD/YYYY": "شهر/يوم/سنة",
+    "YYYY-MM-DD": "سنة-شهر-يوم"
+  },
+  "timeFormats": {
+    "HH:mm": "24 ساعة",
+    "hh:mm A": "12 ساعة"
+  },
+  "numberFormats": {
+    "ar-SA": "عربي (السعودية)",
+    "en-US": "إنجليزي (أمريكا)",
+    "ar-YE": "عربي (اليمن)"
+  },
+  "frequencies": {
+    "daily": "يومي",
+    "weekly": "أسبوعي",
+    "monthly": "شهري"
+  },
+  "common": {
+    "actions": {
+      "saving": "جارٍ الحفظ...",
+      "switch": "تبديل",
+      "transfer": "نقل"
+    }
   }
 }

@@ -5,6 +5,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { PrismaModule } from './shared/database/prisma.module';
 import { CacheModule } from './shared/cache/cache.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
 import { BranchModule } from './modules/branch/branch.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
 import { ProductModule } from './modules/product/product.module';
@@ -57,6 +58,7 @@ import appConfig from './config/app.config';
     PrismaModule,
     CacheModule,
     AuthModule,
+    UserModule,
     BranchModule,
     WarehouseModule,
     ProductModule,

@@ -1,0 +1,133 @@
+[
+  {
+    "id": "mov-1",
+    "warehouseId": "warehouse-1",
+    "productVariantId": "prod-1",
+    "movementType": "sale",
+    "quantity": -2,
+    "referenceType": "sales_invoice",
+    "referenceId": "inv-1",
+    "reason": "بيع للعميل",
+    "performedBy": "user-3",
+    "warehouse": {
+      "id": "warehouse-1",
+      "name": "المخزن الرئيسي",
+      "code": "WH001"
+    },
+    "productVariant": {
+      "id": "prod-1",
+      "name": "أرز بسمتي - 5 كيلو",
+      "sku": "SKU000001",
+      "product": {
+        "id": "prod-1",
+        "name": "أرز بسمتي - 5 كيلو"
+      }
+    },
+    "createdAt": "2024-06-10T10:00:00.000Z"
+  },
+  {
+    "id": "mov-2",
+    "warehouseId": "warehouse-1",
+    "productVariantId": "prod-3",
+    "movementType": "sale",
+    "quantity": -1,
+    "referenceType": "sales_invoice",
+    "referenceId": "inv-1",
+    "reason": "بيع للعميل",
+    "performedBy": "user-3",
+    "warehouse": {
+      "id": "warehouse-1",
+      "name": "المخزن الرئيسي",
+      "code": "WH001"
+    },
+    "productVariant": {
+      "id": "prod-3",
+      "name": "زيت نباتي - 5 لتر",
+      "sku": "SKU000003",
+      "product": {
+        "id": "prod-3",
+        "name": "زيت نباتي - 5 لتر"
+      }
+    },
+    "createdAt": "2024-06-10T10:00:00.000Z"
+  },
+  {
+    "id": "mov-3",
+    "warehouseId": "warehouse-1",
+    "productVariantId": "prod-1",
+    "movementType": "purchase",
+    "quantity": 50,
+    "referenceType": "purchase_order",
+    "referenceId": "po-1",
+    "reason": "شراء من المورد",
+    "performedBy": "user-5",
+    "warehouse": {
+      "id": "warehouse-1",
+      "name": "المخزن الرئيسي",
+      "code": "WH001"
+    },
+    "productVariant": {
+      "id": "prod-1",
+      "name": "أرز بسمتي - 5 كيلو",
+      "sku": "SKU000001",
+      "product": {
+        "id": "prod-1",
+        "name": "أرز بسمتي - 5 كيلو"
+      }
+    },
+    "createdAt": "2024-06-05T10:00:00.000Z"
+  },
+  {
+    "id": "mov-4",
+    "warehouseId": "warehouse-1",
+    "productVariantId": "prod-4",
+    "movementType": "adjustment",
+    "quantity": -5,
+    "referenceType": "stock_adjustment",
+    "referenceId": "adj-1",
+    "reason": "تسوية مخزون - تالف",
+    "performedBy": "user-5",
+    "warehouse": {
+      "id": "warehouse-1",
+      "name": "المخزن الرئيسي",
+      "code": "WH001"
+    },
+    "productVariant": {
+      "id": "prod-4",
+      "name": "دقيق أبيض - 10 كيلو",
+      "sku": "SKU000004",
+      "product": {
+        "id": "prod-4",
+        "name": "دقيق أبيض - 10 كيلو"
+      }
+    },
+    "createdAt": "2024-06-08T10:00:00.000Z"
+  },
+  {
+    "id": "mov-5",
+    "warehouseId": "warehouse-1",
+    "productVariantId": "prod-2",
+    "movementType": "transfer_in",
+    "quantity": 30,
+    "referenceType": "warehouse_transfer",
+    "referenceId": "trans-1",
+    "reason": "نقل من مخزن صنعاء",
+    "performedBy": "user-5",
+    "warehouse": {
+      "id": "warehouse-1",
+      "name": "المخزن الرئيسي",
+      "code": "WH001"
+    },
+    "productVariant": {
+      "id": "prod-2",
+      "name": "سكر أبيض - 2 كيلو",
+      "sku": "SKU000002",
+      "product": {
+        "id": "prod-2",
+        "name": "سكر أبيض - 2 كيلو"
+      }
+    },
+    "createdAt": "2024-06-12T10:00:00.000Z"
+  }
+]
+

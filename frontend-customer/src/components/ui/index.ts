@@ -22,5 +22,11 @@ export type {
   InventoryAlertsProps,
 } from './Dashboard';
 
+export { CategoryManager } from './CategoryManager';
+export type { CategoryManagerProps } from './CategoryManager';
+
+export { MockModeBanner } from './MockModeBanner';
+export { MockModeToggle } from './MockModeToggle';
+
 // Export all icons
 export * from './Icons';

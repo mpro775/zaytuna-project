@@ -1,0 +1,42 @@
+{
+  "balanceSheet": {
+    "assets": {
+      "currentAssets": 125000000,
+      "fixedAssets": 45000000,
+      "totalAssets": 170000000
+    },
+    "liabilities": {
+      "currentLiabilities": 35000000,
+      "longTermLiabilities": 20000000,
+      "totalLiabilities": 55000000
+    },
+    "equity": {
+      "capital": 80000000,
+      "retainedEarnings": 35000000,
+      "totalEquity": 115000000
+    },
+    "totalLiabilitiesAndEquity": 170000000
+  },
+  "profitLoss": {
+    "revenue": {
+      "salesRevenue": 29750000,
+      "otherIncome": 500000,
+      "totalRevenue": 30250000
+    },
+    "expenses": {
+      "costOfGoodsSold": 17850000,
+      "operatingExpenses": 8500000,
+      "totalExpenses": 26350000
+    },
+    "netProfit": 3900000,
+    "grossMargin": 40.0,
+    "netMargin": 12.9
+  },
+  "cashFlow": {
+    "operatingActivities": 3500000,
+    "investingActivities": -500000,
+    "financingActivities": -200000,
+    "netCashFlow": 2800000
+  }
+}
+

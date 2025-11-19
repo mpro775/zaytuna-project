@@ -1,16 +1,21 @@
 {
   "name": "زيتونة SaaS - لوحة التحكم",
   "short_name": "زيتونة SaaS",
-  "description": "نظام إدارة الأعمال الشامل للشركات",
+  "description": "نظام إدارة الأعمال الشامل للشركات - يعمل بدون اتصال بالإنترنت",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2e7d32",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "scope": "/",
   "lang": "ar",
   "dir": "rtl",
   "categories": ["business", "productivity", "finance"],
+  "prefer_related_applications": false,
+  "iarc_rating_id": "",
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
   "icons": [
     {
       "src": "/icons/icon-72x72.png",

@@ -1,0 +1,51 @@
+[
+  {
+    "id": "acc-1",
+    "code": "1000",
+    "name": "الأصول المتداولة",
+    "nameEn": "Current Assets",
+    "type": "asset",
+    "parentId": null,
+    "isActive": true,
+    "balance": 125000000,
+    "createdAt": "2024-01-01T10:00:00.000Z",
+    "updatedAt": "2024-06-15T10:00:00.000Z"
+  },
+  {
+    "id": "acc-2",
+    "code": "2000",
+    "name": "الخصوم المتداولة",
+    "nameEn": "Current Liabilities",
+    "type": "liability",
+    "parentId": null,
+    "isActive": true,
+    "balance": 35000000,
+    "createdAt": "2024-01-01T10:00:00.000Z",
+    "updatedAt": "2024-06-15T10:00:00.000Z"
+  },
+  {
+    "id": "acc-3",
+    "code": "4000",
+    "name": "الإيرادات",
+    "nameEn": "Revenue",
+    "type": "revenue",
+    "parentId": null,
+    "isActive": true,
+    "balance": 29750000,
+    "createdAt": "2024-01-01T10:00:00.000Z",
+    "updatedAt": "2024-06-15T10:00:00.000Z"
+  },
+  {
+    "id": "acc-4",
+    "code": "5000",
+    "name": "المصروفات",
+    "nameEn": "Expenses",
+    "type": "expense",
+    "parentId": null,
+    "isActive": true,
+    "balance": 26350000,
+    "createdAt": "2024-01-01T10:00:00.000Z",
+    "updatedAt": "2024-06-15T10:00:00.000Z"
+  }
+]
+

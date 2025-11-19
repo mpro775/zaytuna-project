@@ -21,10 +21,14 @@ import {
   Menu as MenuIcon,
   Dashboard as DashboardIcon,
   Store as StoreIcon,
+  Inventory as InventoryIcon,
   ShoppingCart as ShoppingCartIcon,
-  People as PeopleIcon,
   Assessment as AssessmentIcon,
   Settings as SettingsIcon,
+  Business as BusinessIcon,
+  Warehouse as WarehouseIcon,
+  Person as PersonIcon,
+  LocalShipping as SupplierIcon,
   AccountCircle,
   Logout,
 } from '@mui/icons-material';
@@ -33,6 +37,8 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts';
 import { useUiStore } from '@/store';
 import { LanguageSwitcher } from '@/components/ui';
+import { SyncStatusIndicator, OfflineBanner } from '@/components/sync';
+import { MockModeBanner } from '@/components/ui/MockModeBanner';
 import Breadcrumb from '../Breadcrumb';
 import Footer from '../Footer';
 
@@ -77,9 +83,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const menuItems = [
     { textKey: 'navigation.dashboard', icon: <DashboardIcon />, path: '/dashboard' },
     { textKey: 'navigation.products', icon: <StoreIcon />, path: '/products' },
-    { textKey: 'navigation.inventory', icon: <StoreIcon />, path: '/inventory' },
+    { textKey: 'navigation.inventory', icon: <InventoryIcon />, path: '/inventory' },
     { textKey: 'navigation.sales', icon: <ShoppingCartIcon />, path: '/sales' },
-    { textKey: 'navigation.customers', icon: <PeopleIcon />, path: '/customers' },
+    { textKey: 'navigation.customers', icon: <PersonIcon />, path: '/customers' },
+    { textKey: 'navigation.suppliers', icon: <SupplierIcon />, path: '/suppliers' },
+    { textKey: 'navigation.branches', icon: <BusinessIcon />, path: '/branches' },
+    { textKey: 'navigation.warehouses', icon: <WarehouseIcon />, path: '/warehouses' },
     { textKey: 'navigation.reports', icon: <AssessmentIcon />, path: '/reports' },
     { textKey: 'navigation.settings', icon: <SettingsIcon />, path: '/settings' },
   ];
@@ -116,6 +125,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   return (
     <Box sx={{ display: 'flex' }}>
+      {/* Offline Banner */}
+      <OfflineBanner />
+      
+      {/* Mock Mode Banner */}
+      <MockModeBanner />
+
       {/* App Bar */}
       <AppBar
         position="fixed"
@@ -144,6 +159,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             {t('app.name')}
           </Typography>
+
+          {/* Sync Status Indicator */}
+          <Box sx={{ mr: 1 }}>
+            <SyncStatusIndicator compact />
+          </Box>
 
           {/* Language Switcher */}
           <Box sx={{ mr: 1 }}>

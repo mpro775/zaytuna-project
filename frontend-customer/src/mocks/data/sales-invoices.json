@@ -1,0 +1,168 @@
+[
+  {
+    "id": "inv-1",
+    "invoiceNumber": "INV-2024-0001",
+    "branchId": "branch-1",
+    "customerId": "cust-1",
+    "cashierId": "user-3",
+    "warehouseId": "warehouse-1",
+    "subtotal": 125000,
+    "taxAmount": 18750,
+    "discountAmount": 5000,
+    "totalAmount": 138750,
+    "currencyId": "YER",
+    "taxId": "tax-1",
+    "status": "confirmed",
+    "paymentStatus": "paid",
+    "notes": null,
+    "dueDate": "2024-06-15T10:00:00.000Z",
+    "createdAt": "2024-06-10T10:00:00.000Z",
+    "updatedAt": "2024-06-10T10:00:00.000Z",
+    "branch": {
+      "id": "branch-1",
+      "name": "الفرع الرئيسي"
+    },
+    "customer": {
+      "id": "cust-1",
+      "name": "أحمد محمد علي",
+      "phone": "+967 777 123 456"
+    },
+    "cashier": {
+      "id": "user-3",
+      "name": "خالد حسن"
+    },
+    "warehouse": {
+      "id": "warehouse-1",
+      "name": "المخزن الرئيسي"
+    },
+    "currency": {
+      "id": "YER",
+      "code": "YER",
+      "name": "ريال يمني"
+    },
+    "tax": {
+      "id": "tax-1",
+      "name": "ضريبة القيمة المضافة",
+      "rate": 15
+    },
+    "lines": [
+      {
+        "id": "line-1",
+        "salesInvoiceId": "inv-1",
+        "productVariantId": "prod-1",
+        "warehouseId": "warehouse-1",
+        "quantity": 2,
+        "unitPrice": 3500,
+        "discountAmount": 0,
+        "taxAmount": 1050,
+        "lineTotal": 8050,
+        "productVariant": {
+          "id": "prod-1",
+          "name": "أرز بسمتي - 5 كيلو",
+          "sku": "SKU000001",
+          "product": {
+            "id": "prod-1",
+            "name": "أرز بسمتي - 5 كيلو"
+          }
+        },
+        "warehouse": {
+          "id": "warehouse-1",
+          "name": "المخزن الرئيسي"
+        }
+      },
+      {
+        "id": "line-2",
+        "salesInvoiceId": "inv-1",
+        "productVariantId": "prod-3",
+        "warehouseId": "warehouse-1",
+        "quantity": 1,
+        "unitPrice": 12500,
+        "discountAmount": 5000,
+        "taxAmount": 1125,
+        "lineTotal": 8625,
+        "productVariant": {
+          "id": "prod-3",
+          "name": "زيت نباتي - 5 لتر",
+          "sku": "SKU000003",
+          "product": {
+            "id": "prod-3",
+            "name": "زيت نباتي - 5 لتر"
+          }
+        },
+        "warehouse": {
+          "id": "warehouse-1",
+          "name": "المخزن الرئيسي"
+        }
+      }
+    ],
+    "payments": [
+      {
+        "id": "pay-1",
+        "salesInvoiceId": "inv-1",
+        "customerId": "cust-1",
+        "currencyId": "YER",
+        "amount": 138750,
+        "paymentMethod": "cash",
+        "referenceNumber": null,
+        "notes": null,
+        "paymentDate": "2024-06-10T10:00:00.000Z",
+        "processedBy": "user-3",
+        "currency": {
+          "id": "YER",
+          "code": "YER",
+          "name": "ريال يمني"
+        }
+      }
+    ]
+  },
+  {
+    "id": "inv-2",
+    "invoiceNumber": "INV-2024-0002",
+    "branchId": "branch-1",
+    "customerId": "cust-2",
+    "cashierId": "user-3",
+    "warehouseId": "warehouse-1",
+    "subtotal": 85000,
+    "taxAmount": 12750,
+    "discountAmount": 0,
+    "totalAmount": 97750,
+    "currencyId": "YER",
+    "taxId": "tax-1",
+    "status": "confirmed",
+    "paymentStatus": "paid",
+    "notes": null,
+    "dueDate": "2024-06-15T10:00:00.000Z",
+    "createdAt": "2024-06-08T10:00:00.000Z",
+    "updatedAt": "2024-06-08T10:00:00.000Z",
+    "branch": {
+      "id": "branch-1",
+      "name": "الفرع الرئيسي"
+    },
+    "customer": {
+      "id": "cust-2",
+      "name": "فاطمة حسن أحمد",
+      "phone": "+967 777 234 567"
+    },
+    "cashier": {
+      "id": "user-3",
+      "name": "خالد حسن"
+    },
+    "warehouse": {
+      "id": "warehouse-1",
+      "name": "المخزن الرئيسي"
+    },
+    "currency": {
+      "id": "YER",
+      "code": "YER",
+      "name": "ريال يمني"
+    },
+    "tax": {
+      "id": "tax-1",
+      "name": "ضريبة القيمة المضافة",
+      "rate": 15
+    },
+    "lines": [],
+    "payments": []
+  }
+]
+

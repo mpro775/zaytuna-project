@@ -1,0 +1,83 @@
+[
+  {
+    "id": "user-1",
+    "username": "admin",
+    "email": "admin@zaytuna.com",
+    "firstName": "أحمد",
+    "lastName": "محمد",
+    "role": "admin",
+    "branchId": "branch-1",
+    "branch": {
+      "id": "branch-1",
+      "name": "الفرع الرئيسي"
+    },
+    "isActive": true,
+    "createdAt": "2024-01-15T10:00:00.000Z",
+    "updatedAt": "2024-01-15T10:00:00.000Z"
+  },
+  {
+    "id": "user-2",
+    "username": "manager",
+    "email": "manager@zaytuna.com",
+    "firstName": "فاطمة",
+    "lastName": "علي",
+    "role": "manager",
+    "branchId": "branch-1",
+    "branch": {
+      "id": "branch-1",
+      "name": "الفرع الرئيسي"
+    },
+    "isActive": true,
+    "createdAt": "2024-01-20T10:00:00.000Z",
+    "updatedAt": "2024-01-20T10:00:00.000Z"
+  },
+  {
+    "id": "user-3",
+    "username": "cashier",
+    "email": "cashier@zaytuna.com",
+    "firstName": "خالد",
+    "lastName": "حسن",
+    "role": "cashier",
+    "branchId": "branch-1",
+    "branch": {
+      "id": "branch-1",
+      "name": "الفرع الرئيسي"
+    },
+    "isActive": true,
+    "createdAt": "2024-02-01T10:00:00.000Z",
+    "updatedAt": "2024-02-01T10:00:00.000Z"
+  },
+  {
+    "id": "user-4",
+    "username": "cashier2",
+    "email": "cashier2@zaytuna.com",
+    "firstName": "سارة",
+    "lastName": "أحمد",
+    "role": "cashier",
+    "branchId": "branch-2",
+    "branch": {
+      "id": "branch-2",
+      "name": "فرع صنعاء"
+    },
+    "isActive": true,
+    "createdAt": "2024-02-10T10:00:00.000Z",
+    "updatedAt": "2024-02-10T10:00:00.000Z"
+  },
+  {
+    "id": "user-5",
+    "username": "warehouse",
+    "email": "warehouse@zaytuna.com",
+    "firstName": "يوسف",
+    "lastName": "إبراهيم",
+    "role": "warehouse_manager",
+    "branchId": "branch-1",
+    "branch": {
+      "id": "branch-1",
+      "name": "الفرع الرئيسي"
+    },
+    "isActive": true,
+    "createdAt": "2024-02-15T10:00:00.000Z",
+    "updatedAt": "2024-02-15T10:00:00.000Z"
+  }
+]
+

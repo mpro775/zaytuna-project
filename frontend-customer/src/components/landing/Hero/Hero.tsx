@@ -65,7 +65,10 @@ export const Hero: React.FC = () => {
     >
       <Container maxWidth="lg">
         <Grid container spacing={4} alignItems="center">
-          <Grid item xs={12} md={7}>
+          <Grid 
+           size={{ xs: 12, md: 7 }}
+           component="div"
+           >
             <Typography
               variant="h1"
               sx={{
@@ -146,7 +149,10 @@ export const Hero: React.FC = () => {
               </Button>
             </Box>
           </Grid>
-          <Grid item xs={12} md={5}>
+          <Grid 
+           size={{ xs: 12, md: 5 }}
+           component="div"
+           >
             <Box
               sx={{
                 display: 'flex',
@@ -188,7 +194,11 @@ export const Hero: React.FC = () => {
 
         <Grid container spacing={3} sx={{ mt: 6 }}>
           {stats.map((stat, index) => (
-            <Grid item xs={6} sm={3} key={index}>
+            <Grid 
+             size={{ xs: 6, sm: 3 }}
+             component="div"
+             key={index}
+             >
               <Paper
                 elevation={0}
                 sx={{

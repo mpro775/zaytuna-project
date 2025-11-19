@@ -1,59 +1,43 @@
-import {
-  Injectable,
-  Logger,
-  Inject,
-  forwardRef,
-} from '@nestjs/common';
-import { PrismaService } from '../../shared/database/prisma.service';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Notification, NotificationDocument } from './notification.schema';
+import { UserService } from '../user/user.service';
+import webpush from 'web-push';
 
-export interface SendNotificationRequest {
-  recipientId?: string;
-  recipientType?: 'user' | 'customer' | 'supplier' | 'admin';
-  recipientEmail?: string;
-  recipientPhone?: string;
+export interface CreateNotificationDto {
+  userId: string;
   title: string;
-  message: string;
-  type: 'email' | 'sms' | 'whatsapp' | 'push' | 'in_app';
-  priority?: 'low' | 'normal' | 'high' | 'urgent';
-  module?: string;
-  event?: string;
-  referenceId?: string;
-  referenceType?: string;
-  templateName?: string;
+  body: string;
+  type?: 'push' | 'email' | 'sms' | 'in_app';
+  category?: string;
   data?: Record<string, any>;
-  scheduledAt?: Date;
+  actionUrl?: string;
   expiresAt?: Date;
-  channels?: string[];
-  branchId?: string;
+  metadata?: Record<string, any>;
 }
 
-export interface NotificationResponse {
-  notificationId: string;
-  status: 'queued' | 'sent' | 'failed';
-  providerMessageId?: string;
-  scheduledAt?: Date;
+export interface SendNotificationDto {
+  userIds: string[];
+  title: string;
+  body: string;
+  type?: 'push' | 'email' | 'sms' | 'in_app';
+  category?: string;
+  data?: Record<string, any>;
+  actionUrl?: string;
+  expiresAt?: Date;
+  sendImmediately?: boolean;
 }
 
-export interface NotificationStats {
-  totalNotifications: number;
-  sentNotifications: number;
-  failedNotifications: number;
-  pendingNotifications: number;
-  deliveryRate: number;
-  averageDeliveryTime: number;
-  notificationsByType: Record<string, number>;
-  notificationsByModule: Record<string, number>;
-  notificationsByPriority: Record<string, number>;
-  dailyStats: Array<{
-    date: string;
-    sent: number;
-    failed: number;
-  }>;
-}
-
-export interface TemplateVariables {
-  [key: string]: string | number | boolean;
+export interface PushSubscriptionDto {
+  endpoint: string;
+  keys: {
+    p256dh: string;
+    auth: string;
+  };
+  userId?: string;
+  deviceId?: string;
+  deviceName?: string;
 }
 
 @Injectable()
@@ -61,762 +45,484 @@ export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly configService: ConfigService,
-  ) {}
+    @InjectModel(Notification.name)
+    private notificationModel: Model<NotificationDocument>,
+    private userService: UserService,
+  ) {
+    this.initializeWebPush();
+  }
 
-  /**
-   * إرسال إشعار فوري
-   */
-  async sendNotification(
-    request: SendNotificationRequest,
-    sentBy?: string,
-  ): Promise<NotificationResponse> {
+  private initializeWebPush(): void {
+    // إعداد VAPID keys (في الإنتاج يجب وضعها في environment variables)
+    const vapidKeys = {
+      publicKey: process.env.VAPID_PUBLIC_KEY || 'BLXHQZ5Rd7KdUbFxqjBfhK7RHFjKzZs8wBzMq2YYpG5K4J8M4nT4K8K8K8K8K8K8K8K8K8K8K8K8K8K8K8K8K8K8K8K8K',
+      privateKey: process.env.VAPID_PRIVATE_KEY || 'your-private-key-here',
+    };
+
+    webpush.setVapidDetails(
+      'mailto:' + (process.env.NOTIFICATION_EMAIL || 'notifications@zaytuna.com'),
+      vapidKeys.publicKey,
+      vapidKeys.privateKey
+    );
+
+    this.logger.log('Web Push initialized with VAPID keys');
+  }
+
+  // إنشاء إشعار جديد
+  async createNotification(dto: CreateNotificationDto): Promise<NotificationDocument> {
     try {
-      this.logger.log(`إرسال إشعار: ${request.title} - ${request.type}`);
-
-      // التحقق من تفضيلات المستلم
-      const canSend = await this.checkNotificationPreferences(request);
-      if (!canSend) {
-        this.logger.log(`تم تجاهل الإشعار بسبب تفضيلات المستلم: ${request.recipientId}`);
-        return {
-          notificationId: '',
-          status: 'failed',
-        };
-      }
-
-      // الحصول على بيانات المستلم إذا لم تكن محددة
-      const recipientData = await this.getRecipientData(request);
-
-      // إنشاء الإشعار في قاعدة البيانات
-      const notification = await this.createNotification({
-        ...request,
-        ...recipientData,
-        sentBy,
+      const notification = new this.notificationModel({
+        ...dto,
+        userId: dto.userId,
+        type: dto.type || 'in_app',
+        category: dto.category || 'system',
       });
 
-      // إرسال الإشعار حسب النوع
-      const result = await this.sendByType(notification);
+      const savedNotification = await notification.save();
+      this.logger.log(`Notification created: ${savedNotification._id}`);
 
-      return {
-        notificationId: notification.id,
-        status: result.status,
-        providerMessageId: result.providerMessageId,
-        scheduledAt: request.scheduledAt,
-      };
+      return savedNotification;
     } catch (error) {
-      this.logger.error(`فشل في إرسال الإشعار: ${request.title}`, error);
+      this.logger.error('Failed to create notification:', error);
       throw error;
     }
   }
 
-  /**
-   * إرسال إشعار باستخدام قالب
-   */
-  async sendTemplatedNotification(
-    templateName: string,
-    variables: TemplateVariables,
-    recipientId: string,
-    recipientType: 'user' | 'customer' | 'supplier' | 'admin' = 'user',
-    sentBy?: string,
-  ): Promise<NotificationResponse> {
-    try {
-      // الحصول على القالب
-      const template = await this.prisma.notificationTemplate.findUnique({
-        where: { name: templateName, isActive: true },
-      });
+  // إرسال إشعار لمستخدم واحد
+  async sendNotificationToUser(dto: CreateNotificationDto): Promise<NotificationDocument> {
+    const notification = await this.createNotification(dto);
 
-      if (!template) {
-        throw new Error(`القالب غير موجود: ${templateName}`);
-      }
-
-      // معالجة محتوى القالب
-      const processedContent = this.processTemplate(template.content, variables);
-      const processedSubject = template.subject
-        ? this.processTemplate(template.subject, variables)
-        : undefined;
-      const processedHtml = template.htmlContent
-        ? this.processTemplate(template.htmlContent, variables)
-        : undefined;
-
-      // إرسال الإشعار
-      return this.sendNotification({
-        recipientId,
-        recipientType,
-        title: processedSubject || template.name,
-        message: processedContent,
-        type: template.type as any,
-        priority: template.priority as any,
-        module: template.module,
-        event: template.event,
-        templateName,
-        data: variables,
-      }, sentBy);
-    } catch (error) {
-      this.logger.error(`فشل في إرسال إشعار بالقالب: ${templateName}`, error);
-      throw error;
+    // إرسال الإشعار حسب النوع
+    if (dto.type === 'push') {
+      await this.sendPushNotification(notification);
     }
+
+    return notification;
   }
 
-  /**
-   * إرسال إشعار جماعي
-   */
-  async sendBulkNotifications(
-    requests: SendNotificationRequest[],
-    sentBy?: string,
-  ): Promise<NotificationResponse[]> {
-    const results: NotificationResponse[] = [];
+  // إرسال إشعار جماعي
+  async sendBulkNotification(dto: SendNotificationDto): Promise<{
+    sent: number;
+    failed: number;
+    notifications: NotificationDocument[];
+  }> {
+    const notifications: NotificationDocument[] = [];
+    let sent = 0;
+    let failed = 0;
 
-    for (const request of requests) {
+    for (const userId of dto.userIds) {
       try {
-        const result = await this.sendNotification(request, sentBy);
-        results.push(result);
-
-        // انتظار قصير بين الإرسالات لتجنب الحظر
-        await new Promise(resolve => setTimeout(resolve, 100));
+        const notification = await this.sendNotificationToUser({
+          ...dto,
+          userId,
+        });
+        notifications.push(notification);
+        sent++;
       } catch (error) {
-        this.logger.error(`فشل في إرسال إشعار جماعي`, error);
-        results.push({
-          notificationId: '',
-          status: 'failed',
-        });
+        this.logger.error(`Failed to send notification to user ${userId}:`, error);
+        failed++;
       }
     }
 
-    return results;
+    this.logger.log(`Bulk notification sent: ${sent} successful, ${failed} failed`);
+
+    return { sent, failed, notifications };
   }
 
-  /**
-   * جدولة إشعار لوقت لاحق
-   */
-  async scheduleNotification(
-    request: SendNotificationRequest,
-    scheduledAt: Date,
-    sentBy?: string,
-  ): Promise<NotificationResponse> {
-    return this.sendNotification({
-      ...request,
-      scheduledAt,
-    }, sentBy);
-  }
-
-  /**
-   * إلغاء إشعار مجدول
-   */
-  async cancelScheduledNotification(notificationId: string): Promise<void> {
+  // إرسال إشعار دفعي
+  private async sendPushNotification(notification: NotificationDocument): Promise<void> {
     try {
-      await this.prisma.notification.update({
-        where: { id: notificationId },
+      // الحصول على اشتراكات المستخدم النشطة
+      const subscriptions = await this.getUserPushSubscriptions(notification.userId.toString());
+
+      if (subscriptions.length === 0) {
+        this.logger.warn(`No push subscriptions found for user ${notification.userId}`);
+        return;
+      }
+
+      const payload = {
+        title: notification.title,
+        body: notification.body,
+        icon: '/icons/icon-192x192.png',
+        badge: '/icons/icon-72x72.png',
         data: {
-          status: 'cancelled',
-          updatedAt: new Date(),
+          notificationId: notification._id.toString(),
+          actionUrl: notification.actionUrl,
+          ...notification.data,
         },
-      });
-
-      this.logger.log(`تم إلغاء الإشعار المجدول: ${notificationId}`);
-    } catch (error) {
-      this.logger.error(`فشل في إلغاء الإشعار المجدول: ${notificationId}`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * الحصول على إحصائيات الإشعارات
-   */
-  async getNotificationStats(
-    branchId?: string,
-    startDate?: Date,
-    endDate?: Date,
-  ): Promise<NotificationStats> {
-    try {
-      const where: any = {};
-      if (branchId) where.branchId = branchId;
-      if (startDate || endDate) {
-        where.createdAt = {};
-        if (startDate) where.createdAt.gte = startDate;
-        if (endDate) where.createdAt.lte = endDate;
-      }
-
-      const notifications = await this.prisma.notification.findMany({
-        where,
-        select: {
-          status: true,
-          type: true,
-          module: true,
-          priority: true,
-          createdAt: true,
-          sentAt: true,
-          deliveredAt: true,
-          failedAt: true,
-        },
-      });
-
-      const stats: NotificationStats = {
-        totalNotifications: notifications.length,
-        sentNotifications: notifications.filter(n => n.status === 'sent').length,
-        failedNotifications: notifications.filter(n => n.status === 'failed').length,
-        pendingNotifications: notifications.filter(n => ['pending', 'queued'].includes(n.status)).length,
-        deliveryRate: 0,
-        averageDeliveryTime: 0,
-        notificationsByType: this.groupBy(notifications, 'type'),
-        notificationsByModule: this.groupBy(notifications, 'module'),
-        notificationsByPriority: this.groupBy(notifications, 'priority'),
-        dailyStats: this.calculateDailyStats(notifications),
+        actions: [
+          {
+            action: 'view',
+            title: 'عرض',
+            icon: '/icons/icon-96x96.png'
+          },
+          {
+            action: 'dismiss',
+            title: 'تجاهل'
+          }
+        ],
+        timestamp: notification.createdAt?.getTime() || Date.now(),
+        tag: `notification-${notification._id}`,
       };
 
-      // حساب معدل التسليم
-      if (stats.sentNotifications > 0) {
-        stats.deliveryRate = (stats.sentNotifications / stats.totalNotifications) * 100;
-      }
+      // إرسال لجميع الأجهزة المشتركة
+      const sendPromises = subscriptions.map(async (subscription) => {
+        try {
+          await webpush.sendNotification(subscription, JSON.stringify(payload));
+          this.logger.log(`Push notification sent to device ${subscription.deviceId}`);
+        } catch (error: any) {
+          this.logger.error(`Failed to send push notification to device ${subscription.deviceId}:`, error);
 
-      // حساب متوسط وقت التسليم
-      const deliveredNotifications = notifications.filter(n => n.sentAt && n.deliveredAt);
-      if (deliveredNotifications.length > 0) {
-        const totalDeliveryTime = deliveredNotifications.reduce((sum, n) => {
-          return sum + (n.deliveredAt!.getTime() - n.sentAt!.getTime());
-        }, 0);
-        stats.averageDeliveryTime = totalDeliveryTime / deliveredNotifications.length;
-      }
+          // إزالة الاشتراك غير الصالح
+          if (error.statusCode === 410 || error.statusCode === 400) {
+            await this.removePushSubscription(subscription._id.toString());
+          }
+        }
+      });
 
-      return stats;
+      await Promise.allSettled(sendPromises);
+
+      // تحديث حالة الإشعار
+      await this.notificationModel.findByIdAndUpdate(notification._id, {
+        sentAt: new Date(),
+      });
+
     } catch (error) {
-      this.logger.error('فشل في حساب إحصائيات الإشعارات', error);
+      this.logger.error('Failed to send push notification:', error);
       throw error;
     }
   }
 
-  /**
-   * إعادة إرسال إشعار فاشل
-   */
-  async retryFailedNotification(notificationId: string): Promise<NotificationResponse> {
+  // تسجيل اشتراك دفعي جديد
+  async registerPushSubscription(subscriptionData: PushSubscriptionDto): Promise<{ subscriptionId: string }> {
     try {
-      const notification = await this.prisma.notification.findUnique({
-        where: { id: notificationId },
+      // التحقق من وجود اشتراك مكرر
+      const existingSubscription = await this.notificationModel.findOne({
+        'data.endpoint': subscriptionData.endpoint,
+        'data.deviceId': subscriptionData.deviceId,
+        type: 'subscription',
       });
 
-      if (!notification) {
-        throw new Error(`الإشعار غير موجود: ${notificationId}`);
+      if (existingSubscription) {
+        // تحديث الاشتراك الموجود
+        await this.notificationModel.findByIdAndUpdate(existingSubscription._id, {
+          data: {
+            ...subscriptionData,
+            lastUpdated: new Date(),
+          },
+        });
+
+        return { subscriptionId: existingSubscription._id.toString() };
       }
 
-      if (notification.status !== 'failed') {
-        throw new Error(`الإشعار غير فاشل: ${notification.status}`);
-      }
-
-      if (notification.retryCount >= notification.maxRetries) {
-        throw new Error(`تم تجاوز الحد الأقصى للمحاولات: ${notification.maxRetries}`);
-      }
-
-      // تحديث عدد المحاولات
-      await this.prisma.notification.update({
-        where: { id: notificationId },
+      // إنشاء اشتراك جديد
+      const subscription = await this.notificationModel.create({
+        userId: subscriptionData.userId,
+        title: 'Push Subscription',
+        body: `Device: ${subscriptionData.deviceName || 'Unknown'}`,
+        type: 'subscription',
+        category: 'system',
         data: {
-          retryCount: { increment: 1 },
-          status: 'pending',
-          updatedAt: new Date(),
+          ...subscriptionData,
+          registeredAt: new Date(),
+        },
+        isActive: true,
+      });
+
+      this.logger.log(`Push subscription registered: ${subscription._id}`);
+
+      return { subscriptionId: subscription._id.toString() };
+    } catch (error) {
+      this.logger.error('Failed to register push subscription:', error);
+      throw error;
+    }
+  }
+
+  // إلغاء اشتراك دفعي
+  async unregisterPushSubscription(subscriptionId: string): Promise<void> {
+    try {
+      await this.notificationModel.findByIdAndUpdate(subscriptionId, {
+        isActive: false,
+        data: {
+          ...((await this.notificationModel.findById(subscriptionId))?.data || {}),
+          unregisteredAt: new Date(),
         },
       });
 
-      // إعادة إرسال الإشعار
-      const result = await this.sendByType(notification);
-
-      return {
-        notificationId,
-        status: result.status,
-        providerMessageId: result.providerMessageId,
-      };
+      this.logger.log(`Push subscription unregistered: ${subscriptionId}`);
     } catch (error) {
-      this.logger.error(`فشل في إعادة إرسال الإشعار: ${notificationId}`, error);
+      this.logger.error('Failed to unregister push subscription:', error);
       throw error;
     }
   }
 
-  /**
-   * تحديث تفضيلات الإشعارات لمستخدم
-   */
-  async updateUserPreferences(
-    userId: string,
-    preferences: Array<{
-      notificationType: string;
-      event: string;
-      enabled: boolean;
-      frequency?: string;
-      quietHoursStart?: string;
-      quietHoursEnd?: string;
-    }>,
-  ): Promise<void> {
+  // الحصول على اشتراكات المستخدم النشطة
+  private async getUserPushSubscriptions(userId: string): Promise<any[]> {
     try {
-      for (const pref of preferences) {
-        await this.prisma.notificationPreference.upsert({
-          where: {
-            userId_notificationType_event: {
-              userId,
-              notificationType: pref.notificationType,
-              event: pref.event,
-            },
-          },
-          update: {
-            enabled: pref.enabled,
-            frequency: pref.frequency,
-            quietHoursStart: pref.quietHoursStart,
-            quietHoursEnd: pref.quietHoursEnd,
-            updatedAt: new Date(),
-          },
-          create: {
-            userId,
-            notificationType: pref.notificationType,
-            event: pref.event,
-            enabled: pref.enabled,
-            frequency: pref.frequency,
-            quietHoursStart: pref.quietHoursStart,
-            quietHoursEnd: pref.quietHoursEnd,
-          },
-        });
-      }
-
-      this.logger.log(`تم تحديث تفضيلات الإشعارات للمستخدم: ${userId}`);
-    } catch (error) {
-      this.logger.error(`فشل في تحديث تفضيلات الإشعارات: ${userId}`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * الحصول على تفضيلات الإشعارات لمستخدم
-   */
-  async getUserPreferences(userId: string): Promise<any[]> {
-    try {
-      return await this.prisma.notificationPreference.findMany({
-        where: { userId },
-        orderBy: { createdAt: 'desc' },
+      const subscriptions = await this.notificationModel.find({
+        userId,
+        type: 'subscription',
+        isActive: true,
       });
+
+      return subscriptions.map(sub => ({
+        _id: sub._id,
+        endpoint: sub.data.endpoint,
+        keys: sub.data.keys,
+        deviceId: sub.data.deviceId,
+      }));
     } catch (error) {
-      this.logger.error(`فشل في الحصول على تفضيلات الإشعارات: ${userId}`, error);
+      this.logger.error('Failed to get user push subscriptions:', error);
       return [];
     }
   }
 
-  // ========== PRIVATE METHODS ==========
-
-  /**
-   * التحقق من تفضيلات الإشعارات
-   */
-  private async checkNotificationPreferences(request: SendNotificationRequest): Promise<boolean> {
-    if (!request.recipientId || request.recipientType !== 'user') {
-      return true; // لا توجد تفضيلات للعملاء أو الموردين أو الإدارة
-    }
-
+  // إزالة اشتراك غير صالح
+  private async removePushSubscription(subscriptionId: string): Promise<void> {
     try {
-      const preference = await this.prisma.notificationPreference.findUnique({
-        where: {
-          userId_notificationType_event: {
-            userId: request.recipientId,
-            notificationType: request.type,
-            event: request.event || 'general',
-          },
+      await this.notificationModel.findByIdAndUpdate(subscriptionId, {
+        isActive: false,
+        data: {
+          ...((await this.notificationModel.findById(subscriptionId))?.data || {}),
+          removedAt: new Date(),
+          removalReason: 'invalid_subscription',
         },
       });
 
-      if (!preference) {
-        return true; // الافتراضي: مفعل
+      this.logger.log(`Invalid push subscription removed: ${subscriptionId}`);
+    } catch (error) {
+      this.logger.error('Failed to remove invalid push subscription:', error);
+    }
+  }
+
+  // الحصول على إشعارات المستخدم
+  async getUserNotifications(
+    userId: string,
+    options: {
+      limit?: number;
+      offset?: number;
+      unreadOnly?: boolean;
+      category?: string;
+    } = {}
+  ): Promise<{
+    notifications: NotificationDocument[];
+    total: number;
+    unreadCount: number;
+  }> {
+    try {
+      const { limit = 20, offset = 0, unreadOnly = false, category } = options;
+
+      const filter: any = { userId, isActive: true };
+      if (unreadOnly) filter.read = false;
+      if (category) filter.category = category;
+
+      const notifications = await this.notificationModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(offset);
+
+      const total = await this.notificationModel.countDocuments(filter);
+      const unreadCount = await this.notificationModel.countDocuments({
+        userId,
+        read: false,
+        isActive: true
+      });
+
+      return { notifications, total, unreadCount };
+    } catch (error) {
+      this.logger.error('Failed to get user notifications:', error);
+      throw error;
+    }
+  }
+
+  // تحديث حالة الإشعار
+  async markNotificationAsRead(notificationId: string, userId: string): Promise<void> {
+    try {
+      const notification = await this.notificationModel.findOne({
+        _id: notificationId,
+        userId,
+        isActive: true,
+      });
+
+      if (!notification) {
+        throw new NotFoundException('Notification not found');
       }
 
-      if (!preference.enabled) {
-        return false;
+      if (!notification.read) {
+        notification.read = true;
+        notification.readAt = new Date();
+        await notification.save();
+      }
+    } catch (error) {
+      this.logger.error('Failed to mark notification as read:', error);
+      throw error;
+    }
+  }
+
+  // حذف إشعار
+  async deleteNotification(notificationId: string, userId: string): Promise<void> {
+    try {
+      const result = await this.notificationModel.findOneAndUpdate(
+        { _id: notificationId, userId },
+        { isActive: false },
+        { new: true }
+      );
+
+      if (!result) {
+        throw new NotFoundException('Notification not found');
       }
 
-      // التحقق من ساعات الهدوء
-      if (preference.quietHoursStart && preference.quietHoursEnd) {
-        const now = new Date();
-        const currentTime = now.getHours() * 60 + now.getMinutes();
-        const startTime = this.timeToMinutes(preference.quietHoursStart);
-        const endTime = this.timeToMinutes(preference.quietHoursEnd);
+      this.logger.log(`Notification deleted: ${notificationId}`);
+    } catch (error) {
+      this.logger.error('Failed to delete notification:', error);
+      throw error;
+    }
+  }
 
-        if (currentTime >= startTime && currentTime <= endTime) {
-          return false;
+  // إحصائيات الإشعارات
+  async getNotificationStats(userId?: string): Promise<{
+    total: number;
+    unread: number;
+    byCategory: Record<string, number>;
+    byType: Record<string, number>;
+  }> {
+    try {
+      const matchStage: any = { isActive: true };
+      if (userId) matchStage.userId = userId;
+
+      const stats = await this.notificationModel.aggregate([
+        { $match: matchStage },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: 1 },
+            unread: {
+              $sum: { $cond: [{ $eq: ['$read', false] }, 1, 0] }
+            },
+            categories: {
+              $push: {
+                category: '$category',
+                read: '$read'
+              }
+            },
+            types: {
+              $push: {
+                type: '$type',
+                read: '$read'
+              }
+            }
+          }
         }
+      ]);
+
+      if (stats.length === 0) {
+        return {
+          total: 0,
+          unread: 0,
+          byCategory: {},
+          byType: {}
+        };
       }
 
-      return true;
+      const result = stats[0];
+
+      // تجميع الإحصائيات حسب الفئة والنوع
+      const byCategory: Record<string, number> = {};
+      const byType: Record<string, number> = {};
+
+      result.categories.forEach((item: any) => {
+        byCategory[item.category] = (byCategory[item.category] || 0) + 1;
+      });
+
+      result.types.forEach((item: any) => {
+        byType[item.type] = (byType[item.type] || 0) + 1;
+      });
+
+      return {
+        total: result.total,
+        unread: result.unread,
+        byCategory,
+        byType,
+      };
     } catch (error) {
-      this.logger.warn(`فشل في التحقق من تفضيلات الإشعارات`, error);
-      return true; // في حالة الخطأ، نرسل الإشعار
+      this.logger.error('Failed to get notification stats:', error);
+      throw error;
     }
   }
 
-  /**
-   * الحصول على بيانات المستلم
-   */
-  private async getRecipientData(request: SendNotificationRequest): Promise<{
-    recipientEmail?: string;
-    recipientPhone?: string;
-  }> {
-    if (!request.recipientId || !request.recipientType) {
-      return {};
-    }
-
+  // تنظيف الإشعارات القديمة
+  async cleanupOldNotifications(daysToKeep: number = 30): Promise<number> {
     try {
-      switch (request.recipientType) {
-        case 'user':
-          const user = await this.prisma.user.findUnique({
-            where: { id: request.recipientId },
-            select: { email: true, phone: true },
-          });
-          return {
-            recipientEmail: user?.email,
-            recipientPhone: user?.phone || undefined,
-          };
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
 
-        case 'customer':
-          const customer = await this.prisma.customer.findUnique({
-            where: { id: request.recipientId },
-            select: { email: true, phone: true },
-          });
-          return {
-            recipientEmail: customer?.email || undefined,
-            recipientPhone: customer?.phone || undefined,
-          };
+      const result = await this.notificationModel.updateMany(
+        {
+          createdAt: { $lt: cutoffDate },
+          read: true,
+          type: { $ne: 'subscription' } // عدم حذف الاشتراكات
+        },
+        { isActive: false }
+      );
 
-        case 'supplier':
-          const supplier = await this.prisma.supplier.findUnique({
-            where: { id: request.recipientId },
-            select: { email: true, phone: true },
-          });
-          return {
-            recipientEmail: supplier?.email || undefined,
-            recipientPhone: supplier?.phone || undefined,
-          };
-
-        default:
-          return {};
-      }
+      this.logger.log(`Cleaned up ${result.modifiedCount} old notifications`);
+      return result.modifiedCount;
     } catch (error) {
-      this.logger.warn(`فشل في الحصول على بيانات المستلم: ${request.recipientId}`, error);
-      return {};
+      this.logger.error('Failed to cleanup old notifications:', error);
+      throw error;
     }
   }
 
-  /**
-   * إنشاء الإشعار في قاعدة البيانات
-   */
-  private async createNotification(request: SendNotificationRequest & { sentBy?: string }): Promise<any> {
-    return this.prisma.notification.create({
+  // إرسال إشعار ترحيب للمستخدم الجديد
+  async sendWelcomeNotification(userId: string): Promise<void> {
+    await this.sendNotificationToUser({
+      userId,
+      title: 'مرحباً بك في زيتونة SaaS',
+      body: 'شكراً لانضمامك! استكشف جميع الميزات المتاحة في لوحة التحكم.',
+      type: 'in_app',
+      category: 'system',
+      actionUrl: '/dashboard',
       data: {
-        title: request.title,
-        message: request.message,
-        type: request.type,
-        recipientId: request.recipientId,
-        recipientType: request.recipientType || 'user',
-        recipientEmail: request.recipientEmail,
-        recipientPhone: request.recipientPhone,
-        priority: request.priority || 'normal',
-        module: request.module,
-        event: request.event,
-        referenceId: request.referenceId,
-        referenceType: request.referenceType,
-        templateId: request.templateName ? await this.getTemplateId(request.templateName) : null,
-        data: request.data as any,
-        scheduledAt: request.scheduledAt,
-        expiresAt: request.expiresAt,
-        sentBy: request.sentBy,
-        branchId: request.branchId,
-        status: request.scheduledAt ? 'pending' : 'queued',
-      },
+        welcome: true,
+        features: ['inventory', 'sales', 'reports']
+      }
+    });
+  }
+
+  // إرسال إشعار تحذير للمخزون المنخفض
+  async sendLowStockAlert(userId: string, productName: string, currentStock: number, minStock: number): Promise<void> {
+    await this.sendNotificationToUser({
+      userId,
+      title: 'تنبيه: مخزون منخفض',
+      body: `المنتج "${productName}" وصل لمستوى مخزون منخفض (${currentStock}). الحد الأدنى: ${minStock}`,
+      type: 'push',
+      category: 'inventory',
+      actionUrl: '/inventory',
+      data: {
+        productName,
+        currentStock,
+        minStock,
+        alertType: 'low_stock'
+      }
     });
   }
 
-  /**
-   * إرسال الإشعار حسب النوع
-   */
-  private async sendByType(notification: any): Promise<{
-    status: 'sent' | 'failed';
-    providerMessageId?: string;
-  }> {
-    try {
-      // تحديث حالة الإشعار إلى جاري الإرسال
-      await this.prisma.notification.update({
-        where: { id: notification.id },
-        data: { status: 'pending' },
-      });
-
-      switch (notification.type) {
-        case 'email':
-          return this.sendEmail(notification);
-        case 'sms':
-          return this.sendSMS(notification);
-        case 'whatsapp':
-          return this.sendWhatsApp(notification);
-        case 'push':
-          return this.sendPush(notification);
-        case 'in_app':
-          return this.sendInApp(notification);
-        default:
-          throw new Error(`نوع الإشعار غير مدعوم: ${notification.type}`);
-      }
-    } catch (error) {
-      // تحديث حالة الإشعار إلى فاشل
-      await this.prisma.notification.update({
-        where: { id: notification.id },
-        data: {
-          status: 'failed',
-          failedAt: new Date(),
-          lastError: error.message,
-        },
-      });
-
-      return { status: 'failed' };
-    }
-  }
-
-  /**
-   * إرسال إيميل
-   */
-  private async sendEmail(notification: any): Promise<{
-    status: 'sent' | 'failed';
-    providerMessageId?: string;
-  }> {
-    try {
-      // محاكاة إرسال إيميل - في الواقع يتم استخدام SendGrid أو خدمة أخرى
-      const sendgridApiKey = this.configService.get('SENDGRID_API_KEY');
-
-      if (!sendgridApiKey) {
-        throw new Error('مفتاح SendGrid غير مكون');
-      }
-
-      // محاكاة الإرسال
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      // تحديث حالة الإشعار
-      await this.prisma.notification.update({
-        where: { id: notification.id },
-        data: {
-          status: 'sent',
-          provider: 'sendgrid',
-          providerMessageId: `sg_${Date.now()}`,
-          sentAt: new Date(),
-        },
-      });
-
-      return {
-        status: 'sent',
-        providerMessageId: `sg_${Date.now()}`,
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * إرسال SMS
-   */
-  private async sendSMS(notification: any): Promise<{
-    status: 'sent' | 'failed';
-    providerMessageId?: string;
-  }> {
-    try {
-      // محاكاة إرسال SMS - في الواقع يتم استخدام Twilio أو خدمة أخرى
-      const twilioAccountSid = this.configService.get('TWILIO_ACCOUNT_SID');
-
-      if (!twilioAccountSid) {
-        throw new Error('معرف Twilio غير مكون');
-      }
-
-      // محاكاة الإرسال
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      // تحديث حالة الإشعار
-      await this.prisma.notification.update({
-        where: { id: notification.id },
-        data: {
-          status: 'sent',
-          provider: 'twilio',
-          providerMessageId: `sm_${Date.now()}`,
-          sentAt: new Date(),
-        },
-      });
-
-      return {
-        status: 'sent',
-        providerMessageId: `sm_${Date.now()}`,
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * إرسال WhatsApp
-   */
-  private async sendWhatsApp(notification: any): Promise<{
-    status: 'sent' | 'failed';
-    providerMessageId?: string;
-  }> {
-    try {
-      // محاكاة إرسال WhatsApp - في الواقع يتم استخدام WhatsApp Business API
-      const whatsappToken = this.configService.get('WHATSAPP_ACCESS_TOKEN');
-
-      if (!whatsappToken) {
-        throw new Error('رمز WhatsApp غير مكون');
-      }
-
-      // محاكاة الإرسال
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      // تحديث حالة الإشعار
-      await this.prisma.notification.update({
-        where: { id: notification.id },
-        data: {
-          status: 'sent',
-          provider: 'whatsapp_business',
-          providerMessageId: `wa_${Date.now()}`,
-          sentAt: new Date(),
-        },
-      });
-
-      return {
-        status: 'sent',
-        providerMessageId: `wa_${Date.now()}`,
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * إرسال دفع
-   */
-  private async sendPush(notification: any): Promise<{
-    status: 'sent' | 'failed';
-    providerMessageId?: string;
-  }> {
-    try {
-      // محاكاة إرسال دفع - في الواقع يتم استخدام Firebase أو خدمة أخرى
-      const firebaseKey = this.configService.get('FIREBASE_SERVER_KEY');
-
-      if (!firebaseKey) {
-        throw new Error('مفتاح Firebase غير مكون');
-      }
-
-      // محاكاة الإرسال
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      // تحديث حالة الإشعار
-      await this.prisma.notification.update({
-        where: { id: notification.id },
-        data: {
-          status: 'sent',
-          provider: 'firebase',
-          providerMessageId: `fcm_${Date.now()}`,
-          sentAt: new Date(),
-        },
-      });
-
-      return {
-        status: 'sent',
-        providerMessageId: `fcm_${Date.now()}`,
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * إرسال إشعار داخل التطبيق
-   */
-  private async sendInApp(notification: any): Promise<{
-    status: 'sent' | 'failed';
-    providerMessageId?: string;
-  }> {
-    try {
-      // للإشعارات داخل التطبيق، فقط نحتاج لتحديث الحالة
-      await this.prisma.notification.update({
-        where: { id: notification.id },
-        data: {
-          status: 'delivered',
-          sentAt: new Date(),
-          deliveredAt: new Date(),
-        },
-      });
-
-      return { status: 'sent' };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * الحصول على معرف القالب
-   */
-  private async getTemplateId(templateName: string): Promise<string | null> {
-    try {
-      const template = await this.prisma.notificationTemplate.findUnique({
-        where: { name: templateName },
-        select: { id: true },
-      });
-      return template?.id || null;
-    } catch (error) {
-      return null;
-    }
-  }
-
-  /**
-   * معالجة محتوى القالب
-   */
-  private processTemplate(template: string, variables: TemplateVariables): string {
-    let processed = template;
-
-    // استبدال المتغيرات
-    for (const [key, value] of Object.entries(variables)) {
-      const regex = new RegExp(`\\$\\{${key}\\}`, 'g');
-      processed = processed.replace(regex, String(value));
-    }
-
-    return processed;
-  }
-
-  /**
-   * تحويل الوقت إلى دقائق
-   */
-  private timeToMinutes(time: string): number {
-    const [hours, minutes] = time.split(':').map(Number);
-    return hours * 60 + minutes;
-  }
-
-  /**
-   * تجميع البيانات حسب حقل معين
-   */
-  private groupBy(items: any[], field: string): Record<string, number> {
-    return items.reduce((acc, item) => {
-      const key = item[field] || 'unknown';
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
-    }, {});
-  }
-
-  /**
-   * حساب الإحصائيات اليومية
-   */
-  private calculateDailyStats(notifications: any[]): Array<{
-    date: string;
-    sent: number;
-    failed: number;
-  }> {
-    const dailyStats: Record<string, { sent: number; failed: number }> = {};
-
-    notifications.forEach(notification => {
-      const date = notification.createdAt.toISOString().split('T')[0];
-      if (!dailyStats[date]) {
-        dailyStats[date] = { sent: 0, failed: 0 };
-      }
-
-      if (notification.status === 'sent') {
-        dailyStats[date].sent++;
-      } else if (notification.status === 'failed') {
-        dailyStats[date].failed++;
+  // إرسال إشعار مبيعات عالية
+  async sendHighSalesAlert(userId: string, period: string, salesAmount: number, growth: number): Promise<void> {
+    await this.sendNotificationToUser({
+      userId,
+      title: 'تميز في المبيعات! 🎉',
+      body: `مبيعات ${period} بلغت ${salesAmount.toLocaleString('ar-SA')} ريال (${growth > 0 ? '+' : ''}${growth.toFixed(1)}%)`,
+      type: 'push',
+      category: 'sales',
+      actionUrl: '/reports',
+      data: {
+        period,
+        salesAmount,
+        growth,
+        alertType: 'high_sales'
       }
     });
-
-    return Object.entries(dailyStats)
-      .map(([date, stats]) => ({ date, ...stats }))
-      .sort((a, b) => b.date.localeCompare(a.date));
   }
 }

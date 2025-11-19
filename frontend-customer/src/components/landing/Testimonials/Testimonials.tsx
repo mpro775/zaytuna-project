@@ -73,7 +73,11 @@ export const Testimonials: React.FC = () => {
 
         <Grid container spacing={4}>
           {testimonials.map((testimonial) => (
-            <Grid item xs={12} md={4} key={testimonial.id}>
+            <Grid 
+             size={{ xs: 12, md: 4 }}
+             component="div"
+             key={testimonial.id}
+             >
               <Paper
                 elevation={0}
                 sx={{

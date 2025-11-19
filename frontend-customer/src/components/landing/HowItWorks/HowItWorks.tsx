@@ -5,9 +5,6 @@ import {
   Typography,
   Grid,
   Paper,
-  Stepper,
-  Step,
-  StepLabel,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import {
@@ -73,7 +70,11 @@ export const HowItWorks: React.FC = () => {
 
         <Grid container spacing={4}>
           {steps.map((step, index) => (
-            <Grid item xs={12} md={4} key={step.id}>
+            <Grid 
+             size={{ xs: 12, md: 4 }}
+             component="div"
+             key={step.id}
+             >
               <Paper
                 elevation={0}
                 sx={{

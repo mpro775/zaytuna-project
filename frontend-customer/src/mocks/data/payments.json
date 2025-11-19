@@ -1,0 +1,37 @@
+[
+  {
+    "id": "pay-1",
+    "salesInvoiceId": "inv-1",
+    "customerId": "cust-1",
+    "currencyId": "YER",
+    "amount": 138750,
+    "paymentMethod": "cash",
+    "referenceNumber": null,
+    "notes": null,
+    "paymentDate": "2024-06-10T10:00:00.000Z",
+    "processedBy": "user-3",
+    "currency": {
+      "id": "YER",
+      "code": "YER",
+      "name": "ريال يمني"
+    }
+  },
+  {
+    "id": "pay-2",
+    "salesInvoiceId": "inv-2",
+    "customerId": "cust-2",
+    "currencyId": "YER",
+    "amount": 97750,
+    "paymentMethod": "card",
+    "referenceNumber": "CARD-123456",
+    "notes": null,
+    "paymentDate": "2024-06-08T10:00:00.000Z",
+    "processedBy": "user-3",
+    "currency": {
+      "id": "YER",
+      "code": "YER",
+      "name": "ريال يمني"
+    }
+  }
+]
+
