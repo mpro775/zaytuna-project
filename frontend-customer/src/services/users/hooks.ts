@@ -1,5 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { UsersService, RolesService, PermissionsService, UsersFilters } from './users';
+import { UsersService } from './users';
+import type { UsersFilters } from './types';
+import { RolesService } from './roles';
+import { PermissionsService } from './permissions';
 
 // Query Keys
 export const USERS_QUERY_KEYS = {
@@ -21,7 +24,8 @@ export const PERMISSIONS_QUERY_KEYS = {
   all: ['permissions'] as const,
   permissions: () => [...PERMISSIONS_QUERY_KEYS.all, 'list'] as const,
   categories: () => [...PERMISSIONS_QUERY_KEYS.all, 'categories'] as const,
-  categoryPermissions: (category: string) => [...PERMISSIONS_QUERY_KEYS.all, 'category', category] as const,
+  categoryPermissions: (category: string) =>
+    [...PERMISSIONS_QUERY_KEYS.all, 'category', category] as const,
 };
 
 /**
@@ -68,8 +72,7 @@ export const useUpdateUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) =>
-      UsersService.updateUser(id, data),
+    mutationFn: ({ id, data }: { id: string; data: any }) => UsersService.updateUser(id, data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEYS.user(id) });
       queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEYS.users() });
@@ -162,8 +165,7 @@ export const useUpdateRole = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) =>
-      RolesService.updateRole(id, data),
+    mutationFn: ({ id, data }: { id: string; data: any }) => RolesService.updateRole(id, data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ROLES_QUERY_KEYS.role(id) });
       queryClient.invalidateQueries({ queryKey: ROLES_QUERY_KEYS.roles() });

@@ -1,10 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   Chip,
   Box,
   Typography,
-  IconButton,
-  Tooltip,
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -15,8 +13,8 @@ import {
   Error as ErrorIcon,
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import { Table, Column, Action } from '@/components/ui/Table';
-import { StockItem } from '@/services/inventory';
+import { Table, type Column, type Action } from '@/components/ui/Table';
+import { type StockItem } from '@/services/inventory';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 
@@ -49,7 +47,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
       id: 'productVariant',
       label: t('inventory.table.product', 'المنتج'),
       minWidth: 200,
-      render: (value: any, row: StockItem) => (
+      render: (_value: unknown, row: StockItem) => (
         <Box>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
             {row.productVariant.product.name}
@@ -65,7 +63,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
       id: 'warehouse',
       label: t('inventory.table.warehouse', 'المخزن'),
       minWidth: 150,
-      render: (value: any, row: StockItem) => (
+      render: (_value: unknown, row: StockItem) => (
         <Box>
           <Typography variant="body2">{row.warehouse.name}</Typography>
           <Typography variant="caption" color="text.secondary">
@@ -79,9 +77,10 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
       label: t('inventory.table.quantity', 'الكمية'),
       align: 'center',
       minWidth: 100,
-      render: (value: number, row: StockItem) => {
+      render: (value: unknown, row: StockItem) => {
+        const quantity = typeof value === 'number' ? value : row.quantity;
         const isLowStock = row.isLowStock;
-        const isOutOfStock = value === 0;
+        const isOutOfStock = quantity === 0;
 
         return (
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
@@ -92,7 +91,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                 color: isOutOfStock ? 'error.main' : isLowStock ? 'warning.main' : 'success.main',
               }}
             >
-              {value}
+              {quantity}
             </Typography>
             {isOutOfStock && <ErrorIcon color="error" fontSize="small" />}
             {isLowStock && !isOutOfStock && <WarningIcon color="warning" fontSize="small" />}
@@ -105,7 +104,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
       label: t('inventory.table.stockLevels', 'مستويات المخزون'),
       align: 'center',
       minWidth: 150,
-      render: (value: any, row: StockItem) => (
+      render: (_value: unknown, row: StockItem) => (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'center' }}>
           <Chip
             label={`${t('inventory.table.min', 'الحد الأدنى')}: ${row.minStock}`}
@@ -127,7 +126,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
       label: t('inventory.table.status', 'الحالة'),
       align: 'center',
       minWidth: 120,
-      render: (value: any, row: StockItem) => {
+      render: (_value: unknown, row: StockItem) => {
         let statusColor: 'success' | 'warning' | 'error' = 'success';
         let statusLabel = t('inventory.status.normal', 'طبيعي');
 
@@ -157,11 +156,15 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
       label: t('inventory.table.lastUpdated', 'آخر تحديث'),
       align: 'center',
       minWidth: 120,
-      render: (value: string) => (
-        <Typography variant="caption" color="text.secondary">
-          {format(new Date(value), 'dd/MM/yyyy', { locale: isRTL ? ar : undefined })}
-        </Typography>
-      ),
+      render: (value: unknown, row: StockItem) => {
+        const dateValue = typeof value === 'string' ? value : row.updatedAt;
+        const formatOptions = isRTL ? { locale: ar } : {};
+        return (
+          <Typography variant="caption" color="text.secondary">
+            {format(new Date(dateValue), 'dd/MM/yyyy', formatOptions)}
+          </Typography>
+        );
+      },
     },
   ], [t, isRTL]);
 
@@ -224,7 +227,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
   }, [showActions, onAdjustStock, onViewMovements, onTransfer, onEdit, onDelete, t]);
 
   return (
-    <Table
+    <Table<StockItem>
       columns={columns}
       data={data}
       loading={loading}

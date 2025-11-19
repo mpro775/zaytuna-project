@@ -30,9 +30,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Search as SearchIcon,
-  FilterList as FilterIcon,
   Refresh as RefreshIcon,
-  Warehouse as WarehouseIcon,
   Business as BusinessIcon,
   LocationOn as LocationIcon,
   Phone as PhoneIcon,
@@ -42,7 +40,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useWarehouses } from '@/hooks';
-import { Warehouse } from '@/services/warehouses';
+import type { Warehouse } from '@/services/inventory';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 
@@ -73,7 +71,6 @@ const Warehouses: React.FC = () => {
     changePage,
     changePageSize,
     deleteWarehouse,
-    switchToWarehouse,
   } = useWarehouses({
     filters: {
       page: 1,
@@ -153,10 +150,6 @@ const Warehouses: React.FC = () => {
 
   const handleCreateWarehouse = () => {
     navigate('/warehouses/new');
-  };
-
-  const handleSwitchToWarehouse = (warehouse: Warehouse) => {
-    switchToWarehouse(warehouse.id);
   };
 
   const formatDate = (dateString: string): string => {

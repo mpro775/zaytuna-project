@@ -22,7 +22,6 @@ import {
   Inventory as InventoryIcon,
   Warning as WarningIcon,
   TrendingDown as LowStockIcon,
-  TrendingUp as OverStockIcon,
   ShoppingCart as MovementIcon,
   TransferWithinAStation as TransferIcon,
   Add as AddIcon,
@@ -167,7 +166,7 @@ const Inventory: React.FC = () => {
             <Button
               variant="outlined"
               startIcon={<TransferIcon />}
-              onClick={handleTransferStock}
+              onClick={() => handleTransferStock()}
               sx={{ minWidth: 140 }}
             >
               {t('inventory.actions.transfer', 'نقل مخزون')}
@@ -220,7 +219,7 @@ const Inventory: React.FC = () => {
             </Typography>
 
             <Grid container spacing={3} alignItems="center">
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid   size={{xs: 12, sm: 6, md: 4}}>
                 <TextField
                   select
                   label={t('inventory.filters.warehouse', 'المخزن')}
@@ -237,7 +236,7 @@ const Inventory: React.FC = () => {
                 </TextField>
               </Grid>
 
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid   size={{xs: 12, sm: 6, md: 4}}>
                 <TextField
                   select
                   label={t('inventory.filters.status', 'الحالة')}
@@ -264,7 +263,7 @@ const Inventory: React.FC = () => {
                 </TextField>
               </Grid>
 
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid   size={{xs: 12, sm: 6, md: 4}}>
                 <TextField
                   label={t('inventory.filters.search', 'البحث في المنتجات')}
                   placeholder={t('inventory.filters.searchPlaceholder', 'اسم المنتج أو الباركود...')}
@@ -287,7 +286,7 @@ const Inventory: React.FC = () => {
 
         {/* KPI Cards */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid   size={{xs: 12, sm: 6, md: 3}}>
             <KPICard
               title={t('inventory.kpis.totalItems', 'إجمالي العناصر')}
               value={inventoryStats?.totalItems || 0}
@@ -297,7 +296,7 @@ const Inventory: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid   size={{xs: 12, sm: 6, md: 3}}>
             <KPICard
               title={t('inventory.kpis.totalValue', 'إجمالي القيمة')}
               value={inventoryStats?.totalValue || 0}
@@ -308,7 +307,7 @@ const Inventory: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid   size={{xs: 12, sm: 6, md: 3}}>
             <KPICard
               title={t('inventory.kpis.lowStockItems', 'مخزون منخفض')}
               value={inventoryStats?.lowStockItems || 0}
@@ -318,7 +317,7 @@ const Inventory: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid   size={{xs: 12, sm: 6, md: 3}}>
             <KPICard
               title={t('inventory.kpis.outOfStockItems', 'نفد المخزون')}
               value={inventoryStats?.outOfStockItems || 0}
@@ -332,7 +331,7 @@ const Inventory: React.FC = () => {
         {/* Alerts and Stats */}
         <Grid container spacing={3}>
           {/* Low Stock Alerts */}
-          <Grid item xs={12} lg={6}>
+          <Grid   size={{xs: 12, lg: 6}}>
             <Paper sx={{ p: 3, height: '100%' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <WarningIcon color="warning" sx={{ mr: 1 }} />
@@ -381,7 +380,7 @@ const Inventory: React.FC = () => {
           </Grid>
 
           {/* Inventory Overview */}
-          <Grid item xs={12} lg={6}>
+          <Grid   size={{xs: 12, lg: 6}}>
             <Paper sx={{ p: 3, height: '100%' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <InventoryIcon color="primary" sx={{ mr: 1 }} />
@@ -391,7 +390,7 @@ const Inventory: React.FC = () => {
               </Box>
 
               <Grid container spacing={2}>
-                <Grid item xs={6}>
+                <Grid   size={{xs: 6}}>
                   <Box sx={{ textAlign: 'center', p: 2 }}>
                     <Typography variant="h4" color="success.main" sx={{ fontWeight: 700 }}>
                       {inventoryStats?.totalItems ? (
@@ -404,7 +403,7 @@ const Inventory: React.FC = () => {
                   </Box>
                 </Grid>
 
-                <Grid item xs={6}>
+                  <Grid   size={{xs: 6}}>
                   <Box sx={{ textAlign: 'center', p: 2 }}>
                     <Typography variant="h4" color="warning.main" sx={{ fontWeight: 700 }}>
                       {inventoryStats?.overStockItems || 0}
@@ -415,7 +414,7 @@ const Inventory: React.FC = () => {
                   </Box>
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid   size={{xs: 12}}>
                   <Box sx={{ textAlign: 'center', p: 2 }}>
                     <Typography variant="body1" sx={{ mb: 1 }}>
                       {t('inventory.overview.totalMovements', 'إجمالي الحركات اليوم')}
@@ -437,7 +436,7 @@ const Inventory: React.FC = () => {
           </Typography>
 
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid   size={{xs: 12, sm: 6, md: 3}}>
               <Button
                 fullWidth
                 variant="contained"
@@ -449,7 +448,7 @@ const Inventory: React.FC = () => {
               </Button>
             </Grid>
 
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid   size={{xs: 12, sm: 6, md: 3}}>
               <Button
                 fullWidth
                 variant="outlined"
@@ -461,7 +460,7 @@ const Inventory: React.FC = () => {
               </Button>
             </Grid>
 
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid   size={{xs: 12, sm: 6, md: 3}}>
               <Button
                 fullWidth
                 variant="outlined"
@@ -473,7 +472,7 @@ const Inventory: React.FC = () => {
               </Button>
             </Grid>
 
-            <Grid item xs={12} sm={6} md={3}>
+              <Grid   size={{xs: 12, sm: 6, md: 3}}>
               <Button
                 fullWidth
                 variant="outlined"
@@ -507,8 +506,8 @@ const Inventory: React.FC = () => {
         {/* Stock Item Form Modal */}
         <StockItemForm
           open={formModal.open}
-          onClose={() => setFormModal({ open: false, mode: 'create', stockItem: null })}
-          stockItem={formModal.stockItem}
+            onClose={() => setFormModal({ open: false, mode: 'create', stockItem: null })}
+          stockItem={formModal.stockItem || null}
           mode={formModal.mode}
         />
 
@@ -516,7 +515,7 @@ const Inventory: React.FC = () => {
         <WarehouseTransferForm
           open={transferModal.open}
           onClose={() => setTransferModal({ open: false, stockItem: null })}
-          stockItem={transferModal.stockItem}
+          stockItem={transferModal.stockItem || null}
         />
       </Box>
     </Container>

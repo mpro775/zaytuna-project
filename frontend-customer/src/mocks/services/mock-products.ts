@@ -10,8 +10,8 @@ import { filterData, sortData, paginateData, generateId, getMockDataFromStorage,
 import type { MockRequest, MockResponse } from '../types';
 
 // Load data with localStorage persistence
-let products = getMockDataFromStorage('products', productsData);
-let categories = [...categoriesData];
+const products = getMockDataFromStorage('products', productsData);
+const categories = [...categoriesData];
 
 // Register handlers
 mockApi.registerHandler('GET:/products', async (request: MockRequest): Promise<MockResponse> => {
@@ -106,8 +106,8 @@ mockApi.registerHandler('PATCH:/products/:id', async (request: MockRequest): Pro
   
   saveMockDataToStorage('products', products);
   
-  const category = categories.find((c) => c.id === products[index].categoryId);
-  const productWithCategory = { ...products[index], category };
+  const category = categories.find((c) => c.id === products[index]!.categoryId);
+  const productWithCategory = { ...products[index]!, category };
   
   return {
     data: productWithCategory,

@@ -1,13 +1,13 @@
 import { api } from '../api';
+import type { PaginatedResponse } from '../common';
 import {
-  SalesInvoice,
-  CreateSalesInvoiceDto,
-  UpdateSalesInvoiceDto,
-  CreatePaymentDto,
-  SalesStats,
-  SalesFilters,
-  SalesApiResponse,
-  PaginatedResponse,
+  type SalesInvoice,
+  type CreateSalesInvoiceDto,
+  type UpdateSalesInvoiceDto,
+  type CreatePaymentDto,
+  type SalesStats,
+  type SalesFilters,
+  type SalesApiResponse,
 } from './types';
 
 /**

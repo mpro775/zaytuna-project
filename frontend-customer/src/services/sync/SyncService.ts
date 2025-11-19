@@ -1,6 +1,5 @@
 import { IndexedDBService, type SyncOperation, type LocalEntity } from './IndexedDBService';
 import { OfflineQueue } from './OfflineQueue';
-import { ConflictResolver } from './ConflictResolver';
 import { pwaService } from './PWAService';
 import type { SyncChange, SyncResult, DeviceConfig } from './types';
 import axios from '../../services/api/axios';
@@ -8,7 +7,6 @@ import axios from '../../services/api/axios';
 export class SyncService {
   private db: IndexedDBService;
   private queue: OfflineQueue;
-  private conflictResolver: ConflictResolver;
   private deviceId: string;
   private deviceConfig: DeviceConfig | null = null;
   private isOnline: boolean = navigator.onLine;
@@ -19,7 +17,6 @@ export class SyncService {
     this.deviceId = deviceId;
     this.db = new IndexedDBService();
     this.queue = new OfflineQueue(this.db);
-    this.conflictResolver = new ConflictResolver();
 
     this.initialize();
   }

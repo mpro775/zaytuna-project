@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -10,7 +10,6 @@ import {
   IconButton,
   Tooltip,
   Chip,
-  Grid,
 } from '@mui/material';
 import {
   Refresh as RefreshIcon,
@@ -21,7 +20,7 @@ import {
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useInventoryStore } from '@/store';
-import { Table, Column } from '@/components/ui/Table';
+import { Table, type Column } from '@/components/ui/Table';
 import type { StockMovement } from '@/services/inventory';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
@@ -61,18 +60,17 @@ const StockMovements: React.FC = () => {
     { value: 'transfer', label: t('inventory.movementTypes.transfer', 'نقل') },
   ];
 
+  const loadMovements = useCallback(async () => {
+    await fetchStockMovements(
+      filters.warehouseId || undefined,
+      filters.productVariantId || undefined,
+      filters.limit,
+    );
+  }, [filters.warehouseId, filters.productVariantId, filters.limit, fetchStockMovements]);
+
   useEffect(() => {
     loadMovements();
-  }, []);
-
-  const loadMovements = async () => {
-    const filterParams = {
-      warehouseId: filters.warehouseId || undefined,
-      productVariantId: filters.productVariantId || undefined,
-      limit: filters.limit,
-    };
-    await fetchStockMovements(filterParams);
-  };
+  }, [loadMovements]);
 
   const handleFilterChange = (field: string, value: string | number) => {
     setFilters(prev => ({
@@ -131,23 +129,44 @@ const StockMovements: React.FC = () => {
     }
   };
 
+  // Filter movements client-side for movementType and search
+  const filteredMovements = stockMovements.filter((movement) => {
+    if (filters.movementType && movement.movementType !== filters.movementType) {
+      return false;
+    }
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      const productName = movement.productVariant?.product?.name?.toLowerCase() || '';
+      const variantName = movement.productVariant?.name?.toLowerCase() || '';
+      const referenceId = movement.referenceId?.toLowerCase() || '';
+      if (!productName.includes(searchLower) && !variantName.includes(searchLower) && !referenceId.includes(searchLower)) {
+        return false;
+      }
+    }
+    return true;
+  });
+
   const columns: Column<StockMovement>[] = [
     {
       id: 'createdAt',
       label: t('inventory.movements.date', 'التاريخ'),
       align: 'center',
       minWidth: 150,
-      render: (value: string) => (
-        <Typography variant="body2">
-          {format(new Date(value), 'dd/MM/yyyy HH:mm', { locale: isRTL ? ar : undefined })}
-        </Typography>
-      ),
+      render: (value: unknown) => {
+        const dateValue = typeof value === 'string' ? value : String(value);
+        const formatOptions = isRTL ? { locale: ar } : {};
+        return (
+          <Typography variant="body2">
+            {format(new Date(dateValue), 'dd/MM/yyyy HH:mm', formatOptions)}
+          </Typography>
+        );
+      },
     },
     {
       id: 'warehouse',
       label: t('inventory.movements.warehouse', 'المخزن'),
       minWidth: 150,
-      render: (value: any, row: StockMovement) => (
+      render: (_value: unknown, row: StockMovement) => (
         <Box>
           <Typography variant="body2">{row.warehouse.name}</Typography>
           <Typography variant="caption" color="text.secondary">
@@ -160,7 +179,7 @@ const StockMovements: React.FC = () => {
       id: 'productVariant',
       label: t('inventory.movements.product', 'المنتج'),
       minWidth: 200,
-      render: (value: any, row: StockMovement) => (
+      render: (_value: unknown, row: StockMovement) => (
         <Box>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
             {row.productVariant.product.name}
@@ -176,23 +195,27 @@ const StockMovements: React.FC = () => {
       label: t('inventory.movements.type', 'نوع الحركة'),
       align: 'center',
       minWidth: 120,
-      render: (value: string) => (
-        <Chip
-          label={getMovementTypeLabel(value)}
-          size="small"
-          color={getMovementTypeColor(value) as any}
-          variant="filled"
-        />
-      ),
+      render: (value: unknown) => {
+        const typeValue = typeof value === 'string' ? value : String(value);
+        return (
+          <Chip
+            label={getMovementTypeLabel(typeValue)}
+            size="small"
+            color={getMovementTypeColor(typeValue) as any}
+            variant="filled"
+          />
+        );
+      },
     },
     {
       id: 'quantity',
       label: t('inventory.movements.quantity', 'الكمية'),
       align: 'center',
       minWidth: 100,
-      render: (value: number, row: StockMovement) => {
-        const isPositive = ['in', 'adjustment'].includes(row.movementType) && value > 0;
-        const isNegative = ['out', 'transfer'].includes(row.movementType) && value < 0;
+      render: (value: unknown, row: StockMovement) => {
+        const numValue = typeof value === 'number' ? value : Number(value) || 0;
+        const isPositive = ['in', 'adjustment'].includes(row.movementType) && numValue > 0;
+        const isNegative = ['out', 'transfer'].includes(row.movementType) && numValue < 0;
 
         return (
           <Typography
@@ -202,7 +225,7 @@ const StockMovements: React.FC = () => {
               color: isPositive ? 'success.main' : isNegative ? 'error.main' : 'text.primary',
             }}
           >
-            {isPositive ? '+' : ''}{value}
+            {isPositive ? '+' : ''}{numValue}
           </Typography>
         );
       },
@@ -212,11 +235,12 @@ const StockMovements: React.FC = () => {
       label: t('inventory.movements.reference', 'المرجع'),
       align: 'center',
       minWidth: 120,
-      render: (value: string | undefined, row: StockMovement) => {
-        if (!value) return '-';
+      render: (value: unknown, row: StockMovement) => {
+        const refValue = typeof value === 'string' ? value : value ? String(value) : undefined;
+        if (!refValue) return '-';
 
-        let label = value;
-        switch (value) {
+        let label = refValue;
+        switch (refValue) {
           case 'sales':
             label = t('inventory.references.sales', 'مبيعات');
             break;
@@ -247,22 +271,28 @@ const StockMovements: React.FC = () => {
       id: 'reason',
       label: t('inventory.movements.reason', 'السبب'),
       minWidth: 150,
-      render: (value: string | undefined) => (
-        <Typography variant="body2" sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {value || '-'}
-        </Typography>
-      ),
+      render: (value: unknown) => {
+        const reasonValue = typeof value === 'string' ? value : value ? String(value) : undefined;
+        return (
+          <Typography variant="body2" sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {reasonValue || '-'}
+          </Typography>
+        );
+      },
     },
     {
       id: 'performedBy',
       label: t('inventory.movements.performedBy', 'المنفذ'),
       align: 'center',
       minWidth: 120,
-      render: (value: string | undefined) => (
-        <Typography variant="body2">
-          {value || t('inventory.movements.system', 'النظام')}
-        </Typography>
-      ),
+      render: (value: unknown) => {
+        const performedByValue = typeof value === 'string' ? value : value ? String(value) : undefined;
+        return (
+          <Typography variant="body2">
+            {performedByValue || t('inventory.movements.system', 'النظام')}
+          </Typography>
+        );
+      },
     },
   ];
 
@@ -313,76 +343,74 @@ const StockMovements: React.FC = () => {
               {t('inventory.movements.filters.title', 'فلاتر الحركات')}
             </Typography>
 
-            <Grid container spacing={3} alignItems="center">
-              <Grid item xs={12} sm={6} md={3}>
-                <TextField
-                  select
-                  label={t('inventory.filters.warehouse', 'المخزن')}
-                  value={filters.warehouseId}
-                  onChange={(e) => handleFilterChange('warehouseId', e.target.value)}
-                  fullWidth
-                  size="small"
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+                gap: 3,
+              }}
+            >
+              <TextField
+                select
+                label={t('inventory.filters.warehouse', 'المخزن')}
+                value={filters.warehouseId}
+                onChange={(e) => handleFilterChange('warehouseId', e.target.value)}
+                fullWidth
+                size="small"
+              >
+                {warehouses.map((warehouse) => (
+                  <MenuItem key={warehouse.id} value={warehouse.id}>
+                    {warehouse.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+
+              <TextField
+                select
+                label={t('inventory.movements.filters.movementType', 'نوع الحركة')}
+                value={filters.movementType}
+                onChange={(e) => handleFilterChange('movementType', e.target.value)}
+                fullWidth
+                size="small"
+              >
+                {movementTypes.map((type) => (
+                  <MenuItem key={type.value} value={type.value}>
+                    {type.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+
+              <TextField
+                label={t('inventory.filters.search', 'البحث في المنتجات')}
+                placeholder={t('inventory.movements.filters.searchPlaceholder', 'اسم المنتج أو المرجع...')}
+                value={filters.search}
+                onChange={(e) => handleFilterChange('search', e.target.value)}
+                fullWidth
+                size="small"
+                InputProps={{
+                  startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
+                }}
+              />
+
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Button
+                  variant="contained"
+                  onClick={handleApplyFilters}
+                  sx={{ flex: 1 }}
                 >
-                  {warehouses.map((warehouse) => (
-                    <MenuItem key={warehouse.id} value={warehouse.id}>
-                      {warehouse.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
+                  {t('common.actions.apply', 'تطبيق')}
+                </Button>
 
-              <Grid item xs={12} sm={6} md={3}>
-                <TextField
-                  select
-                  label={t('inventory.movements.filters.movementType', 'نوع الحركة')}
-                  value={filters.movementType}
-                  onChange={(e) => handleFilterChange('movementType', e.target.value)}
-                  fullWidth
-                  size="small"
+                <Button
+                  variant="outlined"
+                  onClick={handleClearFilters}
+                  startIcon={<ClearIcon />}
+                  sx={{ minWidth: 100 }}
                 >
-                  {movementTypes.map((type) => (
-                    <MenuItem key={type.value} value={type.value}>
-                      {type.label}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-
-              <Grid item xs={12} sm={6} md={3}>
-                <TextField
-                  label={t('inventory.filters.search', 'البحث في المنتجات')}
-                  placeholder={t('inventory.movements.filters.searchPlaceholder', 'اسم المنتج أو المرجع...')}
-                  value={filters.search}
-                  onChange={(e) => handleFilterChange('search', e.target.value)}
-                  fullWidth
-                  size="small"
-                  InputProps={{
-                    startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6} md={3}>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button
-                    variant="contained"
-                    onClick={handleApplyFilters}
-                    sx={{ flex: 1 }}
-                  >
-                    {t('common.actions.apply', 'تطبيق')}
-                  </Button>
-
-                  <Button
-                    variant="outlined"
-                    onClick={handleClearFilters}
-                    startIcon={<ClearIcon />}
-                    sx={{ minWidth: 100 }}
-                  >
-                    {t('common.actions.clear', 'مسح')}
-                  </Button>
-                </Box>
-              </Grid>
-            </Grid>
+                  {t('common.actions.clear', 'مسح')}
+                </Button>
+              </Box>
+            </Box>
           </Paper>
         )}
 
@@ -398,8 +426,8 @@ const StockMovements: React.FC = () => {
         {/* Movements Table */}
         <Paper sx={{ p: 3 }}>
           <Table
-            columns={columns}
-            data={stockMovements}
+            columns={columns as Column<Record<string, unknown>>[]}
+            data={filteredMovements as Record<string, unknown>[]}
             loading={isLoading}
             emptyMessage={t('inventory.movements.noData', 'لا توجد حركات مخزون')}
             stickyHeader
@@ -407,7 +435,7 @@ const StockMovements: React.FC = () => {
             pagination={{
               page: 0,
               rowsPerPage: filters.limit,
-              total: stockMovements.length,
+              total: filteredMovements.length,
               onPageChange: () => {}, // Will be implemented with proper pagination
               onRowsPerPageChange: (rowsPerPage) => handleFilterChange('limit', rowsPerPage),
             }}

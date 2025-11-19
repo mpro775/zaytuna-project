@@ -1,13 +1,12 @@
 import { api } from '../api';
 import {
-  User,
-  CreateUserDto,
-  UpdateUserDto,
-  ChangeUserPasswordDto,
-  UsersFilters,
-  UserStats,
-  UsersApiResponse,
-  PaginatedResponse,
+  type User,
+  type CreateUserDto,
+  type UpdateUserDto,
+  type ChangeUserPasswordDto,
+  type UsersFilters,
+  type UserStats,
+  type UsersApiResponse,
 } from './types';
 
 /**

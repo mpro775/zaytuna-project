@@ -17,5 +17,4 @@ export type {
   UserStats,
   RoleStats,
   UsersApiResponse,
-  PaginatedResponse,
 } from './types';

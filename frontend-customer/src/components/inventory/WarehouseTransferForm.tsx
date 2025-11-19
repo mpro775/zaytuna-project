@@ -79,16 +79,16 @@ const WarehouseTransferForm: React.FC<WarehouseTransferFormProps> = ({
     onSubmit: async (values) => {
       try {
         const transferData: TransferStockDto = {
-          fromWarehouseId: values.fromWarehouseId,
+          fromWarehouseId: values.fromWarehouseId as string,
           toWarehouseId: values.toWarehouseId,
-          productVariantId: values.productVariantId,
+          productVariantId: values.productVariantId as string,
           quantity: values.quantity,
-          notes: values.notes || undefined,
+          notes: values.notes as string,
         };
 
         await transferStock(transferData);
         onClose();
-      } catch (error) {
+      } catch  {
         // Error is handled by the store
       }
     },
@@ -106,6 +106,7 @@ const WarehouseTransferForm: React.FC<WarehouseTransferFormProps> = ({
     } else if (open && !stockItem) {
       formik.resetForm();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, stockItem]);
 
   const handleClose = () => {
@@ -146,7 +147,7 @@ const WarehouseTransferForm: React.FC<WarehouseTransferFormProps> = ({
 
             <Grid container spacing={3}>
               {/* From Warehouse */}
-              <Grid item xs={12} md={6}>
+              <Grid  size={{xs: 12, md: 6}}>
                 <FormControl fullWidth variant="outlined" size="small">
                   <InputLabel>
                     {t('inventory.transfer.fromWarehouse', 'المخزن المصدر')}
@@ -157,7 +158,7 @@ const WarehouseTransferForm: React.FC<WarehouseTransferFormProps> = ({
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     label={t('inventory.transfer.fromWarehouse', 'المخزن المصدر')}
-                    error={formik.touched.fromWarehouseId && Boolean(formik.errors.fromWarehouseId)}
+                    error={(formik.touched.fromWarehouseId && Boolean(formik.errors.fromWarehouseId)) || false}
                     disabled={!!stockItem} // Can't change if opened from specific stock item
                   >
                     {warehouses.map((warehouse) => (
@@ -175,7 +176,7 @@ const WarehouseTransferForm: React.FC<WarehouseTransferFormProps> = ({
               </Grid>
 
               {/* To Warehouse */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{xs: 12, md: 6}}>
                 <FormControl fullWidth variant="outlined" size="small">
                   <InputLabel>
                     {t('inventory.transfer.toWarehouse', 'المخزن الوجهة')}
@@ -186,7 +187,7 @@ const WarehouseTransferForm: React.FC<WarehouseTransferFormProps> = ({
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     label={t('inventory.transfer.toWarehouse', 'المخزن الوجهة')}
-                    error={formik.touched.toWarehouseId && Boolean(formik.errors.toWarehouseId)}
+                    error={(formik.touched.toWarehouseId && Boolean(formik.errors.toWarehouseId)) || false}
                   >
                     {availableWarehouses.map((warehouse) => (
                       <MenuItem key={warehouse.id} value={warehouse.id}>
@@ -203,7 +204,7 @@ const WarehouseTransferForm: React.FC<WarehouseTransferFormProps> = ({
               </Grid>
 
               {/* Product Variant */}
-              <Grid item xs={12}>
+              <Grid size={{xs: 12}}>
                 <FormControl fullWidth variant="outlined" size="small">
                   <InputLabel>
                     {t('inventory.transfer.productVariant', 'متغير المنتج')}
@@ -214,7 +215,7 @@ const WarehouseTransferForm: React.FC<WarehouseTransferFormProps> = ({
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     label={t('inventory.transfer.productVariant', 'متغير المنتج')}
-                    error={formik.touched.productVariantId && Boolean(formik.errors.productVariantId)}
+                    error={(formik.touched.productVariantId && Boolean(formik.errors.productVariantId)) || false}
                     disabled={!!stockItem} // Can't change if opened from specific stock item
                   >
                     {productVariants.map((variant) => (
@@ -233,7 +234,7 @@ const WarehouseTransferForm: React.FC<WarehouseTransferFormProps> = ({
               </Grid>
 
               {/* Quantity */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{xs: 12, md: 6}}>
                 <TextField
                   fullWidth
                   name="quantity"
@@ -243,7 +244,7 @@ const WarehouseTransferForm: React.FC<WarehouseTransferFormProps> = ({
                   value={formik.values.quantity}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  error={formik.touched.quantity && Boolean(formik.errors.quantity)}
+                  error={(formik.touched.quantity && Boolean(formik.errors.quantity)) || false}
                   helperText={formik.touched.quantity && formik.errors.quantity}
                   InputProps={{
                     inputProps: { min: 0.01, step: 0.01 },
@@ -257,7 +258,7 @@ const WarehouseTransferForm: React.FC<WarehouseTransferFormProps> = ({
               </Grid>
 
               {/* Notes */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{xs: 12, md: 6}}>
                 <TextField
                   fullWidth
                   name="notes"
@@ -268,20 +269,20 @@ const WarehouseTransferForm: React.FC<WarehouseTransferFormProps> = ({
                   value={formik.values.notes}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  error={formik.touched.notes && Boolean(formik.errors.notes)}
+                  error={(formik.touched.notes && Boolean(formik.errors.notes)) || false}
                   helperText={formik.touched.notes && formik.errors.notes}
                   placeholder={t('inventory.transfer.notesPlaceholder', 'أسباب النقل أو ملاحظات إضافية...')}
                 />
               </Grid>
 
               {/* Transfer Summary */}
-              <Grid item xs={12}>
+              <Grid size={{xs: 12}}>
                 <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
                   <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
                     {t('inventory.transfer.summary', 'ملخص النقل')}
                   </Typography>
                   <Grid container spacing={2}>
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{xs: 12, md: 6}}>
                       <Typography variant="body2" color="text.secondary">
                         {t('inventory.transfer.from', 'من')}:
                       </Typography>
@@ -289,7 +290,7 @@ const WarehouseTransferForm: React.FC<WarehouseTransferFormProps> = ({
                         {selectedFromWarehouse?.name} ({selectedFromWarehouse?.code})
                       </Typography>
                     </Grid>
-                    <Grid item xs={12} md={6}>
+                      <Grid size={{xs: 12, md: 6}}>
                       <Typography variant="body2" color="text.secondary">
                         {t('inventory.transfer.to', 'إلى')}:
                       </Typography>
@@ -297,7 +298,7 @@ const WarehouseTransferForm: React.FC<WarehouseTransferFormProps> = ({
                         {selectedToWarehouse?.name} ({selectedToWarehouse?.code})
                       </Typography>
                     </Grid>
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{xs: 12, md: 6}}>
                       <Typography variant="body2" color="text.secondary">
                         {t('inventory.transfer.product', 'المنتج')}:
                       </Typography>
@@ -305,7 +306,7 @@ const WarehouseTransferForm: React.FC<WarehouseTransferFormProps> = ({
                         {selectedProductVariant?.productName} - {selectedProductVariant?.name}
                       </Typography>
                     </Grid>
-                    <Grid item xs={12} md={6}>
+                      <Grid size={{xs: 12, md: 6}}>
                       <Typography variant="body2" color="text.secondary">
                         {t('inventory.transfer.quantity', 'الكمية')}:
                       </Typography>

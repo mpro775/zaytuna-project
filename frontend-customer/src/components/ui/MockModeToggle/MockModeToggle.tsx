@@ -3,7 +3,7 @@
  * Toggle component for enabling/disabling mock data mode
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   FormControlLabel,
@@ -13,17 +13,11 @@ import {
   Button,
 } from '@mui/material';
 import { Warning as WarningIcon, Refresh as RefreshIcon } from '@mui/icons-material';
-import { useTranslation } from 'react-i18next';
 import { isMockModeEnabled, setMockMode } from '@/config/mock.config';
 
 export const MockModeToggle: React.FC = () => {
-  const { t } = useTranslation();
   const [enabled, setEnabled] = useState(isMockModeEnabled());
   const [showWarning, setShowWarning] = useState(false);
-
-  useEffect(() => {
-    setEnabled(isMockModeEnabled());
-  }, []);
 
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.checked;

@@ -1,14 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { suppliersApi } from '@/services/suppliers';
 import type {
-  Supplier,
   SupplierFilters,
-  CreateSupplierDto,
   UpdateSupplierDto,
-  SuppliersResponse,
-  SupplierStats,
 } from '@/services/suppliers';
 import { toast } from 'react-hot-toast';
 
@@ -58,8 +54,8 @@ export const useSuppliers = (options: UseSuppliersOptions = {}) => {
       toast.success(t('suppliers.messages.created', 'تم إنشاء المورد بنجاح'));
       return newSupplier;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('suppliers.errors.createFailed', 'فشل في إنشاء المورد');
+    onError: (error: Error) => {
+      const message = error.message || t('suppliers.errors.createFailed', 'فشل في إنشاء المورد');
       toast.error(message);
     },
   });
@@ -75,8 +71,8 @@ export const useSuppliers = (options: UseSuppliersOptions = {}) => {
       toast.success(t('suppliers.messages.updated', 'تم تحديث المورد بنجاح'));
       return updatedSupplier;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('suppliers.errors.updateFailed', 'فشل في تحديث المورد');
+    onError: (error: Error) => {
+      const message = error.message || t('suppliers.errors.updateFailed', 'فشل في تحديث المورد');
       toast.error(message);
     },
   });
@@ -89,8 +85,8 @@ export const useSuppliers = (options: UseSuppliersOptions = {}) => {
       queryClient.invalidateQueries({ queryKey: ['supplier-stats'] });
       toast.success(t('suppliers.messages.deleted', 'تم حذف المورد بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('suppliers.errors.deleteFailed', 'فشل في حذف المورد');
+    onError: (error: Error) => {
+      const message = error.message || t('suppliers.errors.deleteFailed', 'فشل في حذف المورد');
       toast.error(message);
     },
   });
@@ -119,17 +115,26 @@ export const useSuppliers = (options: UseSuppliersOptions = {}) => {
 
   // Filter by status
   const filterByStatus = (isActive?: boolean) => {
-    updateFilters({ isActive, page: 1 });
+    updateFilters({
+      ...(isActive !== undefined && { isActive }),
+      page: 1,
+    });
   };
 
   // Filter by payment terms
   const filterByPaymentTerms = (paymentTerms?: string) => {
-    updateFilters({ paymentTerms, page: 1 });
+    updateFilters({
+      ...(paymentTerms !== undefined && { paymentTerms }),
+      page: 1,
+    });
   };
 
   // Filter by outstanding balance
   const filterByOutstandingBalance = (hasOutstandingBalance?: boolean) => {
-    updateFilters({ hasOutstandingBalance, page: 1 });
+      updateFilters({
+      ...(hasOutstandingBalance !== undefined && { hasOutstandingBalance }),
+      page: 1,
+    });
   };
 
   // Change page
@@ -144,7 +149,10 @@ export const useSuppliers = (options: UseSuppliersOptions = {}) => {
 
   // Sort suppliers
   const sortSuppliers = (sortBy?: string, sortOrder: 'asc' | 'desc' = 'asc') => {
-    // Implementation depends on API support
+    updateFilters({
+      ...(sortBy !== undefined && { sortBy }),
+      ...(sortOrder !== undefined && { sortOrder }),
+    });
   };
 
   // Get suppliers with outstanding balance
@@ -240,8 +248,8 @@ export const useSupplier = (id: string | undefined) => {
       toast.success(t('suppliers.messages.updated', 'تم تحديث المورد بنجاح'));
       return updatedSupplier;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('suppliers.errors.updateFailed', 'فشل في تحديث المورد');
+    onError: (error: Error) => {
+      const message = error.message || t('suppliers.errors.updateFailed', 'فشل في تحديث المورد');
       toast.error(message);
     },
   });

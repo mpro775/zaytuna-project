@@ -30,7 +30,7 @@ export const useDashboard = (options: UseDashboardOptions = {}) => {
     isRefetching,
   } = useQuery({
     queryKey: ['dashboard', currentFilters],
-    queryFn: () => reportsApi.getDashboardData(currentFilters),
+    queryFn: () => reportsApi.getDashboardOverview(currentFilters.branchId),
     staleTime: 2 * 60 * 1000, // 2 minutes
     refetchInterval: autoRefresh ? refreshInterval : false,
     refetchIntervalInBackground: false,
@@ -67,23 +67,8 @@ export const useDashboard = (options: UseDashboardOptions = {}) => {
     staleTime: 1 * 60 * 1000,
   });
 
-  // Combine data from individual queries
-  const dashboard: DashboardData | null = dashboardData || {
-    kpis: kpisData || {
-      totalSales: 0,
-      totalInvoices: 0,
-      totalCustomers: 0,
-      lowStockItems: 0,
-      monthlySales: 0,
-      weeklySales: 0,
-      dailySales: 0,
-      salesGrowth: 0,
-    },
-    salesChart: salesChartData || [],
-    inventoryAlerts: inventoryAlertsData || [],
-    topProducts: topProductsData || [],
-    recentActivity: recentActivityData || [],
-  };
+  // Use main dashboard data if available, otherwise null
+  const dashboard: DashboardData | null = dashboardData || null;
 
   // Update filters function
   const updateFilters = (newFilters: Partial<ReportsFilters>) => {
@@ -97,7 +82,7 @@ export const useDashboard = (options: UseDashboardOptions = {}) => {
 
   // Set branch filter
   const setBranch = (branchId: string | undefined) => {
-    updateFilters({ branchId });
+    updateFilters(branchId !== undefined ? { branchId } : {});
   };
 
   // Refresh all data
@@ -123,11 +108,25 @@ export const useDashboard = (options: UseDashboardOptions = {}) => {
   return {
     // Data
     dashboard,
-    kpis: dashboard?.kpis,
-    salesChart: dashboard?.salesChart,
-    inventoryAlerts: dashboard?.inventoryAlerts,
-    topProducts: dashboard?.topProducts,
-    recentActivity: dashboard?.recentActivity,
+    kpis: kpisData || (dashboard ? {
+      totalSales: dashboard.overview.totalRevenue,
+      totalInvoices: dashboard.overview.totalOrders,
+      totalCustomers: dashboard.overview.totalCustomers,
+      lowStockItems: dashboard.alerts.lowStockItems,
+      monthlySales: dashboard.overview.totalRevenue,
+      weeklySales: dashboard.overview.totalRevenue * 0.25,
+      dailySales: dashboard.overview.totalRevenue / 30,
+      salesGrowth: dashboard.overview.totalRevenueChange,
+    } : undefined),
+    salesChart: salesChartData || dashboard?.charts.revenueByPeriod.map(item => ({
+      period: item.period,
+      sales: item.revenue,
+      revenue: item.revenue,
+      invoices: item.orders,
+    })) || [],
+    inventoryAlerts: inventoryAlertsData || [],
+    topProducts: topProductsData || dashboard?.charts.topProducts || [],
+    recentActivity: recentActivityData || dashboard?.recentActivity || [],
 
     // Loading states
     isLoading,

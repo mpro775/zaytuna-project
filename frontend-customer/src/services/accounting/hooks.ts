@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AccountingService, AccountingFilters } from './accounting';
+import { AccountingService } from './accounting';
+import type { AccountingFilters, UpdateGLAccountDto } from './types';
 
 // Query Keys
 export const ACCOUNTING_QUERY_KEYS = {
@@ -56,7 +57,7 @@ export const useUpdateGLAccount = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) =>
+    mutationFn: ({ id, data }: { id: string; data: UpdateGLAccountDto }) =>
       AccountingService.updateGLAccount(id, data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ACCOUNTING_QUERY_KEYS.glAccount(id) });
@@ -170,7 +171,7 @@ export const useAccountingStats = (filters: AccountingFilters = {}) => {
 /**
  * Reports Hooks
  */
-export const useBalanceSheetReport = (asOfDate?: string) => {
+export const useAccountingBalanceSheetReport = (asOfDate?: string) => {
   return useQuery({
     queryKey: ACCOUNTING_QUERY_KEYS.balanceSheet(asOfDate),
     queryFn: () => AccountingService.getBalanceSheetReport(asOfDate),
@@ -178,7 +179,7 @@ export const useBalanceSheetReport = (asOfDate?: string) => {
   });
 };
 
-export const useProfitLossReport = (startDate: string, endDate: string) => {
+export const useAccountingProfitLossReport = (startDate: string, endDate: string) => {
   return useQuery({
     queryKey: ACCOUNTING_QUERY_KEYS.profitLoss({ startDate, endDate }),
     queryFn: () => AccountingService.getProfitLossReport(startDate, endDate),
@@ -218,13 +219,4 @@ export const useExportJournalEntries = () => {
 /**
  * Utility function to download blob as file
  */
-export const downloadBlob = (blob: Blob, filename: string) => {
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
-};
+

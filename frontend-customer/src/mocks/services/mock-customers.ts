@@ -9,7 +9,7 @@ import { filterData, sortData, paginateData, generateId, getMockDataFromStorage,
 import type { MockRequest, MockResponse } from '../types';
 
 // Load data with localStorage persistence
-let customers = getMockDataFromStorage('customers', customersData);
+const customers = getMockDataFromStorage('customers', customersData);
 
 // Register handlers
 mockApi.registerHandler('GET:/customers', async (request: MockRequest): Promise<MockResponse> => {
@@ -152,7 +152,7 @@ mockApi.registerHandler('DELETE:/customers/:id', async (request: MockRequest): P
   };
 });
 
-mockApi.registerHandler('GET:/customers/stats/overview', async (request: MockRequest): Promise<MockResponse> => {
+mockApi.registerHandler('GET:/customers/stats/overview', async (): Promise<MockResponse> => {
   const totalCustomers = customers.length;
   const activeCustomers = customers.filter((c) => c.isActive).length;
   const inactiveCustomers = totalCustomers - activeCustomers;
@@ -233,6 +233,7 @@ mockApi.registerHandler('GET:/customers/:id/loyalty', async (request: MockReques
     data: {
       currentPoints,
       tier: currentTier,
+      nextTier,
       nextTierThreshold,
       pointsToNextTier,
       totalPurchases: customer.totalPurchases || 0,

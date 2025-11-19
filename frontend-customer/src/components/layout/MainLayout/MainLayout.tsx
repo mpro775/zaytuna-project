@@ -31,6 +31,7 @@ import {
   LocalShipping as SupplierIcon,
   AccountCircle,
   Logout,
+  ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -81,45 +82,292 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   };
 
   const menuItems = [
-    { textKey: 'navigation.dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-    { textKey: 'navigation.products', icon: <StoreIcon />, path: '/products' },
-    { textKey: 'navigation.inventory', icon: <InventoryIcon />, path: '/inventory' },
-    { textKey: 'navigation.sales', icon: <ShoppingCartIcon />, path: '/sales' },
-    { textKey: 'navigation.customers', icon: <PersonIcon />, path: '/customers' },
-    { textKey: 'navigation.suppliers', icon: <SupplierIcon />, path: '/suppliers' },
-    { textKey: 'navigation.branches', icon: <BusinessIcon />, path: '/branches' },
-    { textKey: 'navigation.warehouses', icon: <WarehouseIcon />, path: '/warehouses' },
-    { textKey: 'navigation.reports', icon: <AssessmentIcon />, path: '/reports' },
-    { textKey: 'navigation.settings', icon: <SettingsIcon />, path: '/settings' },
+    // Main Operations
+    { textKey: 'navigation.dashboard', icon: <DashboardIcon />, path: '/dashboard', section: 'main' },
+
+    // Products & Inventory
+    { textKey: 'navigation.products', icon: <StoreIcon />, path: '/products', section: 'inventory' },
+    { textKey: 'navigation.inventory', icon: <InventoryIcon />, path: '/inventory', section: 'inventory' },
+
+    // Sales & Customers
+    { textKey: 'navigation.sales', icon: <ShoppingCartIcon />, path: '/sales', section: 'sales' },
+    { textKey: 'navigation.customers', icon: <PersonIcon />, path: '/customers', section: 'sales' },
+    { textKey: 'navigation.suppliers', icon: <SupplierIcon />, path: '/suppliers', section: 'sales' },
+
+    // Business Management
+    { textKey: 'navigation.branches', icon: <BusinessIcon />, path: '/branches', section: 'management' },
+    { textKey: 'navigation.warehouses', icon: <WarehouseIcon />, path: '/warehouses', section: 'management' },
+
+    // Reports & Settings
+    { textKey: 'navigation.reports', icon: <AssessmentIcon />, path: '/reports', section: 'reports' },
+    { textKey: 'navigation.settings', icon: <SettingsIcon />, path: '/settings', section: 'system' },
+  ];
+
+  const sections = [
+    { key: 'main', label: 'الرئيسية', items: menuItems.filter(item => item.section === 'main') },
+    { key: 'inventory', label: 'إدارة المخزون', items: menuItems.filter(item => item.section === 'inventory') },
+    { key: 'sales', label: 'المبيعات والعملاء', items: menuItems.filter(item => item.section === 'sales') },
+    { key: 'management', label: 'إدارة الأعمال', items: menuItems.filter(item => item.section === 'management') },
+    { key: 'reports', label: 'التقارير', items: menuItems.filter(item => item.section === 'reports') },
+    { key: 'system', label: 'النظام', items: menuItems.filter(item => item.section === 'system') },
   ];
 
   const drawer = (
-    <Box>
-      <Toolbar>
-        <Typography variant="h6" noWrap component="div">
-          زيتونة SaaS
-        </Typography>
-      </Toolbar>
-      <List>
-        {menuItems.map((item) => (
-          <ListItem key={item.path} disablePadding>
-            <ListItemButton
-              selected={location.pathname === item.path}
-              onClick={() => {
-                navigate(item.path);
-                if (isMobile) {
-                  setMobileOpen(false);
-                }
+    <Box sx={{
+      height: '100vh',
+      maxHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+      overflow: 'hidden', // منع overflow من الحاوي الخارجي
+    }}>
+      {/* Logo Section */}
+      <Box
+        sx={{
+          p: 3,
+          borderBottom: `1px solid ${theme.palette.primary.light}20`,
+          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+        }}
+      >
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          mb: 1
+        }}>
+          <Box
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: 2,
+              background: 'rgba(255, 255, 255, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            }}
+          >
+            <Typography variant="h5" sx={{ color: 'white', fontWeight: 700 }}>
+              ز
+            </Typography>
+          </Box>
+          <Box>
+            <Typography
+              variant="h6"
+              sx={{
+                color: 'white',
+                fontWeight: 700,
+                fontSize: '1.25rem',
+                lineHeight: 1.2
               }}
             >
-              <ListItemIcon>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={t(item.textKey)} />
-            </ListItemButton>
-          </ListItem>
+              زيتونة
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'rgba(255, 255, 255, 0.8)',
+                fontSize: '0.75rem'
+              }}
+            >
+              SaaS Platform
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Navigation Menu */}
+      <Box sx={{
+        flex: 1,
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        p: 1,
+        minHeight: 0, // مهم لـ flex containers
+        '&::-webkit-scrollbar': {
+          width: '6px',
+        },
+        '&::-webkit-scrollbar-track': {
+          background: 'rgba(255, 255, 255, 0.1)',
+          borderRadius: '3px',
+        },
+        '&::-webkit-scrollbar-thumb': {
+          background: 'rgba(255, 255, 255, 0.3)',
+          borderRadius: '3px',
+          '&:hover': {
+            background: 'rgba(255, 255, 255, 0.5)',
+          },
+        },
+        // Scrollbar للمتصفحات الأخرى
+        scrollbarWidth: 'thin',
+        scrollbarColor: 'rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1)',
+      }}>
+        {sections.map((section, sectionIndex) => (
+          <Box key={section.key}>
+            {sectionIndex > 0 && (
+              <Box sx={{ px: 2, py: 1 }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: 'rgba(255, 255, 255, 0.6)',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    fontSize: '0.7rem',
+                    letterSpacing: '0.5px'
+                  }}
+                >
+                  {section.label}
+                </Typography>
+              </Box>
+            )}
+
+            <List sx={{ px: 1, py: 0 }}>
+              {section.items.map((item) => (
+                <ListItem key={item.path} disablePadding sx={{ mb: 0.25 }}>
+                  <ListItemButton
+                    selected={location.pathname === item.path}
+                    onClick={() => {
+                      navigate(item.path);
+                      if (isMobile) {
+                        setMobileOpen(false);
+                      }
+                    }}
+                    sx={{
+                      borderRadius: 2,
+                      mx: 0.5,
+                      px: 2,
+                      py: 1.5,
+                      transition: 'all 0.2s ease-in-out',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                        transform: 'translateX(4px)',
+                        '& .MuiListItemIcon-root': {
+                          transform: 'scale(1.1)',
+                        }
+                      },
+                      '&.Mui-selected': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                        borderRight: `3px solid ${theme.palette.secondary.main}`,
+                        '&:hover': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                        },
+                        '& .MuiListItemText-primary': {
+                          fontWeight: 600,
+                          color: 'white',
+                        },
+                        '& .MuiListItemIcon-root': {
+                          color: theme.palette.secondary.main,
+                        }
+                      }
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        minWidth: 40,
+                        transition: 'all 0.2s ease-in-out',
+                      }}
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={t(item.textKey)}
+                      primaryTypographyProps={{
+                        sx: {
+                          color: 'rgba(255, 255, 255, 0.9)',
+                          fontSize: '0.9rem',
+                          fontWeight: 500,
+                        }
+                      }}
+                    />
+                    {location.pathname === item.path && (
+                      <ChevronRightIcon
+                        sx={{
+                          color: theme.palette.secondary.main,
+                          fontSize: '1.2rem',
+                          ml: 'auto',
+                        }}
+                      />
+                    )}
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Box>
         ))}
-      </List>
+      </Box>
+
+      {/* User Section */}
+      <Box
+        sx={{
+          p: 2,
+          borderTop: `1px solid ${theme.palette.primary.light}20`,
+          background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+            p: 1.5,
+            borderRadius: 2,
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+          }}
+        >
+          <Avatar
+            sx={{
+              width: 36,
+              height: 36,
+              bgcolor: 'rgba(255, 255, 255, 0.2)',
+              border: '2px solid rgba(255, 255, 255, 0.3)',
+            }}
+          >
+            <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+              {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+            </Typography>
+          </Avatar>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'white',
+                fontWeight: 600,
+                fontSize: '0.85rem',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {user?.username || t('common.user')}
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'rgba(255, 255, 255, 0.7)',
+                fontSize: '0.7rem',
+              }}
+            >
+              {user?.role || 'User'}
+            </Typography>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={handleLogout}
+            sx={{
+              color: 'rgba(255, 255, 255, 0.8)',
+              '&:hover': {
+                color: 'white',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              }
+            }}
+          >
+            <Logout sx={{ fontSize: '1.2rem' }} />
+          </IconButton>
+        </Box>
+      </Box>
     </Box>
   );
 
@@ -139,8 +387,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             xs: '100%',
             md: sidebarOpen ? `calc(100% - ${drawerWidth}px)` : '100%'
           },
-          ml: { md: sidebarOpen ? `${drawerWidth}px` : 0 },
-          transition: theme.transitions.create(['width', 'margin'], {
+          right: { md: sidebarOpen ? `${drawerWidth}px` : 0 },
+          transition: theme.transitions.create(['width', 'right'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),
@@ -150,9 +398,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           <IconButton
             color="inherit"
             aria-label="open drawer"
-            edge="start"
+            edge="end"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { md: 'none' } }}
+            sx={{ ml: 2, display: { md: 'none' } }}
           >
             <MenuIcon />
           </IconButton>
@@ -229,6 +477,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             md: sidebarOpen ? drawerWidth : 0
           },
           flexShrink: { md: 0 },
+          position: 'fixed',
+          right: { md: 0 },
+          top: { md: 0 },
+          height: { md: '100vh' },
+          zIndex: { md: theme.zIndex.drawer },
           transition: theme.transitions.create('width', {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
@@ -238,6 +491,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         {/* Mobile drawer */}
         <Drawer
           variant="temporary"
+          anchor="right"
           open={mobileOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
@@ -256,12 +510,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
         {/* Desktop drawer */}
         <Drawer
-          variant="permanent"
+          variant="persistent"
+          anchor="right"
           sx={{
             display: { xs: 'none', md: 'block' },
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: drawerWidth,
+              position: 'relative',
             },
           }}
           open={sidebarOpen}
@@ -282,7 +538,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           },
           minHeight: '100vh',
           backgroundColor: theme.palette.grey[50],
-          marginLeft: { md: sidebarOpen ? 0 : 0 },
+          marginRight: { md: sidebarOpen ? `${drawerWidth}px` : 0 },
           transition: theme.transitions.create(['width', 'margin'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,

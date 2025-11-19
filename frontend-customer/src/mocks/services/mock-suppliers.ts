@@ -9,7 +9,7 @@ import { filterData, sortData, paginateData, generateId, getMockDataFromStorage,
 import type { MockRequest, MockResponse } from '../types';
 
 // Load data with localStorage persistence
-let suppliers = getMockDataFromStorage('suppliers', suppliersData);
+const suppliers = getMockDataFromStorage('suppliers', suppliersData);
 
 // Register handlers
 mockApi.registerHandler('GET:/purchasing/suppliers', async (request: MockRequest): Promise<MockResponse> => {
@@ -126,7 +126,7 @@ mockApi.registerHandler('DELETE:/purchasing/suppliers/:id', async (request: Mock
   };
 });
 
-mockApi.registerHandler('GET:/purchasing/suppliers/stats/overview', async (request: MockRequest): Promise<MockResponse> => {
+mockApi.registerHandler('GET:/purchasing/suppliers/stats/overview', async (): Promise<MockResponse> => {
   const totalSuppliers = suppliers.length;
   const activeSuppliers = suppliers.filter((s) => s.isActive).length;
   const totalPurchases = suppliers.reduce((sum, s) => sum + (s.totalPurchases || 0), 0);
@@ -147,7 +147,7 @@ mockApi.registerHandler('GET:/purchasing/suppliers/stats/overview', async (reque
   };
 });
 
-mockApi.registerHandler('GET:/purchasing/suppliers/outstanding-balance', async (request: MockRequest): Promise<MockResponse> => {
+mockApi.registerHandler('GET:/purchasing/suppliers/outstanding-balance', async (): Promise<MockResponse> => {
   const suppliersWithBalance = suppliers.filter((s) => (s.outstandingBalance || 0) > 0);
   
   return {

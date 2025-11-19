@@ -58,7 +58,7 @@ export class IndexedDBService {
   async initialize(): Promise<void> {
     try {
       this.db = await openDB<ZaytunaDB>(this.dbName, this.version, {
-        upgrade(db, _oldVersion, _newVersion) {
+        upgrade(db) {
           // إنشاء stores للعمليات المزامنة
           if (!db.objectStoreNames.contains('syncOperations')) {
             const syncStore = db.createObjectStore('syncOperations', { keyPath: 'id' });

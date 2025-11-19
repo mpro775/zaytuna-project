@@ -31,17 +31,15 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Search as SearchIcon,
-  FilterList as FilterIcon,
   Refresh as RefreshIcon,
   Image as ImageIcon,
   Category as CategoryIcon,
-  Inventory as InventoryIcon,
-  AttachMoney as MoneyIcon,
+
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useProducts } from '@/hooks';
-import { Product } from '@/services/products';
+import type { Product } from '@/services/products';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { CategoryManager } from '@/components/ui';
@@ -64,7 +62,6 @@ const Products: React.FC = () => {
     products,
     totalProducts,
     categories,
-    currentFilters,
     statistics,
     isLoading,
     isRefetching,
@@ -75,7 +72,6 @@ const Products: React.FC = () => {
     filterByStatus,
     changePage,
     changePageSize,
-    sortProducts,
     deleteProduct,
     bulkDeleteProducts,
   } = useProducts({
@@ -368,7 +364,7 @@ const Products: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <Avatar
-                          src={product.images.find(img => img.isPrimary)?.url}
+                          src={product.images.find(img => img.isPrimary)?.url || ''}
                           variant="rounded"
                           sx={{ width: 40, height: 40 }}
                         >

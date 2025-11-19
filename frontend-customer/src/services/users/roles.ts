@@ -1,11 +1,11 @@
 import { api } from '../api';
-import {
-  Role,
-  CreateRoleDto,
-  UpdateRoleDto,
-  AssignRoleDto,
-  RoleStats,
-  UsersApiResponse,
+import   {
+  type Role,
+  type CreateRoleDto,
+  type UpdateRoleDto,
+  type AssignRoleDto,
+  type RoleStats,
+  type UsersApiResponse,
 } from './types';
 
 /**

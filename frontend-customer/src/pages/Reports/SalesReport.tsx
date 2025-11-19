@@ -1,18 +1,60 @@
-import React, { useState } from 'react';
-import { useSalesReport, useExportSalesReportToExcel, useExportSalesReportToPDF, downloadBlob } from '../../services/reports';
-import { ReportsFilters } from '../../services/reports';
+import React, { useState, useMemo } from 'react';
+import {
+  Box,
+  Typography,
+  Paper,
+  TextField,
+  MenuItem,
+  Button,
+  Grid,
+  CircularProgress,
+  Alert,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Card,
+  CardContent,
+} from '@mui/material';
+import {
+  PictureAsPdf as PdfIcon,
+  TableChart as ExcelIcon,
+  Refresh as RefreshIcon,
+} from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
+import { useSalesReport, useExportSalesReportToExcel, useExportSalesReportToPDF, downloadBlob } from '@/services/reports';
+import type { ReportsFilters } from '@/services/reports';
+import { useBranches, useCustomers } from '@/hooks';
+import { format } from 'date-fns';
+import { ar } from 'date-fns/locale';
 
-/**
- * مثال على صفحة تقرير المبيعات
- * يوضح كيفية استخدام ReportsApi مع React Query
- */
 const SalesReport: React.FC = () => {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.dir() === 'rtl';
+
+  // Calculate initial dates outside render
+  const initialDates = useMemo(() => {
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    return {
+      startDate: thirtyDaysAgo.toISOString().split('T')[0]!,
+      endDate: today.toISOString().split('T')[0]!,
+    };
+  }, []);
+
   const [filters, setFilters] = useState<ReportsFilters>({
-    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days ago
-    endDate: new Date().toISOString().split('T')[0], // today
+    startDate: initialDates.startDate,
+    endDate: initialDates.endDate,
   });
 
-  // استخدام hooks التقارير
+  // Fetch branches and customers for filters
+  const { branches } = useBranches({ autoFetch: true });
+  const { customers } = useCustomers({ autoFetch: true });
+
+  // Sales report query
   const {
     data: salesReport,
     isLoading,
@@ -24,7 +66,31 @@ const SalesReport: React.FC = () => {
   const exportToPDF = useExportSalesReportToPDF();
 
   const handleFilterChange = (newFilters: Partial<ReportsFilters>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+    setFilters(prev => {
+      const updated: ReportsFilters = { ...prev };
+      // Update properties, removing undefined/empty values
+      if ('branchId' in newFilters) {
+        if (newFilters.branchId) {
+          updated.branchId = newFilters.branchId;
+        } else {
+          delete updated.branchId;
+        }
+      }
+      if ('customerId' in newFilters) {
+        if (newFilters.customerId) {
+          updated.customerId = newFilters.customerId;
+        } else {
+          delete updated.customerId;
+        }
+      }
+      if ('startDate' in newFilters && newFilters.startDate) {
+        updated.startDate = newFilters.startDate;
+      }
+      if ('endDate' in newFilters && newFilters.endDate) {
+        updated.endDate = newFilters.endDate;
+      }
+      return updated;
+    });
   };
 
   const handleExportExcel = async () => {
@@ -45,210 +111,326 @@ const SalesReport: React.FC = () => {
     }
   };
 
+  const formatCurrency = (amount: number): string => {
+    return new Intl.NumberFormat('ar-SA', {
+      style: 'currency',
+      currency: 'YER',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const formatDate = (dateString: string): string => {
+    return format(new Date(dateString), 'dd/MM/yyyy', { locale: ar });
+  };
+
   if (isLoading) {
-    return <div>جاري تحميل تقرير المبيعات...</div>;
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (error) {
     return (
-      <div>
-        خطأ في تحميل التقرير: {error.message}
-        <button onClick={() => refetch()}>إعادة المحاولة</button>
-      </div>
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {t('reports.errors.loadFailed', 'خطأ في تحميل التقرير')}: {error.message}
+        </Alert>
+        <Button variant="contained" startIcon={<RefreshIcon />} onClick={() => refetch()}>
+          {t('common.actions.retry', 'إعادة المحاولة')}
+        </Button>
+      </Box>
     );
   }
 
   return (
-    <div className="sales-report">
-      <h1>تقرير المبيعات</h1>
+    <Box sx={{ p: { xs: 2, md: 3 } }}>
+      {/* Header */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4" sx={{ fontWeight: 700 }}>
+          {t('reports.sales.title', 'تقرير المبيعات')}
+        </Typography>
+      </Box>
 
-      {/* فلترة التاريخ */}
-      <div className="filters">
-        <div className="filter-group">
-          <label>من تاريخ:</label>
-          <input
-            type="date"
-            value={filters.startDate}
-            onChange={(e) => handleFilterChange({ startDate: e.target.value })}
-          />
-        </div>
+      {/* Filters */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+          {t('reports.filters.title', 'الفلاتر')}
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <TextField
+              fullWidth
+              label={t('reports.filters.startDate', 'من تاريخ')}
+              type="date"
+              value={filters.startDate || ''}
+              onChange={(e) => handleFilterChange({ startDate: e.target.value })}
+              InputLabelProps={{ shrink: true }}
+              dir={isRTL ? 'rtl' : 'ltr'}
+            />
+          </Grid>
 
-        <div className="filter-group">
-          <label>إلى تاريخ:</label>
-          <input
-            type="date"
-            value={filters.endDate}
-            onChange={(e) => handleFilterChange({ endDate: e.target.value })}
-          />
-        </div>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <TextField
+              fullWidth
+              label={t('reports.filters.endDate', 'إلى تاريخ')}
+              type="date"
+              value={filters.endDate || ''}
+              onChange={(e) => handleFilterChange({ endDate: e.target.value })}
+              InputLabelProps={{ shrink: true }}
+              dir={isRTL ? 'rtl' : 'ltr'}
+            />
+          </Grid>
 
-        <div className="filter-group">
-          <label>الفرع:</label>
-          <select
-            value={filters.branchId || ''}
-            onChange={(e) => handleFilterChange({ branchId: e.target.value || undefined })}
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <TextField
+              fullWidth
+              select
+              label={t('reports.filters.branch', 'الفرع')}
+              value={filters.branchId || ''}
+              onChange={(e) => {
+                const value = e.target.value;
+                handleFilterChange(value ? { branchId: value } : {});
+              }}
+              dir={isRTL ? 'rtl' : 'ltr'}
+            >
+              <MenuItem value="">
+                <em>{t('reports.filters.allBranches', 'جميع الفروع')}</em>
+              </MenuItem>
+              {branches.map((branch) => (
+                <MenuItem key={branch.id} value={branch.id}>
+                  {branch.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <TextField
+              fullWidth
+              select
+              label={t('reports.filters.customer', 'العميل')}
+              value={filters.customerId || ''}
+              onChange={(e) => {
+                const value = e.target.value;
+                handleFilterChange(value ? { customerId: value } : {});
+              }}
+              dir={isRTL ? 'rtl' : 'ltr'}
+            >
+              <MenuItem value="">
+                <em>{t('reports.filters.allCustomers', 'جميع العملاء')}</em>
+              </MenuItem>
+              {customers.map((customer) => (
+                <MenuItem key={customer.id} value={customer.id}>
+                  {customer.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+        </Grid>
+
+        {/* Export Buttons */}
+        <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
+          <Button
+            variant="outlined"
+            startIcon={exportToExcel.isPending ? <CircularProgress size={20} /> : <ExcelIcon />}
+            onClick={handleExportExcel}
+            disabled={exportToExcel.isPending}
           >
-            <option value="">جميع الفروع</option>
-            {/* يمكن إضافة خيارات الفروع من API */}
-          </select>
-        </div>
+            {exportToExcel.isPending
+              ? t('reports.export.exporting', 'جاري التصدير...')
+              : t('reports.export.excel', 'تصدير Excel')}
+          </Button>
 
-        <div className="filter-group">
-          <label>العميل:</label>
-          <select
-            value={filters.customerId || ''}
-            onChange={(e) => handleFilterChange({ customerId: e.target.value || undefined })}
+          <Button
+            variant="outlined"
+            startIcon={exportToPDF.isPending ? <CircularProgress size={20} /> : <PdfIcon />}
+            onClick={handleExportPDF}
+            disabled={exportToPDF.isPending}
           >
-            <option value="">جميع العملاء</option>
-            {/* يمكن إضافة خيارات العملاء من API */}
-          </select>
-        </div>
-      </div>
-
-      {/* أزرار التصدير */}
-      <div className="export-buttons">
-        <button
-          onClick={handleExportExcel}
-          disabled={exportToExcel.isPending}
-        >
-          {exportToExcel.isPending ? 'جاري التصدير...' : 'تصدير Excel'}
-        </button>
-
-        <button
-          onClick={handleExportPDF}
-          disabled={exportToPDF.isPending}
-        >
-          {exportToPDF.isPending ? 'جاري التصدير...' : 'تصدير PDF'}
-        </button>
-      </div>
+            {exportToPDF.isPending
+              ? t('reports.export.exporting', 'جاري التصدير...')
+              : t('reports.export.pdf', 'تصدير PDF')}
+          </Button>
+        </Box>
+      </Paper>
 
       {salesReport && (
         <>
-          {/* الملخص */}
-          <div className="summary-cards">
-            <div className="summary-card">
-              <h3>إجمالي المبيعات</h3>
-              <span className="value">{salesReport.summary.totalSales}</span>
-            </div>
+          {/* Summary Cards */}
+          <Grid container spacing={2} sx={{ mb: 3 }}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card>
+                <CardContent>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                    {t('reports.summary.totalSales', 'إجمالي المبيعات')}
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 700, color: 'primary.main' }}>
+                    {salesReport.summary.totalSales}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
 
-            <div className="summary-card">
-              <h3>إجمالي الإيرادات</h3>
-              <span className="value">{salesReport.summary.totalRevenue.toLocaleString()}</span>
-            </div>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card>
+                <CardContent>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                    {t('reports.summary.totalRevenue', 'إجمالي الإيرادات')}
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 700, color: 'success.main' }}>
+                    {formatCurrency(salesReport.summary.totalRevenue)}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
 
-            <div className="summary-card">
-              <h3>متوسط قيمة الطلب</h3>
-              <span className="value">{salesReport.summary.averageOrderValue.toLocaleString()}</span>
-            </div>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card>
+                <CardContent>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                    {t('reports.summary.averageOrderValue', 'متوسط قيمة الطلب')}
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 700, color: 'info.main' }}>
+                    {formatCurrency(salesReport.summary.averageOrderValue)}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
 
-            <div className="summary-card">
-              <h3>عدد الفواتير</h3>
-              <span className="value">{salesReport.summary.totalInvoices}</span>
-            </div>
-          </div>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card>
+                <CardContent>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                    {t('reports.summary.totalInvoices', 'عدد الفواتير')}
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 700, color: 'warning.main' }}>
+                    {salesReport.summary.totalInvoices}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
 
-          {/* أفضل المنتجات مبيعاً */}
-          <div className="top-products">
-            <h2>أفضل المنتجات مبيعاً</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>المنتج</th>
-                  <th>الكمية المباعة</th>
-                  <th>الإيرادات</th>
-                </tr>
-              </thead>
-              <tbody>
-                {salesReport.summary.topSellingProducts.map((product, index) => (
-                  <tr key={index}>
-                    <td>{product.productName}</td>
-                    <td>{product.quantity}</td>
-                    <td>{product.revenue.toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {/* Top Selling Products */}
+          <Paper sx={{ p: 3, mb: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+              {t('reports.topProducts.title', 'أفضل المنتجات مبيعاً')}
+            </Typography>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>{t('reports.topProducts.product', 'المنتج')}</TableCell>
+                    <TableCell align="right">{t('reports.topProducts.quantity', 'الكمية المباعة')}</TableCell>
+                    <TableCell align="right">{t('reports.topProducts.revenue', 'الإيرادات')}</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {salesReport.summary.topSellingProducts.map((product, index) => (
+                    <TableRow key={index} hover>
+                      <TableCell>{product.productName}</TableCell>
+                      <TableCell align="right">{product.quantity}</TableCell>
+                      <TableCell align="right">{formatCurrency(product.revenue)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
 
-          {/* المبيعات بالفرع */}
-          <div className="sales-by-branch">
-            <h2>المبيعات بالفرع</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>الفرع</th>
-                  <th>المبيعات</th>
-                  <th>الإيرادات</th>
-                  <th>الفواتير</th>
-                </tr>
-              </thead>
-              <tbody>
-                {salesReport.byBranch.map((branch, index) => (
-                  <tr key={index}>
-                    <td>{branch.branchName}</td>
-                    <td>{branch.sales}</td>
-                    <td>{branch.revenue.toLocaleString()}</td>
-                    <td>{branch.invoices}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {/* Sales by Branch */}
+          <Paper sx={{ p: 3, mb: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+              {t('reports.byBranch.title', 'المبيعات بالفرع')}
+            </Typography>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>{t('reports.byBranch.branch', 'الفرع')}</TableCell>
+                    <TableCell align="right">{t('reports.byBranch.sales', 'المبيعات')}</TableCell>
+                    <TableCell align="right">{t('reports.byBranch.revenue', 'الإيرادات')}</TableCell>
+                    <TableCell align="right">{t('reports.byBranch.invoices', 'الفواتير')}</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {salesReport.byBranch.map((branch, index) => (
+                    <TableRow key={index} hover>
+                      <TableCell>{branch.branchName}</TableCell>
+                      <TableCell align="right">{branch.sales}</TableCell>
+                      <TableCell align="right">{formatCurrency(branch.revenue)}</TableCell>
+                      <TableCell align="right">{branch.invoices}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
 
-          {/* المبيعات بالعميل */}
-          <div className="sales-by-customer">
-            <h2>المبيعات بالعميل</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>العميل</th>
-                  <th>المبيعات</th>
-                  <th>الإيرادات</th>
-                  <th>الفواتير</th>
-                  <th>آخر شراء</th>
-                </tr>
-              </thead>
-              <tbody>
-                {salesReport.byCustomer.map((customer, index) => (
-                  <tr key={index}>
-                    <td>{customer.customerName}</td>
-                    <td>{customer.sales}</td>
-                    <td>{customer.revenue.toLocaleString()}</td>
-                    <td>{customer.invoices}</td>
-                    <td>{new Date(customer.lastPurchase).toLocaleDateString('ar-SA')}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {/* Sales by Customer */}
+          <Paper sx={{ p: 3, mb: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+              {t('reports.byCustomer.title', 'المبيعات بالعميل')}
+            </Typography>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>{t('reports.byCustomer.customer', 'العميل')}</TableCell>
+                    <TableCell align="right">{t('reports.byCustomer.sales', 'المبيعات')}</TableCell>
+                    <TableCell align="right">{t('reports.byCustomer.revenue', 'الإيرادات')}</TableCell>
+                    <TableCell align="right">{t('reports.byCustomer.invoices', 'الفواتير')}</TableCell>
+                    <TableCell align="right">{t('reports.byCustomer.lastPurchase', 'آخر شراء')}</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {salesReport.byCustomer.map((customer, index) => (
+                    <TableRow key={index} hover>
+                      <TableCell>{customer.customerName}</TableCell>
+                      <TableCell align="right">{customer.sales}</TableCell>
+                      <TableCell align="right">{formatCurrency(customer.revenue)}</TableCell>
+                      <TableCell align="right">{customer.invoices}</TableCell>
+                      <TableCell align="right">{formatDate(customer.lastPurchase)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
 
-          {/* طرق الدفع */}
-          <div className="payment-methods">
-            <h2>طرق الدفع</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>طريقة الدفع</th>
-                  <th>المبلغ</th>
-                  <th>العدد</th>
-                  <th>النسبة المئوية</th>
-                </tr>
-              </thead>
-              <tbody>
-                {salesReport.byPaymentMethod.map((method, index) => (
-                  <tr key={index}>
-                    <td>{method.method}</td>
-                    <td>{method.amount.toLocaleString()}</td>
-                    <td>{method.count}</td>
-                    <td>{method.percentage.toFixed(1)}%</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {/* Payment Methods */}
+          <Paper sx={{ p: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+              {t('reports.paymentMethods.title', 'طرق الدفع')}
+            </Typography>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>{t('reports.paymentMethods.method', 'طريقة الدفع')}</TableCell>
+                    <TableCell align="right">{t('reports.paymentMethods.amount', 'المبلغ')}</TableCell>
+                    <TableCell align="right">{t('reports.paymentMethods.count', 'العدد')}</TableCell>
+                    <TableCell align="right">{t('reports.paymentMethods.percentage', 'النسبة المئوية')}</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {salesReport.byPaymentMethod.map((method, index) => (
+                    <TableRow key={index} hover>
+                      <TableCell>{method.method}</TableCell>
+                      <TableCell align="right">{formatCurrency(method.amount)}</TableCell>
+                      <TableCell align="right">{method.count}</TableCell>
+                      <TableCell align="right">{method.percentage.toFixed(1)}%</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
         </>
       )}
-    </div>
+    </Box>
   );
 };
 

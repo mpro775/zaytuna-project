@@ -30,9 +30,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Search as SearchIcon,
-  FilterList as FilterIcon,
   Refresh as RefreshIcon,
-  Business as BusinessIcon,
   Email as EmailIcon,
   Phone as PhoneIcon,
   ShoppingCart as ShoppingCartIcon,
@@ -41,7 +39,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useSuppliers } from '@/hooks';
-import { Supplier } from '@/services/suppliers';
+import type { Supplier } from '@/services/suppliers';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 

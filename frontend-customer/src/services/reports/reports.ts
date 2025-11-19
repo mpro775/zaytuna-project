@@ -226,6 +226,52 @@ export interface PeriodComparisonOptions {
   branchId?: string;
 }
 
+// Helper types for dashboard and reports
+export type KPIMetrics = {
+  totalSales: number;
+  totalInvoices: number;
+  totalCustomers: number;
+  lowStockItems: number;
+  monthlySales: number;
+  weeklySales: number;
+  dailySales: number;
+  salesGrowth: number;
+};
+
+export type SalesChartData = {
+  period: string;
+  sales: number;
+  revenue: number;
+  invoices: number;
+};
+
+export type InventoryAlert = {
+  productVariantId: string;
+  productId: string;
+  productName: string;
+  variantName: string;
+  warehouseName: string;
+  currentStock: number;
+  minStock: number;
+  reorderPoint: number;
+  status: 'critical' | 'warning' | 'normal';
+};
+
+export type TopProduct = {
+  productId: string;
+  productName: string;
+  revenue: number;
+  quantity: number;
+};
+
+export type ActivityItem = {
+  type: 'sale' | 'purchase' | 'payment' | 'return';
+  description: string;
+  amount: number;
+  date: string;
+  reference: string;
+};
+
 // Reports API service - linked to backend/src/modules/reporting/reporting.controller.ts
 export const reportsApi = {
   // ========== SALES REPORTS ==========
@@ -558,6 +604,91 @@ export const reportsApi = {
 
     const response = await api.get<ApiResponse<any>>(`/reporting/analytics/comparison?${params}`);
     return response.data.data;
+  },
+
+  // ========== DASHBOARD HELPER METHODS ==========
+
+  /**
+   * مؤشرات الأداء الرئيسية
+   * Extracts KPIs from dashboard overview
+   */
+  async getKPIMetrics(filters: ReportsFilters): Promise<KPIMetrics> {
+    const dashboard = await this.getDashboardOverview(filters.branchId);
+    return {
+      totalSales: dashboard.overview.totalRevenue,
+      totalInvoices: dashboard.overview.totalOrders,
+      totalCustomers: dashboard.overview.totalCustomers,
+      lowStockItems: dashboard.alerts.lowStockItems,
+      monthlySales: dashboard.overview.totalRevenue,
+      weeklySales: dashboard.overview.totalRevenue * 0.25, // Approximation
+      dailySales: dashboard.overview.totalRevenue / 30, // Approximation
+      salesGrowth: dashboard.overview.totalRevenueChange,
+    };
+  },
+
+  /**
+   * بيانات الرسم البياني للمبيعات
+   * Extracts sales chart data from dashboard overview
+   */
+  async getSalesChartData(filters: ReportsFilters): Promise<SalesChartData[]> {
+    const dashboard = await this.getDashboardOverview(filters.branchId);
+    return dashboard.charts.revenueByPeriod.map(item => ({
+      period: item.period,
+      sales: item.revenue,
+      revenue: item.revenue,
+      invoices: item.orders,
+    }));
+  },
+
+  /**
+   * تنبيهات المخزون
+   * GET /reporting/inventory/low-stock
+   */
+  async getInventoryAlerts(warehouseId?: string): Promise<InventoryAlert[]> {
+    const report = await this.getLowStockReport(warehouseId);
+    return report.lowStockAlerts.map(alert => ({
+      ...alert,
+      productId: alert.productVariantId, // Add productId for compatibility
+      status: alert.currentStock === 0
+        ? 'critical' as const
+        : alert.currentStock <= alert.reorderPoint
+        ? 'warning' as const
+        : 'normal' as const,
+    }));
+  },
+
+  /**
+   * المنتجات الأكثر مبيعاً
+   * Extracts top products from dashboard overview
+   */
+  async getTopProducts(filters: ReportsFilters, limit: number = 10): Promise<TopProduct[]> {
+    const dashboard = await this.getDashboardOverview(filters.branchId);
+    return dashboard.charts.topProducts.slice(0, limit);
+  },
+
+  /**
+   * النشاط الأخير
+   * Extracts recent activity from dashboard overview
+   */
+  async getRecentActivity(limit: number = 10): Promise<ActivityItem[]> {
+    const dashboard = await this.getDashboardOverview();
+    return dashboard.recentActivity.slice(0, limit).map(activity => ({
+      ...activity,
+      date: typeof activity.date === 'string' ? activity.date : (activity.date as unknown as string).toString(),
+    }));
+  },
+
+  /**
+   * تحديث الكاش
+   * Invalidates cache on server side (if endpoint exists)
+   */
+  async refreshCache(): Promise<void> {
+    try {
+      await api.post('/reporting/cache/refresh');
+    } catch (error) {
+      // Endpoint might not exist, silently fail
+      console.warn('Cache refresh endpoint not available', error);
+    }
   },
 };
 

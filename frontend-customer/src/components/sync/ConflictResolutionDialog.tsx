@@ -50,15 +50,21 @@ export const ConflictResolutionDialog: React.FC<ConflictResolutionDialogProps> =
   analysis,
   onResolve,
 }) => {
-  const [selectedStrategy, setSelectedStrategy] = useState<'local' | 'server' | 'merge' | 'manual'>('manual');
-  const [mergeData, setMergeData] = useState<any>({});
+  const [selectedStrategy, setSelectedStrategy] = useState<'local' | 'server' | 'merge' | 'manual'>(() => 
+    analysis?.recommendedAction ?? 'manual'
+  );
+  const [mergeData, setMergeData] = useState<Record<string, unknown>>(() => 
+    analysis ? { ...(analysis.serverVersion as Record<string, unknown>) } : {}
+  );
   const [resolutionNotes, setResolutionNotes] = useState('');
 
   useEffect(() => {
-    if (analysis) {
-      setSelectedStrategy(analysis.recommendedAction as any);
-      setMergeData({ ...analysis.serverVersion });
+    if (analysis && (analysis.recommendedAction !== selectedStrategy || JSON.stringify(analysis.serverVersion) !== JSON.stringify(mergeData))) {
+      setSelectedStrategy(analysis.recommendedAction);
+      setMergeData({ ...(analysis.serverVersion as Record<string, unknown>) });
     }
+    // React Hook useEffect syncs props to state when dialog opens with new conflict
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [analysis]);
 
   const getSeverityIcon = (severity: string) => {

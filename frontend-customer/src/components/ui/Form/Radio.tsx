@@ -81,11 +81,11 @@ export const Radio: React.FC<RadioProps> = ({
             control={
               <MuiRadio
                 size={size}
-                disabled={disabled || option.disabled}
+                disabled={!!(disabled || option.disabled)}
               />
             }
             label={option.label}
-            disabled={disabled || option.disabled}
+            disabled={!!(disabled || option.disabled)}
           />
         ))}
       </RadioGroup>

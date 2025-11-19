@@ -18,7 +18,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { StockItem, CreateStockItemDto, UpdateStockItemDto } from '@/services/inventory';
+import type { StockItem, CreateStockItemDto, UpdateStockItemDto } from '@/services/inventory';
 import { useInventoryStore } from '@/store';
 
 interface StockItemFormProps {
@@ -66,9 +66,10 @@ const StockItemForm: React.FC<StockItemFormProps> = ({
       .required(t('validation.required', 'هذا الحقل مطلوب')),
     maxStock: Yup.number()
       .min(1, t('validation.min', 'يجب أن تكون القيمة أكبر من 0'))
-      .when('minStock', (minStock, schema) =>
-        schema.min(minStock, t('validation.maxGreaterThanMin', 'يجب أن يكون الحد الأقصى أكبر من الحد الأدنى'))
-      )
+      .when('minStock', ([minStock], schema) => {
+        const minValue = typeof minStock === 'number' ? minStock : 0;
+        return schema.min(minValue, t('validation.maxGreaterThanMin', 'يجب أن يكون الحد الأقصى أكبر من الحد الأدنى'));
+      })
       .required(t('validation.required', 'هذا الحقل مطلوب')),
   });
 
@@ -101,7 +102,7 @@ const StockItemForm: React.FC<StockItemFormProps> = ({
         }
 
         onClose();
-      } catch (error) {
+      } catch  {
         // Error is handled by the store
       }
     },
@@ -119,6 +120,7 @@ const StockItemForm: React.FC<StockItemFormProps> = ({
     } else if (open && mode === 'create') {
       formik.resetForm();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, stockItem, mode]);
 
   const handleClose = () => {
@@ -151,7 +153,7 @@ const StockItemForm: React.FC<StockItemFormProps> = ({
           <Box sx={{ pt: 1 }}>
             <Grid container spacing={3}>
               {/* Warehouse Selection */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{xs: 12, md: 6}}>
                 <FormControl fullWidth variant="outlined" size="small">
                   <InputLabel>
                     {t('inventory.form.warehouse', 'المخزن')}
@@ -162,7 +164,7 @@ const StockItemForm: React.FC<StockItemFormProps> = ({
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     label={t('inventory.form.warehouse', 'المخزن')}
-                    error={formik.touched.warehouseId && Boolean(formik.errors.warehouseId)}
+                    error={(formik.touched.warehouseId && Boolean(formik.errors.warehouseId)) || false}
                     disabled={mode === 'edit'} // Can't change warehouse when editing
                   >
                     {warehouses.map((warehouse) => (
@@ -180,7 +182,7 @@ const StockItemForm: React.FC<StockItemFormProps> = ({
               </Grid>
 
               {/* Product Variant Selection */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{xs: 12, md: 6}}>
                 <FormControl fullWidth variant="outlined" size="small">
                   <InputLabel>
                     {t('inventory.form.productVariant', 'متغير المنتج')}
@@ -191,7 +193,7 @@ const StockItemForm: React.FC<StockItemFormProps> = ({
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     label={t('inventory.form.productVariant', 'متغير المنتج')}
-                    error={formik.touched.productVariantId && Boolean(formik.errors.productVariantId)}
+                    error={(formik.touched.productVariantId && Boolean(formik.errors.productVariantId)) || false}
                     disabled={mode === 'edit'} // Can't change product variant when editing
                   >
                     {productVariants.map((variant) => (
@@ -210,7 +212,7 @@ const StockItemForm: React.FC<StockItemFormProps> = ({
               </Grid>
 
               {/* Quantity */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{xs: 12, md: 6}}>
                 <TextField
                   fullWidth
                   name="quantity"
@@ -220,7 +222,7 @@ const StockItemForm: React.FC<StockItemFormProps> = ({
                   value={formik.values.quantity}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  error={formik.touched.quantity && Boolean(formik.errors.quantity)}
+                  error={(formik.touched.quantity && Boolean(formik.errors.quantity)) || false}
                   helperText={formik.touched.quantity && formik.errors.quantity}
                   disabled={mode === 'edit'} // Can't change quantity when editing, use adjust stock instead
                   InputProps={{
@@ -235,7 +237,7 @@ const StockItemForm: React.FC<StockItemFormProps> = ({
               </Grid>
 
               {/* Min Stock */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{xs: 12, md: 6}}>
                 <TextField
                   fullWidth
                   name="minStock"
@@ -245,7 +247,7 @@ const StockItemForm: React.FC<StockItemFormProps> = ({
                   value={formik.values.minStock}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  error={formik.touched.minStock && Boolean(formik.errors.minStock)}
+                  error={(formik.touched.minStock && Boolean(formik.errors.minStock)) || false}
                   helperText={formik.touched.minStock && formik.errors.minStock}
                   InputProps={{
                     inputProps: { min: 0, step: 1 },
@@ -254,7 +256,7 @@ const StockItemForm: React.FC<StockItemFormProps> = ({
               </Grid>
 
               {/* Max Stock */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{xs: 12, md: 6}}>
                 <TextField
                   fullWidth
                   name="maxStock"
@@ -264,7 +266,7 @@ const StockItemForm: React.FC<StockItemFormProps> = ({
                   value={formik.values.maxStock}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  error={formik.touched.maxStock && Boolean(formik.errors.maxStock)}
+                  error={(formik.touched.maxStock && Boolean(formik.errors.maxStock)) || false}
                   helperText={formik.touched.maxStock && formik.errors.maxStock}
                   InputProps={{
                     inputProps: { min: 1, step: 1 },
@@ -273,7 +275,7 @@ const StockItemForm: React.FC<StockItemFormProps> = ({
               </Grid>
 
               {/* Status Preview */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{xs: 12, md: 6}}>
                 <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
                   <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
                     {t('inventory.form.statusPreview', 'معاينة الحالة')}

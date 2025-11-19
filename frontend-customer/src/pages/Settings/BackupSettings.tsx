@@ -9,7 +9,6 @@ import {
   TextField,
   MenuItem,
   Button,
-  Alert,
   CircularProgress,
   Table,
   TableBody,
@@ -44,7 +43,6 @@ export const BackupSettings: React.FC = () => {
     isCreatingBackup,
     updateBackupSettings,
     createManualBackup,
-    refetchHistory,
   } = useBackupSettings();
 
   // Validation schema
@@ -94,7 +92,7 @@ export const BackupSettings: React.FC = () => {
   // Load backup settings
   React.useEffect(() => {
     if (backupSettings) {
-      formik.setValues(backupSettings);
+      formik.setValues(backupSettings as any);
     }
   }, [backupSettings, formik]);
 
@@ -234,13 +232,13 @@ export const BackupSettings: React.FC = () => {
       {/* Backup Configuration */}
       <form onSubmit={formik.handleSubmit}>
         <Grid container spacing={3}>
-          <Grid item xs={12}>
+          <Grid   size={{xs: 12}}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
               {t('settings.backup.configuration.title', 'إعدادات النسخ الاحتياطي')}
             </Typography>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <FormControlLabel
               control={
                 <Switch
@@ -254,7 +252,7 @@ export const BackupSettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <FormControlLabel
               control={
                 <Switch
@@ -269,7 +267,7 @@ export const BackupSettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid   size={{xs: 12, md: 4}}>
             <TextField
               select
               fullWidth
@@ -287,7 +285,7 @@ export const BackupSettings: React.FC = () => {
             </TextField>
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid   size={{xs: 12, md: 4}}>
             <TextField
               fullWidth
               label={t('settings.backup.configuration.time', 'الوقت')}
@@ -301,7 +299,7 @@ export const BackupSettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid   size={{xs: 12, md: 4}}>
             <TextField
               fullWidth
               label={t('settings.backup.configuration.retention', 'مدة الاحتفاظ (أيام)')}
@@ -317,13 +315,13 @@ export const BackupSettings: React.FC = () => {
           </Grid>
 
           {/* Content to Include */}
-          <Grid item xs={12}>
+          <Grid   size={{xs: 12}}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, mt: 2 }}>
               {t('settings.backup.content.title', 'المحتوى المراد نسخه احتياطياً')}
             </Typography>
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid   size={{xs: 12, md: 4}}>
             <FormControlLabel
               control={
                 <Switch
@@ -337,7 +335,7 @@ export const BackupSettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid   size={{xs: 12, md: 4}}>
             <FormControlLabel
               control={
                 <Switch
@@ -351,7 +349,7 @@ export const BackupSettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid   size={{xs: 12, md: 4}}>
             <FormControlLabel
               control={
                 <Switch
@@ -366,13 +364,13 @@ export const BackupSettings: React.FC = () => {
           </Grid>
 
           {/* Options */}
-          <Grid item xs={12}>
+          <Grid   size={{xs: 12}}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, mt: 2 }}>
               {t('settings.backup.options.title', 'خيارات إضافية')}
             </Typography>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+              <Grid   size={{xs: 12, md: 6}}>
             <FormControlLabel
               control={
                 <Switch
@@ -386,7 +384,7 @@ export const BackupSettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <FormControlLabel
               control={
                 <Switch
@@ -401,13 +399,13 @@ export const BackupSettings: React.FC = () => {
           </Grid>
 
           {/* Destinations */}
-          <Grid item xs={12}>
+          <Grid   size={{xs: 12}}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, mt: 2 }}>
               {t('settings.backup.destinations.title', 'وجهات النسخ الاحتياطي')}
             </Typography>
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid   size={{xs: 12, md: 4}}>
             <FormControlLabel
               control={
                 <Switch
@@ -421,7 +419,7 @@ export const BackupSettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid   size={{xs: 12, md: 4}}>
             <FormControlLabel
               control={
                 <Switch
@@ -435,7 +433,7 @@ export const BackupSettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid   size={{xs: 12, md: 4}}>
             <FormControlLabel
               control={
                 <Switch
@@ -450,7 +448,7 @@ export const BackupSettings: React.FC = () => {
           </Grid>
 
           {/* Save Button */}
-          <Grid item xs={12}>
+          <Grid   size={{xs: 12}}>
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 3 }}>
               <Button
                 type="submit"

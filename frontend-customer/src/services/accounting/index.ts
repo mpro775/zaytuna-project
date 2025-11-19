@@ -15,5 +15,4 @@ export type {
   CreateJournalEntryLineDto,
   AccountingFilters,
   AccountingApiResponse,
-  PaginatedResponse,
 } from './types';

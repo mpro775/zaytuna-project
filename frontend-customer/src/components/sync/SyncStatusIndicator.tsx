@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   IconButton,
@@ -28,7 +28,7 @@ import {
   Schedule as ScheduleIcon,
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
-import { useSync } from '../../contexts/SyncContext';
+import { useSync } from '../../contexts/useSync';
 import { useTranslation } from 'react-i18next';
 
 interface SyncStatusIndicatorProps {
@@ -74,7 +74,7 @@ export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = ({
   };
 
   const getSyncStatus = () => {
-    if (!syncStats) return { status: 'unknown', icon: SyncProblemIcon, color: 'default' as const };
+    if (!syncStats) return { status: 'unknown', icon: SyncProblemIcon, color: 'info' as const };
 
     if (syncStats.isSyncing) {
       return { status: 'syncing', icon: SyncIcon, color: 'primary' as const };
@@ -98,7 +98,7 @@ export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = ({
   };
 
   const getWebSocketStatus = () => {
-    if (!webSocketStats) return { status: 'unknown', icon: WifiOffIcon, color: 'default' as const };
+    if (!webSocketStats) return { status: 'unknown', icon: WifiOffIcon, color: 'info' as const };
 
     if (webSocketStats.isConnected) {
       return { status: 'connected', icon: WifiIcon, color: 'success' as const };
@@ -217,7 +217,7 @@ export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = ({
 
             {syncStats?.isSyncing && (
               <Box sx={{ mb: 1 }}>
-                <LinearProgress size="small" />
+                <LinearProgress />
                 <Typography variant="caption" color="text.secondary">
                   {t('sync.status.syncing', 'جاري المزامنة...')}
                 </Typography>
@@ -316,7 +316,7 @@ export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = ({
                 </ListItem>
               )}
 
-              {webSocketStats?.reconnectAttempts > 0 && (
+              {webSocketStats && webSocketStats.reconnectAttempts > 0 && (
                 <ListItem>
                   <ListItemIcon>
                     <ErrorIcon color="warning" />

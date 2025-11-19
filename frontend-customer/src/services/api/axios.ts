@@ -32,31 +32,194 @@ const api: AxiosInstance = axios.create({
 
 // Override request method to support mock mode
 const originalRequest = api.request.bind(api);
-api.request = async function <T = any, D = any>(
+const originalPost = api.post.bind(api);
+const originalGet = api.get.bind(api);
+const originalPut = api.put.bind(api);
+const originalPatch = api.patch.bind(api);
+const originalDelete = api.delete.bind(api);
+
+// Track if mock services are loaded
+let mockServicesLoaded = false;
+
+// Helper function to handle mock requests
+async function handleMockRequest<T = any, R = AxiosResponse<T, any, unknown>, D = any>(
   config: AxiosRequestConfig<D>
-): Promise<AxiosResponse<T, D>> {
+): Promise<R> {
+  // Ensure config has full URL
+  if (config.url && !config.url.startsWith('http')) {
+    config.url = `${BASE_URL}${config.url.startsWith('/') ? '' : '/'}${config.url}`;
+  }
+  
+  // Initialize mock services if not already done
+  if (!mockServicesLoaded) {
+    if (import.meta.env.DEV) {
+      console.log('📦 Loading mock services...');
+    }
+    await import('@/mocks/services');
+    mockServicesLoaded = true;
+    if (import.meta.env.DEV) {
+      console.log('✅ Mock services loaded. Handlers:', mockApi.getRegisteredHandlers());
+    }
+  }
+  
+  if (import.meta.env.DEV) {
+    console.log('🔵 Mock API handling request:', config.method, config.url);
+  }
+  
+  // Handle request through mock API
+  return await mockApi.handleRequest(config) as R;
+}
+
+// Override request method
+api.request = async function <T = any, R = AxiosResponse<T, any, unknown>, D = any>(
+  config: AxiosRequestConfig<D>
+): Promise<R> {
   // Check if mock mode is enabled
-  if (isMockModeEnabled()) {
+  const mockEnabled = isMockModeEnabled();
+  
+  if (import.meta.env.DEV) {
+    console.log('🔍 Mock mode check:', mockEnabled, 'for', config.method, config.url);
+  }
+  
+  if (mockEnabled) {
     try {
-      // Initialize mock services if not already done
-      if (!mockApi.isEnabled()) {
-        await import('@/mocks/services');
-      }
-      
-      // Handle request through mock API
-      return await mockApi.handleRequest(config) as AxiosResponse<T, D>;
+      return await handleMockRequest<T, R, D>(config);
     } catch (error: any) {
       // If mock handler fails, fall through to real API (or rethrow)
       if (error.response) {
         throw error;
       }
       // If no handler found, try real API
-      return originalRequest<T, D>(config);
+      if (import.meta.env.DEV) {
+        console.warn('⚠️ Mock handler failed, falling back to real API:', error);
+      }
+      return originalRequest<T, R, D>(config);
     }
   }
   
   // Use real API
-  return originalRequest<T, D>(config);
+  if (import.meta.env.DEV) {
+    console.log('🌐 Using real API for:', config.method, config.url);
+  }
+  return originalRequest<T, R, D>(config);
+};
+
+// Override post method
+api.post = async function <T = any, R = AxiosResponse<T, any, unknown>, D = any>(
+  url: string,
+  data?: D,
+  config?: AxiosRequestConfig<D>
+): Promise<R> {
+  const mockEnabled = isMockModeEnabled();
+  
+  if (import.meta.env.DEV) {
+    console.log('📮 api.post called:', url, 'Mock enabled:', mockEnabled);
+  }
+  
+  if (mockEnabled) {
+    try {
+      const mockConfig: AxiosRequestConfig<D> = { ...config, method: 'POST', url };
+      if (data !== undefined) {
+        mockConfig.data = data;
+      }
+      return await handleMockRequest<T, R, D>(mockConfig);
+    } catch (error: any) {
+      if (import.meta.env.DEV) {
+        console.error('❌ Mock post failed:', error);
+      }
+      if (error.response) {
+        throw error;
+      }
+      return originalPost<T, R, D>(url, data, config);
+    }
+  }
+  
+  if (import.meta.env.DEV) {
+    console.log('🌐 Using real API for POST:', url);
+  }
+  return originalPost<T, R, D>(url, data, config);
+};
+
+// Override get method
+api.get = async function <T = any, R = AxiosResponse<T, any, unknown>, D = any>(
+  url: string,
+  config?: AxiosRequestConfig<D>
+): Promise<R> {
+  if (isMockModeEnabled()) {
+    try {
+      return await handleMockRequest<T, R, D>({ ...config, method: 'GET', url });
+    } catch (error: any) {
+      if (error.response) {
+        throw error;
+      }
+      return originalGet<T, R, D>(url, config);
+    }
+  }
+  return originalGet<T, R, D>(url, config);
+};
+
+// Override put method
+api.put = async function <T = any, R = AxiosResponse<T, any, unknown>, D = any>(
+  url: string,
+  data?: D,
+  config?: AxiosRequestConfig<D>
+): Promise<R> {
+  if (isMockModeEnabled()) {
+    try {
+      const mockConfig: AxiosRequestConfig<D> = { ...config, method: 'PUT', url };
+      if (data !== undefined) {
+        mockConfig.data = data;
+      }
+      return await handleMockRequest<T, R, D>(mockConfig);
+    } catch (error: any) {
+      if (error.response) {
+        throw error;
+      }
+      return originalPut<T, R, D>(url, data, config);
+    }
+  }
+  return originalPut<T, R, D>(url, data, config);
+};
+
+// Override patch method
+api.patch = async function <T = any, R = AxiosResponse<T, any, unknown>, D = any>(
+  url: string,
+  data?: D,
+  config?: AxiosRequestConfig<D>
+): Promise<R> {
+  if (isMockModeEnabled()) {
+    try {
+      const mockConfig: AxiosRequestConfig<D> = { ...config, method: 'PATCH', url };
+      if (data !== undefined) {
+        mockConfig.data = data;
+      }
+      return await handleMockRequest<T, R, D>(mockConfig);
+    } catch (error: any) {
+      if (error.response) {
+        throw error;
+      }
+      return originalPatch<T, R, D>(url, data, config);
+    }
+  }
+  return originalPatch<T, R, D>(url, data, config);
+};
+
+// Override delete method
+api.delete = async function <T = any, R = AxiosResponse<T, any, unknown>, D = any>(
+  url: string,
+  config?: AxiosRequestConfig<D>
+): Promise<R> {
+  if (isMockModeEnabled()) {
+    try {
+      return await handleMockRequest<T, R, D>({ ...config, method: 'DELETE', url });
+    } catch (error: any) {
+      if (error.response) {
+        throw error;
+      }
+      return originalDelete<T, R, D>(url, config);
+    }
+  }
+  return originalDelete<T, R, D>(url, config);
 };
 
 // Request interceptor for adding auth token

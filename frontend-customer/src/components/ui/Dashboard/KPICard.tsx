@@ -45,7 +45,7 @@ const StyledCard = styled(Card, {
 
 const IconContainer = styled(Box, {
   shouldForwardProp: (prop) => prop !== 'color',
-})<{ color?: string }>(({ theme }) => ({
+})<{ color?: 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info' }>(({ theme, color = 'primary' }) => ({
   width: 48,
   height: 48,
   borderRadius: theme.spacing(1),
@@ -57,7 +57,7 @@ const IconContainer = styled(Box, {
   marginBottom: theme.spacing(2),
 }));
 
-const TrendChip = styled(Chip)(({ theme }) => ({
+const TrendChip = styled(Chip)(() => ({
   height: 24,
   fontSize: '0.75rem',
   fontWeight: 600,
@@ -78,7 +78,7 @@ export const KPICard: React.FC<KPICardProps> = ({
 
     switch (format) {
       case 'currency':
-        return new Intl.NumberFormat('ar-SA', {
+        return new Intl.NumberFormat('en-US', {
           style: 'currency',
           currency: 'YER',
           minimumFractionDigits: 0,
@@ -87,7 +87,7 @@ export const KPICard: React.FC<KPICardProps> = ({
         return `${val}%`;
       case 'number':
       default:
-        return new Intl.NumberFormat('ar-SA').format(val);
+        return new Intl.NumberFormat('en-US').format(val);
     }
   };
 
@@ -147,15 +147,18 @@ export const KPICard: React.FC<KPICardProps> = ({
               {loading ? '...' : formatValue(value)}
             </Typography>
 
-            {trend && (
-              <TrendChip
-                icon={getTrendIcon()}
-                label={`${trend.value > 0 ? '+' : ''}${trend.value}% ${trend.label || ''}`}
-                color={getTrendColor()}
-                size="small"
-                variant="outlined"
-              />
-            )}
+            {trend && (() => {
+              const trendIcon = getTrendIcon();
+              return (
+                <TrendChip
+                  {...(trendIcon && { icon: trendIcon })}
+                  label={`${trend.value > 0 ? '+' : ''}${trend.value}% ${trend.label || ''}`}
+                  color={getTrendColor()}
+                  size="small"
+                  variant="outlined"
+                />
+              );
+            })()}
           </Box>
 
           {icon && (

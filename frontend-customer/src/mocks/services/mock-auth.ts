@@ -10,8 +10,12 @@ import { generateId, simulateDelay } from './mock-utils';
 import type { MockRequest, MockResponse } from '../types';
 
 // Load data
-let authUsers = [...authData.users];
-let users = [...usersData];
+const authUsers = [...authData.users];
+const users = [...usersData];
+
+if (import.meta.env.DEV) {
+  console.log('✅ Mock Auth Service loaded');
+}
 
 // Register handlers
 mockApi.registerHandler('POST:/auth/login', async (request: MockRequest): Promise<MockResponse> => {
@@ -37,6 +41,10 @@ mockApi.registerHandler('POST:/auth/login', async (request: MockRequest): Promis
   
   const userDetails = users.find((u) => u.id === user.id);
   
+  // في وضع Mock، نتجاهل التحقق بخطوتين دائماً
+  // حتى لو كان requiresTwoFactor: true في البيانات
+  const requiresTwoFactor = false; // دائماً false في وضع Mock
+  
   return {
     data: {
       accessToken: `mock-token-${generateId()}`,
@@ -49,12 +57,14 @@ mockApi.registerHandler('POST:/auth/login', async (request: MockRequest): Promis
         branch: userDetails?.branch?.name,
       },
       expiresIn: 3600,
+      requiresTwoFactor: requiresTwoFactor, // دائماً false في Mock
+      twoFactorMethod: undefined, // لا حاجة لطريقة التحقق
     },
     statusCode: 200,
   };
 });
 
-mockApi.registerHandler('POST:/auth/logout', async (request: MockRequest): Promise<MockResponse> => {
+mockApi.registerHandler('POST:/auth/logout', async (): Promise<MockResponse> => {
   await simulateDelay(100, 200);
   
   return {
@@ -111,7 +121,13 @@ mockApi.registerHandler('GET:/auth/me', async (request: MockRequest): Promise<Mo
   }
   
   // Return first user as mock
-  const user = users[0];
+  const user = users[0] || {
+    id: '',
+    username: '',
+    email: '',
+    role: '',
+    branch: { name: '' },
+  };
   
   return {
     data: {
@@ -140,7 +156,13 @@ mockApi.registerHandler('GET:/auth/verify', async (request: MockRequest): Promis
     };
   }
   
-  const user = users[0];
+  const user = users[0] || {
+    id: '',
+    username: '',
+    email: '',
+    role: '',
+    branch: { name: '' },
+  };
   
   return {
     data: {
@@ -157,7 +179,7 @@ mockApi.registerHandler('GET:/auth/verify', async (request: MockRequest): Promis
   };
 });
 
-mockApi.registerHandler('POST:/auth/2fa/send', async (request: MockRequest): Promise<MockResponse> => {
+mockApi.registerHandler('POST:/auth/2fa/send', async (): Promise<MockResponse> => {
   await simulateDelay(200, 400);
   
   return {
@@ -185,7 +207,13 @@ mockApi.registerHandler('POST:/auth/2fa/verify', async (request: MockRequest): P
     };
   }
   
-  const user = users[0];
+  const user = users[0] || {
+    id: '',
+    username: '',
+    email: '',
+    role: '',
+    branch: { name: '' },
+  };
   
   return {
     data: {
@@ -204,7 +232,7 @@ mockApi.registerHandler('POST:/auth/2fa/verify', async (request: MockRequest): P
   };
 });
 
-mockApi.registerHandler('POST:/auth/2fa/toggle', async (request: MockRequest): Promise<MockResponse> => {
+mockApi.registerHandler('POST:/auth/2fa/toggle', async (): Promise<MockResponse> => {
   await simulateDelay(150, 300);
   
   return {
@@ -215,7 +243,7 @@ mockApi.registerHandler('POST:/auth/2fa/toggle', async (request: MockRequest): P
   };
 });
 
-mockApi.registerHandler('POST:/auth/2fa/setup/app', async (request: MockRequest): Promise<MockResponse> => {
+mockApi.registerHandler('POST:/auth/2fa/setup/app', async (): Promise<MockResponse> => {
   await simulateDelay(200, 400);
   
   return {

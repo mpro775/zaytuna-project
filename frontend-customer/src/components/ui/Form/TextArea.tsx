@@ -84,8 +84,8 @@ export const TextArea: React.FC<TextAreaProps> = ({
         variant={variant}
         multiline
         rows={rows}
-        minRows={minRows}
-        maxRows={maxRows}
+        {...(minRows !== undefined && { minRows })}
+        {...(maxRows !== undefined && { maxRows })}
         error={error}
         value={localValue}
         onChange={handleChange}

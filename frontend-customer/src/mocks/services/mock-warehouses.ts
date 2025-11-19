@@ -5,11 +5,11 @@
 
 import warehousesData from '../data/warehouses.json';
 import { mockApi } from './mock-api';
-import { filterData, sortData, paginateData, generateId, getMockDataFromStorage, saveMockDataToStorage } from './mock-utils';
+import { filterData, sortData, generateId, getMockDataFromStorage, saveMockDataToStorage } from './mock-utils';
 import type { MockRequest, MockResponse } from '../types';
 
 // Load data with localStorage persistence
-let warehouses = getMockDataFromStorage('warehouses', warehousesData);
+const warehouses = getMockDataFromStorage('warehouses', warehousesData);
 
 // Register handlers
 mockApi.registerHandler('GET:/warehouses', async (request: MockRequest): Promise<MockResponse> => {

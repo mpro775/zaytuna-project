@@ -132,23 +132,43 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
       let productId: string;
 
       if (mode === 'create') {
-        const newProduct = await createProduct({
+        const productData: any = {
           ...data,
-          description: data.description || undefined,
-          barcode: data.barcode || undefined,
-          variants: data.variants?.filter(v => v.name && v.value) || undefined,
           branchId: 'default-branch', // TODO: Get from user context
-        });
+        };
+
+        if (data.description) {
+          productData.description = data.description;
+        }
+        if (data.barcode) {
+          productData.barcode = data.barcode;
+        }
+        const filteredVariants = data.variants?.filter(v => v.name && v.value);
+        if (filteredVariants && filteredVariants.length > 0) {
+          productData.variants = filteredVariants;
+        }
+
+        const newProduct = await createProduct(productData);
         productId = newProduct.id;
       } else {
+        const updateData: any = {
+          ...data,
+        };
+
+        if (data.description) {
+          updateData.description = data.description;
+        }
+        if (data.barcode) {
+          updateData.barcode = data.barcode;
+        }
+        const filteredVariants = data.variants?.filter(v => v.name && v.value);
+        if (filteredVariants && filteredVariants.length > 0) {
+          updateData.variants = filteredVariants;
+        }
+
         await updateProduct({
           id: id!,
-          data: {
-            ...data,
-            description: data.description || undefined,
-            barcode: data.barcode || undefined,
-            variants: data.variants?.filter(v => v.name && v.value) || undefined,
-          }
+          data: updateData
         });
         productId = id!;
       }
@@ -213,14 +233,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={3}>
             {/* Basic Information */}
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                 {t('products.form.basicInfo', 'المعلومات الأساسية')}
               </Typography>
               <Divider sx={{ mb: 3 }} />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Controller
                 name="name"
                 control={control}
@@ -237,7 +257,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Controller
                 name="sku"
                 control={control}
@@ -254,7 +274,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Controller
                 name="categoryId"
                 control={control}
@@ -278,7 +298,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Controller
                 name="barcode"
                 control={control}
@@ -294,7 +314,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
               />
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Controller
                 name="description"
                 control={control}
@@ -313,14 +333,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
             </Grid>
 
             {/* Pricing Information */}
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Typography variant="h6" sx={{ mb: 2, mt: 2, fontWeight: 600 }}>
                 {t('products.form.pricing', 'معلومات التسعير')}
               </Typography>
               <Divider sx={{ mb: 3 }} />
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Controller
                 name="basePrice"
                 control={control}
@@ -339,7 +359,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
               />
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Controller
                 name="costPrice"
                 control={control}
@@ -358,7 +378,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
               />
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Controller
                 name="reorderPoint"
                 control={control}
@@ -378,14 +398,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
             </Grid>
 
             {/* Inventory Information */}
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Typography variant="h6" sx={{ mb: 2, mt: 2, fontWeight: 600 }}>
                 {t('products.form.inventory', 'معلومات المخزون')}
               </Typography>
               <Divider sx={{ mb: 3 }} />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Controller
                 name="unit"
                 control={control}
@@ -402,7 +422,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Controller
                 name="isActive"
                 control={control}
@@ -421,7 +441,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
             </Grid>
 
             {/* Variants */}
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Typography variant="h6" sx={{ mb: 2, mt: 2, fontWeight: 600 }}>
                 {t('products.form.variants', 'المتغيرات')}
               </Typography>
@@ -430,7 +450,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
               {fields.map((field, index) => (
                 <Box key={field.id} sx={{ mb: 2, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
                   <Grid container spacing={2}>
-                    <Grid item xs={12} md={3}>
+                    <Grid size={{ xs: 12, md: 3 }}>
                       <Controller
                         name={`variants.${index}.name` as const}
                         control={control}
@@ -445,7 +465,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
                         )}
                       />
                     </Grid>
-                    <Grid item xs={12} md={3}>
+                    <Grid size={{ xs: 12, md: 3 }}>
                       <Controller
                         name={`variants.${index}.value` as const}
                         control={control}
@@ -460,7 +480,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
                         )}
                       />
                     </Grid>
-                    <Grid item xs={12} md={3}>
+                    <Grid size={{ xs: 12, md: 3 }}>
                       <Controller
                         name={`variants.${index}.priceModifier` as const}
                         control={control}
@@ -475,7 +495,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
                         )}
                       />
                     </Grid>
-                    <Grid item xs={12} md={2}>
+                    <Grid size={{ xs: 12, md: 2 }}>
                       <Controller
                         name={`variants.${index}.stock` as const}
                         control={control}
@@ -490,7 +510,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
                         )}
                       />
                     </Grid>
-                    <Grid item xs={12} md={1}>
+                    <Grid size={{ xs: 12, md: 1 }}>
                       <IconButton onClick={() => remove(index)} color="error">
                         <DeleteIcon />
                       </IconButton>
@@ -510,7 +530,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
             </Grid>
 
             {/* Images */}
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Typography variant="h6" sx={{ mb: 2, mt: 2, fontWeight: 600 }}>
                 {t('products.form.images', 'الصور')}
               </Typography>
@@ -605,7 +625,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ mode }) => {
             </Grid>
 
             {/* Actions */}
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 3 }}>
                 <Button
                   variant="outlined"

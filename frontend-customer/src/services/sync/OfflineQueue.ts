@@ -67,19 +67,19 @@ export class OfflineQueue {
       console.log(`Operation ${operationId} completed successfully`);
     } else {
       // تحديث محاولات الفشل
-      item.attempts++;
-      item.lastAttempt = new Date();
-      item.error = error || 'Unknown error';
+      item!.attempts++;
+      item!.lastAttempt = new Date();
+      item!.error = error || 'Unknown error';
 
-      if (item.attempts >= this.maxRetries) {
+      if (item!.attempts >= this.maxRetries) {
         // تحديد العملية كفاشلة نهائياً
-        item.operation.status = 'failed';
-        console.error(`Operation ${operationId} failed permanently after ${item.attempts} attempts`);
+        item!.operation.status = 'failed';
+        console.error(`Operation ${operationId} failed permanently after ${item!  .attempts} attempts`);
       } else {
         // جدولة محاولة أخرى مع exponential backoff
-        const delay = this.baseDelay * Math.pow(2, item.attempts - 1);
-        item.nextAttempt = new Date(Date.now() + delay);
-        console.warn(`Operation ${operationId} failed, retrying in ${delay}ms (attempt ${item.attempts}/${this.maxRetries})`);
+        const delay = this.baseDelay * Math.pow(2, item!.attempts - 1);
+        item!.nextAttempt = new Date(Date.now() + delay);
+        console.warn(`Operation ${operationId} failed, retrying in ${delay}ms (attempt ${item!.attempts}/${this.maxRetries})`);
       }
     }
 
@@ -110,7 +110,7 @@ export class OfflineQueue {
     for (const item of failedItems) {
       item.attempts = 0;
       item.nextAttempt = new Date();
-      item.error = undefined;
+      item.error = '';
       item.operation.status = 'pending';
     }
 

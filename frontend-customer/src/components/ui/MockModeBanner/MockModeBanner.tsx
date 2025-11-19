@@ -6,11 +6,9 @@
 import React from 'react';
 import { Box, Alert, AlertTitle, IconButton } from '@mui/material';
 import { Close as CloseIcon, Warning as WarningIcon } from '@mui/icons-material';
-import { useTranslation } from 'react-i18next';
 import { isMockModeEnabled } from '@/config/mock.config';
 
 export const MockModeBanner: React.FC = () => {
-  const { t } = useTranslation();
   const [dismissed, setDismissed] = React.useState(false);
   const mockEnabled = isMockModeEnabled();
 

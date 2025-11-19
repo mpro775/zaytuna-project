@@ -83,8 +83,8 @@ const Modal: React.FC<ModalProps> = ({
       maxWidth={maxWidth}
       fullWidth={fullWidth}
       fullScreen={fullScreen || isMobile}
-      PaperProps={PaperProps}
-      TransitionProps={TransitionProps}
+      {...(PaperProps && { PaperProps })}
+      {...(TransitionProps && { TransitionProps })}
     >
       {title && (
         <DialogTitle>

@@ -50,7 +50,7 @@ export class WebSocketService {
 
   constructor(config: WebSocketConfig = {}) {
     this.config = {
-      url: config.url || (process.env.NODE_ENV === 'production'
+      url: config.url || (import.meta.env.NODE_ENV === 'production'
         ? 'wss://api.zaytuna.com'
         : 'ws://localhost:3000'),
       autoConnect: config.autoConnect !== false,
@@ -74,13 +74,13 @@ export class WebSocketService {
       this.socket = io(`${this.config.url}/sync`, {
         auth: {
           token: this.config.token,
-          userId: this.config.userId,
-          branchId: this.config.branchId,
-          deviceId: this.config.deviceId,
+          userId: this.config.userId || '',
+          branchId: this.config.branchId || '',
+          deviceId: this.config.deviceId || '',
         },
         transports: ['websocket', 'polling'],
         timeout: 5000,
-        reconnection: this.config.reconnection,
+        reconnection: this.config.reconnection || false,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
       });

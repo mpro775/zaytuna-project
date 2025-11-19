@@ -6,7 +6,6 @@ import {
   Tabs,
   Tab,
   Breadcrumbs,
-  Link as MuiLink,
 } from '@mui/material';
 import {
   Business as BusinessIcon,
@@ -15,7 +14,6 @@ import {
   Backup as BackupIcon,
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 import { CompanySettings } from './CompanySettings';
 import { SystemSettings } from './SystemSettings';
 import { SecuritySettings } from './SecuritySettings';

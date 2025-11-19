@@ -11,7 +11,7 @@ import {
   ListItemText,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import type { SelectProps as MuiSelectProps } from '@mui/material';
+import type { SelectProps as MuiSelectProps, SelectChangeEvent } from '@mui/material';
 
 export interface SelectOption {
   value: string | number;
@@ -68,7 +68,7 @@ export const Select: React.FC<SelectProps> = ({
   onChange,
   ...props
 }) => {
-  const handleRenderValue = (selected: unknown) => {
+  const handleRenderValue = (selected: unknown): React.ReactNode => {
     if (renderValue) {
       return renderValue(selected);
     }
@@ -98,11 +98,11 @@ export const Select: React.FC<SelectProps> = ({
     }
 
     const selectedOption = options.find(opt => opt.value === selected);
-    return selectedOption?.label || selected || placeholder || '';
+    return selectedOption?.label || String(selected || '') || placeholder || '';
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onChange?.(event);
+  const handleChange = (event: SelectChangeEvent<unknown>, child: React.ReactNode) => {
+    onChange?.(event, child);
   };
 
   return (
@@ -126,7 +126,7 @@ export const Select: React.FC<SelectProps> = ({
           <MenuItem
             key={option.value}
             value={option.value}
-            disabled={option.disabled}
+            disabled={!!option.disabled}
           >
             {multiple && (
               <Checkbox

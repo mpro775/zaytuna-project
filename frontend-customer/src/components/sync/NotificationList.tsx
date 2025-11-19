@@ -22,11 +22,10 @@ import {
   NotificationsActive as NotificationsActiveIcon,
   Done as DoneIcon,
   Clear as ClearIcon,
-  Delete as DeleteIcon,
   Settings as SettingsIcon,
 } from '@mui/icons-material';
-import { notificationService, NotificationHistoryItem, NotificationSettings } from '../../services/sync';
 import { useTranslation } from 'react-i18next';
+import { notificationService, type NotificationHistoryItem, type NotificationSettings } from '@/services/sync';
 
 interface NotificationListProps {
   compact?: boolean;
@@ -44,8 +43,18 @@ export const NotificationList: React.FC<NotificationListProps> = ({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settings, setSettings] = useState<NotificationSettings>(notificationService.getSettings());
 
+  const loadNotifications = React.useCallback(() => {
+    const history = notificationService.getHistory(maxItems);
+    setNotifications(history);
+    setSettings(notificationService.getSettings());
+  }, [maxItems]);
+
   useEffect(() => {
-    loadNotifications();
+    // Sync external notification service data to component state
+    // Defer initial load to avoid cascading renders
+    queueMicrotask(() => {
+      loadNotifications();
+    });
 
     // تحديث دوري للإشعارات
     const interval = setInterval(() => {
@@ -53,13 +62,7 @@ export const NotificationList: React.FC<NotificationListProps> = ({
     }, 30000); // كل 30 ثانية
 
     return () => clearInterval(interval);
-  }, []);
-
-  const loadNotifications = () => {
-    const history = notificationService.getHistory(maxItems);
-    setNotifications(history);
-    setSettings(notificationService.getSettings());
-  };
+  }, [loadNotifications]);
 
   const handleMarkAsRead = (notificationId: string) => {
     notificationService.markAsRead(notificationId);
@@ -199,7 +202,7 @@ export const NotificationList: React.FC<NotificationListProps> = ({
                       </Typography>
                       {notification.data?.type && (
                         <Chip
-                          label={t(`notifications.types.${notification.data.type}`, notification.data.type)}
+                          label={String(t(`notifications.types.${notification.data.type}`, notification.data.type as string))}
                           size="small"
                           color={getNotificationTypeColor(notification.data.type)}
                           variant="outlined"
@@ -256,7 +259,7 @@ export const NotificationList: React.FC<NotificationListProps> = ({
                 <Box key={type} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                   <input
                     type="checkbox"
-                    checked={enabled}
+                    checked={enabled as boolean}
                     onChange={(e) => handleSettingsChange({
                       types: { ...settings.types, [type]: e.target.checked }
                     })}

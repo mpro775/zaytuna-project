@@ -16,7 +16,6 @@ import {
   TableHead,
   TableRow,
   TablePagination,
-  Avatar,
   Switch,
   Dialog,
   DialogActions,
@@ -31,9 +30,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Search as SearchIcon,
-  FilterList as FilterIcon,
   Refresh as RefreshIcon,
-  Business as BusinessIcon,
   LocationOn as LocationIcon,
   Phone as PhoneIcon,
   Email as EmailIcon,
@@ -43,7 +40,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useBranches } from '@/hooks';
-import { Branch } from '@/services/branches';
+import type { Branch } from '@/services/branches';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 
@@ -72,7 +69,6 @@ const Branches: React.FC = () => {
     changePage,
     changePageSize,
     deleteBranch,
-    switchToBranch,
   } = useBranches({
     filters: {
       page: 1,
@@ -139,10 +135,6 @@ const Branches: React.FC = () => {
 
   const handleCreateBranch = () => {
     navigate('/branches/new');
-  };
-
-  const handleSwitchToBranch = (branch: Branch) => {
-    switchToBranch(branch.id);
   };
 
   const formatDate = (dateString: string): string => {

@@ -3,7 +3,7 @@
  * Helper functions for filtering, pagination, searching, and data manipulation
  */
 
-import type { FilterParams, SortParams, PaginationParams } from '../types';
+import type { FilterParams } from '../types';
 
 /**
  * Simulate network delay
@@ -245,6 +245,32 @@ export const getMockDataFromStorage = <T>(key: string, defaultValue: T[]): T[] =
     console.warn(`Failed to load mock data from storage for ${key}:`, error);
   }
   return defaultValue;
+};
+
+/**
+ * Get single object from localStorage or return default
+ */
+export const getMockObjectFromStorage = <T>(key: string, defaultValue: T): T => {
+  try {
+    const stored = localStorage.getItem(`mockData_${key}`);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (error) {
+    console.warn(`Failed to load mock data from storage for ${key}:`, error);
+  }
+  return defaultValue;
+};
+
+/**
+ * Save single object to localStorage
+ */
+export const saveMockObjectToStorage = <T>(key: string, data: T): void => {
+  try {
+    localStorage.setItem(`mockData_${key}`, JSON.stringify(data));
+  } catch (error) {
+    console.warn(`Failed to save mock data to storage for ${key}:`, error);
+  }
 };
 
 /**

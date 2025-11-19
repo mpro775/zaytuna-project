@@ -2,23 +2,21 @@ import React from 'react';
 import {
   Box,
   Typography,
-  Paper,
   Grid,
   FormControlLabel,
   Switch,
   TextField,
   Button,
-  Alert,
   CircularProgress,
 } from '@mui/material';
 import {
   Save as SaveIcon,
-  Security as SecurityIcon,
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useSecuritySettings } from '@/hooks';
+import type { SecuritySettings as SecuritySettingsType } from '@/services/settings';
 
 export const SecuritySettings: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -49,15 +47,18 @@ export const SecuritySettings: React.FC = () => {
     twoFactorAuth: Yup.object({
       enabled: Yup.boolean(),
       required: Yup.boolean(),
+      methods: Yup.array().of(Yup.string().oneOf(['sms', 'email', 'app'])),
     }),
     loginSecurity: Yup.object({
       maxAttempts: Yup.number().min(3).max(10),
       lockoutDuration: Yup.number().min(1).max(1440),
+      ipWhitelist: Yup.array().of(Yup.string()),
+      ipBlacklist: Yup.array().of(Yup.string()),
     }),
   });
 
   // Formik
-  const formik = useFormik({
+  const formik = useFormik<SecuritySettingsType>({
     initialValues: {
       passwordPolicy: {
         minLength: 8,
@@ -75,10 +76,13 @@ export const SecuritySettings: React.FC = () => {
       twoFactorAuth: {
         enabled: false,
         required: false,
+        methods: [],
       },
       loginSecurity: {
         maxAttempts: 5,
         lockoutDuration: 30,
+        ipWhitelist: [],
+        ipBlacklist: [],
       },
     },
     validationSchema,
@@ -111,13 +115,13 @@ export const SecuritySettings: React.FC = () => {
       <form onSubmit={formik.handleSubmit}>
         <Grid container spacing={3}>
           {/* Password Policy */}
-          <Grid item xs={12}>
+          <Grid   size={{xs: 12}}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
               {t('settings.security.passwordPolicy.title', 'سياسة كلمات المرور')}
             </Typography>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <TextField
               fullWidth
               label={t('settings.security.passwordPolicy.minLength', 'الحد الأدنى للطول')}
@@ -131,7 +135,7 @@ export const SecuritySettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <TextField
               fullWidth
               label={t('settings.security.passwordPolicy.expirationDays', 'فترة الصلاحية (أيام)')}
@@ -145,7 +149,7 @@ export const SecuritySettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <FormControlLabel
               control={
                 <Switch
@@ -158,7 +162,7 @@ export const SecuritySettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <FormControlLabel
               control={
                 <Switch
@@ -171,7 +175,7 @@ export const SecuritySettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <FormControlLabel
               control={
                 <Switch
@@ -184,7 +188,7 @@ export const SecuritySettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <FormControlLabel
               control={
                 <Switch
@@ -198,13 +202,13 @@ export const SecuritySettings: React.FC = () => {
           </Grid>
 
           {/* Session Management */}
-          <Grid item xs={12}>
+          <Grid   size={{xs: 12}}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, mt: 2 }}>
               {t('settings.security.sessionManagement.title', 'إدارة الجلسات')}
             </Typography>
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid   size={{xs: 12, md: 4}}>
             <TextField
               fullWidth
               label={t('settings.security.sessionManagement.timeout', 'مهلة الجلسة (دقائق)')}
@@ -218,7 +222,7 @@ export const SecuritySettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+            <Grid   size={{xs: 12, md: 4}}>
             <TextField
               fullWidth
               label={t('settings.security.sessionManagement.maxConcurrentSessions', 'الحد الأقصى للجلسات المتزامنة')}
@@ -232,7 +236,7 @@ export const SecuritySettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid   size={{xs: 12, md: 4}}>
             <FormControlLabel
               control={
                 <Switch
@@ -246,13 +250,13 @@ export const SecuritySettings: React.FC = () => {
           </Grid>
 
           {/* Two-Factor Authentication */}
-          <Grid item xs={12}>
+          <Grid   size={{xs: 12}}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, mt: 2 }}>
               {t('settings.security.twoFactorAuth.title', 'المصادقة الثنائية')}
             </Typography>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <FormControlLabel
               control={
                 <Switch
@@ -265,7 +269,7 @@ export const SecuritySettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <FormControlLabel
               control={
                 <Switch
@@ -280,13 +284,13 @@ export const SecuritySettings: React.FC = () => {
           </Grid>
 
           {/* Login Security */}
-          <Grid item xs={12}>
+          <Grid   size={{xs: 12}}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, mt: 2 }}>
               {t('settings.security.loginSecurity.title', 'أمان تسجيل الدخول')}
             </Typography>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <TextField
               fullWidth
               label={t('settings.security.loginSecurity.maxAttempts', 'الحد الأقصى للمحاولات')}
@@ -300,7 +304,7 @@ export const SecuritySettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <TextField
               fullWidth
               label={t('settings.security.loginSecurity.lockoutDuration', 'مدة القفل (دقائق)')}
@@ -315,7 +319,7 @@ export const SecuritySettings: React.FC = () => {
           </Grid>
 
           {/* Save Button */}
-          <Grid item xs={12}>
+          <Grid   size={{xs: 12}}>
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 3 }}>
               <Button
                 type="submit"

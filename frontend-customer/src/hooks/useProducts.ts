@@ -3,14 +3,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { productsApi } from '@/services/products';
 import type {
-  Product,
-  ProductFilters,
-  CreateProductDto,
+    ProductFilters,
   UpdateProductDto,
   Category,
-  CreateCategoryDto,
   UpdateCategoryDto,
-  ProductsResponse,
 } from '@/services/products';
 import { toast } from 'react-hot-toast';
 
@@ -59,8 +55,8 @@ export const useProducts = (options: UseProductsOptions = {}) => {
       toast.success(t('products.messages.created', 'تم إنشاء المنتج بنجاح'));
       return newProduct;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('products.errors.createFailed', 'فشل في إنشاء المنتج');
+    onError: (error: Error) => {
+      const message = error.message || t('products.errors.createFailed', 'فشل في إنشاء المنتج');
       toast.error(message);
     },
   });
@@ -75,8 +71,8 @@ export const useProducts = (options: UseProductsOptions = {}) => {
       toast.success(t('products.messages.updated', 'تم تحديث المنتج بنجاح'));
       return updatedProduct;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('products.errors.updateFailed', 'فشل في تحديث المنتج');
+    onError: (error: Error) => {
+      const message = error.message || t('products.errors.updateFailed', 'فشل في تحديث المنتج');
       toast.error(message);
     },
   });
@@ -88,8 +84,8 @@ export const useProducts = (options: UseProductsOptions = {}) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success(t('products.messages.deleted', 'تم حذف المنتج بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('products.errors.deleteFailed', 'فشل في حذف المنتج');
+    onError: (error: Error) => {
+      const message = error.message || t('products.errors.deleteFailed', 'فشل في حذف المنتج');
       toast.error(message);
     },
   });
@@ -101,8 +97,8 @@ export const useProducts = (options: UseProductsOptions = {}) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success(t('products.messages.bulkDeleted', `تم حذف ${result.deletedCount} منتج بنجاح`));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('products.errors.bulkDeleteFailed', 'فشل في حذف المنتجات');
+    onError: (error: Error) => {
+      const message = error.message || t('products.errors.bulkDeleteFailed', 'فشل في حذف المنتجات');
       toast.error(message);
     },
   });
@@ -115,8 +111,8 @@ export const useProducts = (options: UseProductsOptions = {}) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success(t('products.messages.imageUploaded', 'تم رفع الصورة بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('products.errors.imageUploadFailed', 'فشل في رفع الصورة');
+    onError: (error: Error) => {
+      const message = error.message || t('products.errors.imageUploadFailed', 'فشل في رفع الصورة');
       toast.error(message);
     },
   });
@@ -129,8 +125,8 @@ export const useProducts = (options: UseProductsOptions = {}) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success(t('products.messages.imageDeleted', 'تم حذف الصورة بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('products.errors.imageDeleteFailed', 'فشل في حذف الصورة');
+      onError: (error: Error) => {
+      const message = error.message || t('products.errors.imageDeleteFailed', 'فشل في حذف الصورة');
       toast.error(message);
     },
   });
@@ -142,8 +138,8 @@ export const useProducts = (options: UseProductsOptions = {}) => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       toast.success(t('products.messages.categoryCreated', 'تم إنشاء الفئة بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('products.errors.categoryCreateFailed', 'فشل في إنشاء الفئة');
+    onError: (error: Error) => {
+      const message = error.message || t('products.errors.categoryCreateFailed', 'فشل في إنشاء الفئة');
       toast.error(message);
     },
   });
@@ -156,8 +152,8 @@ export const useProducts = (options: UseProductsOptions = {}) => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       toast.success(t('products.messages.categoryUpdated', 'تم تحديث الفئة بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('products.errors.categoryUpdateFailed', 'فشل في تحديث الفئة');
+        onError: (error: Error) => {
+      const message = error.message || t('products.errors.categoryUpdateFailed', 'فشل في تحديث الفئة');
       toast.error(message);
     },
   });
@@ -169,16 +165,16 @@ export const useProducts = (options: UseProductsOptions = {}) => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       toast.success(t('products.messages.categoryDeleted', 'تم حذف الفئة بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('products.errors.categoryDeleteFailed', 'فشل في حذف الفئة');
+    onError: (error: Error) => {
+      const message = error.message || t('products.errors.categoryDeleteFailed', 'فشل في حذف الفئة');
       toast.error(message);
     },
   });
 
   // Computed values
-  const products = productsData?.data || [];
+  const products = useMemo(() => productsData?.data || [], [productsData?.data]);
   const totalProducts = productsData?.total || 0;
-  const categories = categoriesData || [];
+  const categories = useMemo(() => categoriesData || [], [categoriesData]);
 
   // Filter categories by parent
   const categoryTree = useMemo(() => {
@@ -240,12 +236,18 @@ export const useProducts = (options: UseProductsOptions = {}) => {
 
   // Filter by category
   const filterByCategory = (categoryId?: string) => {
-    updateFilters({ categoryId, page: 1 });
+      updateFilters({
+      ...(categoryId !== undefined && { categoryId }),
+      page: 1,
+    });
   };
 
   // Filter by status
   const filterByStatus = (isActive?: boolean) => {
-    updateFilters({ isActive, page: 1 });
+    updateFilters({
+      ...(isActive !== undefined && { isActive }),
+      page: 1,
+    });
   };
 
   // Change page
@@ -260,7 +262,10 @@ export const useProducts = (options: UseProductsOptions = {}) => {
 
   // Sort products
   const sortProducts = (sortBy: ProductFilters['sortBy'], sortOrder: ProductFilters['sortOrder'] = 'asc') => {
-    updateFilters({ sortBy, sortOrder });
+    updateFilters({
+      ...(sortBy !== undefined && { sortBy }),
+      sortOrder,
+    });
   };
 
   // Statistics
@@ -324,7 +329,7 @@ export const useProducts = (options: UseProductsOptions = {}) => {
     getCategoryPath,
 
     // CRUD operations
-    createProduct: createMutation.mutate,
+    createProduct: createMutation.mutateAsync,
     updateProduct: updateMutation.mutate,
     deleteProduct: deleteMutation.mutate,
     bulkDeleteProducts: bulkDeleteMutation.mutate,
@@ -366,8 +371,8 @@ export const useProduct = (id: string | undefined) => {
       toast.success(t('products.messages.updated', 'تم تحديث المنتج بنجاح'));
       return updatedProduct;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('products.errors.updateFailed', 'فشل في تحديث المنتج');
+    onError: (error: Error) => {
+      const message = error.message || t('products.errors.updateFailed', 'فشل في تحديث المنتج');
       toast.error(message);
     },
   });
@@ -380,8 +385,8 @@ export const useProduct = (id: string | undefined) => {
       queryClient.invalidateQueries({ queryKey: ['product', id] });
       toast.success(t('products.messages.stockUpdated', 'تم تحديث المخزون بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('products.errors.stockUpdateFailed', 'فشل في تحديث المخزون');
+    onError: (error: Error) => {
+      const message = error.message || t('products.errors.stockUpdateFailed', 'فشل في تحديث المخزون');
       toast.error(message);
     },
   });

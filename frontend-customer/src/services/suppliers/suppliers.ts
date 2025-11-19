@@ -51,6 +51,8 @@ export interface SupplierFilters {
   isActive?: boolean;
   paymentTerms?: string;
   hasOutstandingBalance?: boolean;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
 export interface SuppliersResponse {

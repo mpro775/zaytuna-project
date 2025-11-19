@@ -16,7 +16,6 @@ import {
   TableHead,
   TableRow,
   TablePagination,
-  Avatar,
   Switch,
   Dialog,
   DialogActions,
@@ -31,9 +30,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Search as SearchIcon,
-  FilterList as FilterIcon,
   Refresh as RefreshIcon,
-  Person as PersonIcon,
   Email as EmailIcon,
   Phone as PhoneIcon,
   Loyalty as LoyaltyIcon,
@@ -42,7 +39,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useCustomers } from '@/hooks';
-import { Customer } from '@/services/customers';
+import type { Customer } from '@/services/customers';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 

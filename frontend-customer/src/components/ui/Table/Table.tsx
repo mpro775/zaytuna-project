@@ -132,8 +132,18 @@ function Table<T extends Record<string, unknown> = Record<string, unknown>>({
 
   const [localSelected, setLocalSelected] = React.useState<T[]>(selectedRows || []);
 
+  // Compare array contents instead of reference to avoid infinite loops
+  const prevSelectedRef = React.useRef<string>('');
+  
   React.useEffect(() => {
-    setLocalSelected(selectedRows || []);
+    const currentSelected = selectedRows || [];
+    const currentString = JSON.stringify(currentSelected);
+    
+    // Only update if the actual content changed, not just the reference
+    if (currentString !== prevSelectedRef.current) {
+      setLocalSelected(currentSelected);
+      prevSelectedRef.current = currentString;
+    }
   }, [selectedRows]);
 
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -158,7 +168,7 @@ function Table<T extends Record<string, unknown> = Record<string, unknown>>({
 
   const isSelected = (row: T) => localSelected.some(selected => JSON.stringify(selected) === JSON.stringify(row));
 
-  const renderCellValue = (column: Column<T>, value: unknown, row: T, index: number) => {
+  const renderCellValue = (column: Column<T>, value: unknown, row: T, index: number): React.ReactNode => {
     if (column.render) {
       return column.render(value, row, index);
     }
@@ -167,7 +177,7 @@ function Table<T extends Record<string, unknown> = Record<string, unknown>>({
       return column.format(value);
     }
 
-    return value;
+    return value != null ? String(value) : '';
   };
 
   const renderActions = (row: T, index: number) => {
@@ -193,7 +203,7 @@ function Table<T extends Record<string, unknown> = Record<string, unknown>>({
                   e.stopPropagation();
                   action.onClick(row, index);
                 }}
-                disabled={isDisabled}
+                {...(isDisabled !== undefined && { disabled: isDisabled })}
                 sx={{ p: 0.5 }}
               >
                 {action.icon || <EditIcon fontSize="small" />}

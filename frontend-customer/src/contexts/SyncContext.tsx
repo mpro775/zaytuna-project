@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import { SyncService, WebSocketService, getWebSocketService, destroyWebSocketService } from '../services/sync';
 
-interface SyncContextType {
+export interface SyncContextType {
   syncService: SyncService | null;
   webSocketService: WebSocketService | null;
   isInitialized: boolean;
@@ -23,6 +23,8 @@ interface SyncContextType {
 }
 
 const SyncContext = createContext<SyncContextType | undefined>(undefined);
+
+export default SyncContext;
 
 interface SyncProviderProps {
   children: React.ReactNode;
@@ -51,7 +53,7 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({
         // تهيئة WebSocketService
         const wsService = getWebSocketService({
           deviceId,
-          userId: _userId,
+          ...(_userId !== undefined && { userId: _userId }),
           autoConnect: false, // سنتصل يدوياً
         });
         setWebSocketService(wsService);
@@ -60,8 +62,8 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({
         const unsubscribeWS = wsService.onConnectionChange((status) => {
           setWebSocketStats({
             isConnected: status.connected,
-            lastConnected: status.lastConnected,
-            lastDisconnected: status.lastDisconnected,
+            ...(status.lastConnected !== undefined && { lastConnected: status.lastConnected }),
+            ...(status.lastDisconnected !== undefined && { lastDisconnected: status.lastDisconnected }),
             reconnectAttempts: status.reconnectAttempts,
           });
         });
@@ -146,12 +148,4 @@ export const SyncProvider: React.FC<SyncProviderProps> = ({
       {children}
     </SyncContext.Provider>
   );
-};
-
-export const useSync = (): SyncContextType => {
-  const context = useContext(SyncContext);
-  if (context === undefined) {
-    throw new Error('useSync must be used within a SyncProvider');
-  }
-  return context;
 };

@@ -27,17 +27,13 @@ i18n
   .use(initReactI18next)
   // Initialize i18next
   .init({
-    resources,
-
-    // Language detection options
-    detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
-      lookupLocalStorage: 'i18nextLng',
-      caches: ['localStorage'],
-    },
 
     // Default language
-    fallbackLng: 'ar',
+    fallbackLng: {
+      'ar': ['ar'],
+      'en': ['en'],
+      'default': ['ar'],
+    },
 
     // Default namespace
     defaultNS: 'translation',
@@ -57,8 +53,36 @@ i18n
     },
   });
 
+// Configure language detector options
+if (i18n.services.languageDetector) {
+  i18n.services.languageDetector.options = {
+    order: ['localStorage', 'navigator', 'htmlTag'],
+    lookupLocalStorage: 'i18nextLng',
+    caches: ['localStorage'],
+    checkWhitelist: true,
+  };
+}
+
+// Add resources
+Object.keys(resources).forEach((lng) => {
+  Object.keys(resources[lng as keyof typeof resources]).forEach((ns) => {
+    i18n.addResourceBundle(lng, ns, (resources as any)[lng][ns], true, true);
+  });
+});
+
+// Set initial language if not already set or unsupported
+if (!i18n.language || !['ar', 'en'].includes(i18n.language)) {
+  i18n.changeLanguage('ar');
+}
+
 // Set document direction and language based on current language
 i18n.on('languageChanged', (lng) => {
+  // Ensure only supported languages
+  if (!['ar', 'en'].includes(lng)) {
+    i18n.changeLanguage('ar');
+    return;
+  }
+
   const direction = lng === 'ar' ? 'rtl' : 'ltr';
   document.documentElement.dir = direction;
   document.documentElement.lang = lng;

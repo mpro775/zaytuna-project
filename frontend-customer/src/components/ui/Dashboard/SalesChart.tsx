@@ -40,7 +40,7 @@ export const SalesChart: React.FC<SalesChartProps> = ({
   const isRTL = i18n.dir() === 'rtl';
 
   const formatCurrency = (value: number): string => {
-    return new Intl.NumberFormat('ar-SA', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'YER',
       minimumFractionDigits: 0,
@@ -56,28 +56,33 @@ export const SalesChart: React.FC<SalesChartProps> = ({
   };
 
   const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: unknown[]; label?: string }) => {
-    if (active && payload && payload.length) {
+    if (active && payload && payload.length && label) {
       return (
         <Paper sx={{ p: 2, boxShadow: 2 }}>
           <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>
             {formatDate(label)}
           </Typography>
-          {payload.map((entry: { dataKey?: string; value?: number; color?: string }, index: number) => (
-            <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-              <Box
-                sx={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: '50%',
-                  backgroundColor: entry.color,
-                }}
-              />
-              <Typography variant="body2">
-                {entry.dataKey === 'sales' ? t('dashboard.kpis.sales', 'المبيعات') : t('dashboard.kpis.orders', 'الطلبات')}: {' '}
-                {entry.dataKey === 'sales' ? formatCurrency(entry.value) : entry.value}
-              </Typography>
-            </Box>
-          ))}
+          {payload.map((entry: unknown, index: number) => {
+            const typedEntry = entry as { dataKey?: string; value?: number; color?: string };
+            return (
+              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                <Box
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    backgroundColor: typedEntry.color,
+                  }}
+                />
+                <Typography variant="body2">
+                  {typedEntry.dataKey === 'sales' ? t('dashboard.kpis.sales', 'المبيعات') : t('dashboard.kpis.orders', 'الطلبات')}: {' '}
+                  {typedEntry.dataKey === 'sales' && typedEntry.value !== undefined
+                    ? formatCurrency(typedEntry.value)
+                    : typedEntry.value ?? '-'}
+                </Typography>
+              </Box>
+            );
+          })}
         </Paper>
       );
     }

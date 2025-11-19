@@ -12,8 +12,23 @@ export interface MockConfig {
 }
 
 const getMockConfig = (): MockConfig => {
-  const enabled = import.meta.env.VITE_USE_MOCK_DATA === 'true' || 
-                  localStorage.getItem('mockDataEnabled') === 'true';
+  // Mock mode is enabled by default unless explicitly disabled
+  // Check environment variable first, then localStorage, then default to true
+  const envValue = import.meta.env.VITE_USE_MOCK_DATA;
+  const localStorageValue = localStorage.getItem('mockDataEnabled');
+  
+  let enabled: boolean;
+  
+  if (envValue !== undefined) {
+    // Environment variable takes precedence
+    enabled = envValue === 'true';
+  } else if (localStorageValue !== null) {
+    // localStorage value if env var is not set
+    enabled = localStorageValue === 'true';
+  } else {
+    // Default: enabled
+    enabled = true;
+  }
   
   return {
     enabled,
@@ -24,6 +39,7 @@ const getMockConfig = (): MockConfig => {
   };
 };
 
+// Get initial config
 export const mockConfig = getMockConfig();
 
 /**
@@ -40,10 +56,23 @@ export const setMockMode = (enabled: boolean): void => {
 };
 
 /**
- * Check if mock mode is enabled
+ * Check if mock mode is enabled (dynamic check)
  */
 export const isMockModeEnabled = (): boolean => {
-  return mockConfig.enabled;
+  // Always check current state, not cached value
+  const envValue = import.meta.env.VITE_USE_MOCK_DATA;
+  const localStorageValue = typeof window !== 'undefined' ? localStorage.getItem('mockDataEnabled') : null;
+  
+  if (envValue !== undefined) {
+    return envValue === 'true';
+  }
+  
+  if (localStorageValue !== null) {
+    return localStorageValue === 'true';
+  }
+  
+  // Default: enabled
+  return true;
 };
 
 export default mockConfig;

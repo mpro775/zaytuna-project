@@ -1,5 +1,6 @@
 // Accounting Service Types - مرتبط بـ backend/src/modules/accounting
 
+
 export interface GLAccount {
   id: string;
   accountCode: string;
@@ -200,10 +201,3 @@ export interface AccountingApiResponse<T> {
   success: boolean;
 }
 
-export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}

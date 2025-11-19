@@ -30,6 +30,8 @@ const Branches = React.lazy(() => import('@/pages/Branches/Branches'));
 const BranchForm = React.lazy(() => import('@/pages/Branches/BranchForm'));
 const Warehouses = React.lazy(() => import('@/pages/Warehouses/Warehouses'));
 const WarehouseForm = React.lazy(() => import('@/pages/Warehouses/WarehouseForm'));
+const SalesReport = React.lazy(() => import('@/pages/Reports/SalesReport'));
+const Settings = React.lazy(() => import('@/pages/Settings/Settings'));
 
 // Create Query Client
 const queryClient = new QueryClient({
@@ -92,7 +94,7 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Cairo", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Cairo", "CairoLocal", "CairoFallback", "Segoe UI", "Tahoma", "Arial Unicode MS", "Arial", sans-serif',
     h1: {
       fontSize: '2.5rem',
       fontWeight: 700,
@@ -435,6 +437,30 @@ function App() {
                     <ProtectedRoute>
                       <MainLayout>
                         <WarehouseForm />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Reports Routes */}
+                <Route
+                  path="/reports"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <SalesReport />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Settings Routes */}
+                <Route
+                  path="/settings"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <Settings />
                       </MainLayout>
                     </ProtectedRoute>
                   }

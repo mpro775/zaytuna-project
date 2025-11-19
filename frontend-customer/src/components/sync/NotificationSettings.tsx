@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Card,
@@ -17,9 +17,9 @@ import {
 import {
   Notifications as NotificationsIcon,
   NotificationsOff as NotificationsOffIcon,
-  TestTube as TestTubeIcon,
+  Science as TestTubeIcon,
 } from '@mui/icons-material';
-import { notificationService, NotificationSettings as NotificationSettingsType } from '../../services/sync';
+import { notificationService, type NotificationSettings as NotificationSettingsType } from '../../services/sync';
 import { useTranslation } from 'react-i18next';
 
 interface NotificationSettingsProps {
@@ -36,16 +36,19 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
   const [loading, setLoading] = useState(false);
   const [testSent, setTestSent] = useState(false);
 
-  useEffect(() => {
-    checkNotificationStatus();
-  }, []);
-
-  const checkNotificationStatus = async () => {
+  const checkNotificationStatus = useCallback(async () => {
     const status = notificationService.getStatus();
     setPermissionStatus(status.permission);
     setIsSubscribed(status.isSubscribed);
     setSettings(status.settings);
-  };
+  }, []);
+
+  useEffect(() => {
+    // Defer initial load to avoid cascading renders
+    queueMicrotask(() => {
+      checkNotificationStatus();
+    });
+  }, [checkNotificationStatus]);
 
   const handleRequestPermission = async () => {
     setLoading(true);
@@ -88,7 +91,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
     setLoading(false);
   };
 
-  const handleSettingsChange = async (newSettings: Partial<NotificationSettingsType>) => {
+    const handleSettingsChange = async (newSettings: Partial<NotificationSettingsType>) => {
     const updatedSettings = { ...settings, ...newSettings };
     setSettings(updatedSettings);
     await notificationService.updateSettings(updatedSettings);
@@ -234,7 +237,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
 
           <Grid container spacing={2}>
             {Object.entries(settings.types).map(([type, enabled]) => (
-              <Grid item xs={12} sm={6} key={type}>
+              <Grid size={{xs: 12, sm: 6}} key={type}>
                 <FormControlLabel
                   control={
                     <Switch
@@ -295,7 +298,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
           {settings.quietHours.enabled && (
             <Box sx={{ mt: 2, pl: 4 }}>
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{xs: 12, sm: 6}}>
                   <TextField
                     label={t('notifications.settings.from', 'من')}
                     type="time"
@@ -307,7 +310,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
                     InputLabelProps={{ shrink: true }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{xs: 12, sm: 6}}>
                   <TextField
                     label={t('notifications.settings.to', 'إلى')}
                     type="time"

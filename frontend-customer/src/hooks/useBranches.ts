@@ -3,12 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { branchesApi } from '@/services/branches';
 import type {
-  Branch,
   BranchFilters,
-  CreateBranchDto,
   UpdateBranchDto,
-  BranchesResponse,
-  BranchStats,
 } from '@/services/branches';
 import { toast } from 'react-hot-toast';
 
@@ -58,8 +54,8 @@ export const useBranches = (options: UseBranchesOptions = {}) => {
       toast.success(t('branches.messages.created', 'تم إنشاء الفرع بنجاح'));
       return newBranch;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('branches.errors.createFailed', 'فشل في إنشاء الفرع');
+    onError: (error: Error) => {
+      const message = error.message || t('branches.errors.createFailed', 'فشل في إنشاء الفرع');
       toast.error(message);
     },
   });
@@ -75,8 +71,8 @@ export const useBranches = (options: UseBranchesOptions = {}) => {
       toast.success(t('branches.messages.updated', 'تم تحديث الفرع بنجاح'));
       return updatedBranch;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('branches.errors.updateFailed', 'فشل في تحديث الفرع');
+    onError: (error: Error) => {
+      const message = error.message || t('branches.errors.updateFailed', 'فشل في تحديث الفرع');
       toast.error(message);
     },
   });
@@ -89,8 +85,8 @@ export const useBranches = (options: UseBranchesOptions = {}) => {
       queryClient.invalidateQueries({ queryKey: ['branch-stats'] });
       toast.success(t('branches.messages.deleted', 'تم حذف الفرع بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('branches.errors.deleteFailed', 'فشل في حذف الفرع');
+    onError: (error: Error) => {
+      const message = error.message || t('branches.errors.deleteFailed', 'فشل في حذف الفرع');
       toast.error(message);
     },
   });
@@ -98,19 +94,19 @@ export const useBranches = (options: UseBranchesOptions = {}) => {
   // Switch branch mutation
   const switchBranchMutation = useMutation({
     mutationFn: branchesApi.switchToBranch,
-    onSuccess: (branchId) => {
+    onSuccess: () => {
       // Update local storage and invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: ['user-context'] });
       toast.success(t('branches.messages.switched', 'تم تبديل الفرع بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('branches.errors.switchFailed', 'فشل في تبديل الفرع');
+    onError: (error: Error) => {
+      const message = error.message || t('branches.errors.switchFailed', 'فشل في تبديل الفرع');
       toast.error(message);
     },
   });
 
   // Computed values
-  const branches = branchesData?.data || [];
+  const branches = useMemo(() => branchesData?.data || [], [branchesData?.data]);
   const totalBranches = branchesData?.total || 0;
   const stats = statsData || {
     totalBranches: 0,
@@ -132,7 +128,10 @@ export const useBranches = (options: UseBranchesOptions = {}) => {
 
   // Filter by status
   const filterByStatus = (isActive?: boolean) => {
-    updateFilters({ isActive, page: 1 });
+    updateFilters({
+      ...(isActive !== undefined && { isActive }),
+      page: 1,
+    });
   };
 
   // Filter by company
@@ -152,7 +151,10 @@ export const useBranches = (options: UseBranchesOptions = {}) => {
 
   // Sort branches
   const sortBranches = (sortBy: BranchFilters['sortBy'], sortOrder: BranchFilters['sortOrder'] = 'asc') => {
-    updateFilters({ sortBy, sortOrder });
+    updateFilters({
+      ...(sortBy !== undefined && { sortBy }),
+      sortOrder,
+    });
   };
 
   // Get current selected branch
@@ -245,8 +247,8 @@ export const useBranch = (id: string | undefined) => {
       toast.success(t('branches.messages.updated', 'تم تحديث الفرع بنجاح'));
       return updatedBranch;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('branches.errors.updateFailed', 'فشل في تحديث الفرع');
+      onError: (error: Error) => {
+      const message = error.message || t('branches.errors.updateFailed', 'فشل في تحديث الفرع');
       toast.error(message);
     },
   });

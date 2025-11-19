@@ -103,6 +103,7 @@
   },
   "common": {
     "actions": {
+      "actions": "الإجراءات",
       "save": "حفظ",
       "cancel": "إلغاء",
       "edit": "تعديل",
@@ -172,7 +173,26 @@
     "status": {
       "critical": "حرج",
       "warning": "تحذير",
-      "normal": "عادي"
+      "normal": "عادي",
+      "lowStock": "مخزون منخفض",
+      "outOfStock": "نفد المخزون",
+      "overStock": "مخزون زائد"
+    },
+    "table": {
+      "product": "المنتج",
+      "warehouse": "المخزن",
+      "quantity": "الكمية",
+      "stockLevels": "مستويات المخزون",
+      "min": "الحد الأدنى",
+      "max": "الحد الأقصى",
+      "status": "الحالة",
+      "lastUpdated": "آخر تحديث",
+      "noData": "لا توجد عناصر مخزون"
+    },
+    "actions": {
+      "adjustStock": "تعديل المخزون",
+      "viewMovements": "عرض الحركات",
+      "transfer": "نقل المخزون"
     }
   },
   "branch": {

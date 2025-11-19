@@ -10,8 +10,8 @@ import { filterData, sortData, paginateData, generateId, getMockDataFromStorage,
 import type { MockRequest, MockResponse } from '../types';
 
 // Load data with localStorage persistence
-let glAccounts = getMockDataFromStorage('glAccounts', glAccountsData);
-let transactions = getMockDataFromStorage('transactions', transactionsData);
+const glAccounts = getMockDataFromStorage('glAccounts', glAccountsData);
+const transactions = getMockDataFromStorage('transactions', transactionsData);
 
 // Register handlers
 mockApi.registerHandler('GET:/accounting/gl-accounts', async (request: MockRequest): Promise<MockResponse> => {

@@ -91,7 +91,7 @@ export const Benefits: React.FC = () => {
 
         <Grid container spacing={4}>
           {benefits.map((benefit) => (
-            <Grid item xs={12} sm={6} md={4} key={benefit.id}>
+            <Grid size={{xs: 12, sm: 6, md: 4}} key={benefit.id}>
               <Paper
                 elevation={0}
                 sx={{

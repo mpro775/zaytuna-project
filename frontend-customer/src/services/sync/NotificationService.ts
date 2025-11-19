@@ -13,6 +13,18 @@ export interface PushSubscriptionData {
   subscriptionId?: string;
 }
 
+export interface NotificationAction {
+  action: string;
+  title: string;
+  icon?: string;
+}
+
+export interface ExtendedNotificationOptions extends NotificationOptions {
+  image?: string;
+  actions?: NotificationAction[];
+  timestamp?: number;
+}
+
 export interface NotificationPayload {
   title: string;
   body: string;
@@ -182,7 +194,7 @@ export class NotificationService {
       const response = await axios.get('/sync/notifications/vapid-public-key');
       return response.data.publicKey;
     } catch (error) {
-      console.warn('Failed to get VAPID public key from server, using default');
+      console.warn('Failed to get VAPID public key from server, using default', error);
       // استخدام مفتاح افتراضي للتطوير (يجب تغييره في الإنتاج)
       return 'BLXHQZ5Rd7KdUbFxqjBfhK7RHFjKzZs8wBzMq2YYpG5K4J8M4nT4K8K8K8K8K8K8K8K8K8K8K8K8K8K8K8K8K8K8K8K8K';
     }
@@ -210,16 +222,16 @@ export class NotificationService {
       return;
     }
 
-    const options: NotificationOptions = {
+    const options: ExtendedNotificationOptions = {
       body: payload.body,
       icon: payload.icon || '/icons/icon-192x192.png',
       badge: payload.badge || '/icons/icon-72x72.png',
-      image: payload.image,
+      ...(payload.image ? { image: payload.image } : {}),
       data: payload.data,
-      actions: payload.actions,
-      requireInteraction: payload.requireInteraction,
-      silent: payload.silent,
-      tag: payload.tag,
+      ...(payload.actions ? { actions: payload.actions } : {}),
+      ...(payload.requireInteraction !== undefined ? { requireInteraction: payload.requireInteraction } : {}),
+      ...(payload.silent !== undefined ? { silent: payload.silent } : {}),
+      ...(payload.tag ? { tag: payload.tag } : {}),
       timestamp: payload.timestamp || Date.now(),
     };
 
@@ -286,29 +298,8 @@ export class NotificationService {
     return { ...this.settings };
   }
 
-  // فحص ما إذا كان الوقت الحالي في الوقت الهادئ
-  private isQuietHour(): boolean {
-    if (!this.settings.quietHours.enabled) return false;
 
-    const now = new Date();
-    const currentTime = now.getHours() * 100 + now.getMinutes();
 
-    const startTime = this.parseTime(this.settings.quietHours.start);
-    const endTime = this.parseTime(this.settings.quietHours.end);
-
-    if (startTime < endTime) {
-      // نفس اليوم
-      return currentTime >= startTime && currentTime <= endTime;
-    } else {
-      // يمتد إلى اليوم التالي
-      return currentTime >= startTime || currentTime <= endTime;
-    }
-  }
-
-  private parseTime(timeString: string): number {
-    const [hours, minutes] = timeString.split(':').map(Number);
-    return hours * 100 + minutes;
-  }
 
   // إدارة السجل
   private addToHistory(item: NotificationHistoryItem): void {

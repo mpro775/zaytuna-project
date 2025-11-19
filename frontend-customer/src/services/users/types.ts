@@ -1,5 +1,6 @@
 // Users and Roles Service Types - مرتبط بـ backend/src/modules/user و backend/src/modules/auth
 
+
 export interface Role {
   id: string;
   name: string;
@@ -130,10 +131,3 @@ export interface UsersApiResponse<T> {
   success: boolean;
 }
 
-export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}

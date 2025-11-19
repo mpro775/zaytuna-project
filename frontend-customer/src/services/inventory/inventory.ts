@@ -22,7 +22,7 @@ export interface ProductVariant {
   };
 }
 
-export interface StockItem {
+export interface StockItem extends Record<string, unknown> {
   id: string;
   warehouseId: string;
   productVariantId: string;
@@ -37,7 +37,7 @@ export interface StockItem {
   updatedAt: string;
 }
 
-export interface StockMovement {
+export interface StockMovement extends Record<string, unknown> {
   id: string;
   warehouseId: string;
   productVariantId: string;

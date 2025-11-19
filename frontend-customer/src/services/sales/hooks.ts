@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { SalesService, SalesFilters, CreateSalesInvoiceDto, UpdateSalesInvoiceDto, CreatePaymentDto } from './sales';
+import { SalesService } from './sales';
+import type { SalesFilters, CreateSalesInvoiceDto, UpdateSalesInvoiceDto, CreatePaymentDto } from './types';
 
 /**
  * React Query hooks لخدمة المبيعات

@@ -16,7 +16,7 @@ export interface CheckboxOption {
   disabled?: boolean;
 }
 
-export interface CheckboxProps extends MuiCheckboxProps {
+export interface CheckboxProps extends Omit<MuiCheckboxProps, 'onChange' | 'value'> {
   label?: string;
   helperText?: string;
   error?: boolean;
@@ -59,7 +59,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   };
 
   const handleSingleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    props.onChange?.(event);
+    onChange?.(event.target.checked ? [event.target.value] : []);
   };
 
   // Single checkbox

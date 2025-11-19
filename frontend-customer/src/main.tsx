@@ -8,10 +8,16 @@ import { pwaService } from './services/sync'
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      await pwaService.registerServiceWorker();
-      console.log('PWA initialized successfully');
+      const registration = await pwaService.registerServiceWorker();
+      if (registration) {
+        console.log('PWA initialized successfully');
+      } else {
+        console.warn('Service Worker registration returned null - may be disabled or unsupported');
+      }
     } catch (error) {
       console.error('Failed to initialize PWA:', error);
+      // التطبيق يمكن أن يعمل بدون Service Worker
+      console.info('Application will continue without PWA features');
     }
   });
 }

@@ -12,5 +12,4 @@ export type {
   SalesStats,
   SalesFilters,
   SalesApiResponse,
-  PaginatedResponse,
 } from './types';

@@ -196,7 +196,7 @@ export class PWAService {
       isSupported,
       isInstalled,
       canInstall: !!this.installPrompt,
-      installPrompt: this.installPrompt || undefined
+      installPrompt: this.installPrompt || null
     };
   }
 

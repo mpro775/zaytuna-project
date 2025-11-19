@@ -9,7 +9,6 @@ import {
   TextField,
   MenuItem,
   Button,
-  Alert,
   CircularProgress,
   Card,
   CardContent,
@@ -26,7 +25,6 @@ import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useSystemSettings } from '@/hooks';
-import type { SystemSettings } from '@/services/settings';
 import { MockModeToggle } from '@/components/ui/MockModeToggle';
 
 export const SystemSettings: React.FC = () => {
@@ -43,7 +41,6 @@ export const SystemSettings: React.FC = () => {
     updateSystemSettings,
     clearCache,
     restartSystem,
-    refetch,
   } = useSystemSettings();
 
   // Validation schema
@@ -111,7 +108,7 @@ export const SystemSettings: React.FC = () => {
       },
     },
     validationSchema,
-    onSubmit: async (values) => {
+    onSubmit: async values => {
       await updateSystemSettings(values);
     },
   });
@@ -119,7 +116,7 @@ export const SystemSettings: React.FC = () => {
   // Load system settings
   React.useEffect(() => {
     if (systemSettings) {
-      formik.setValues(systemSettings);
+      formik.setValues(systemSettings as any);
     }
   }, [systemSettings, formik]);
 
@@ -127,7 +124,7 @@ export const SystemSettings: React.FC = () => {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     if (bytes === 0) return '0 Bytes';
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i];
   };
 
   const formatUptime = (seconds: number) => {
@@ -157,7 +154,7 @@ export const SystemSettings: React.FC = () => {
       {/* System Information */}
       {systemInfo && (
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent sx={{ textAlign: 'center' }}>
                 <MemoryIcon sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
@@ -169,7 +166,7 @@ export const SystemSettings: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent sx={{ textAlign: 'center' }}>
                 <TimeIcon sx={{ fontSize: 40, color: 'success.main', mb: 1 }} />
@@ -181,7 +178,7 @@ export const SystemSettings: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent sx={{ textAlign: 'center' }}>
                 <PeopleIcon sx={{ fontSize: 40, color: 'warning.main', mb: 1 }} />
@@ -193,7 +190,7 @@ export const SystemSettings: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent sx={{ textAlign: 'center' }}>
                 <Typography variant="h6">{systemInfo.version}</Typography>
@@ -209,18 +206,18 @@ export const SystemSettings: React.FC = () => {
       <form onSubmit={formik.handleSubmit}>
         <Grid container spacing={3}>
           {/* Backup Settings */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
               {t('settings.system.backup.title', 'إعدادات النسخ الاحتياطي')}
             </Typography>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <FormControlLabel
               control={
                 <Switch
                   checked={formik.values.backupEnabled}
-                  onChange={(e) => formik.setFieldValue('backupEnabled', e.target.checked)}
+                  onChange={e => formik.setFieldValue('backupEnabled', e.target.checked)}
                   name="backupEnabled"
                 />
               }
@@ -229,12 +226,12 @@ export const SystemSettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <FormControlLabel
               control={
                 <Switch
                   checked={formik.values.autoBackup}
-                  onChange={(e) => formik.setFieldValue('autoBackup', e.target.checked)}
+                  onChange={e => formik.setFieldValue('autoBackup', e.target.checked)}
                   name="autoBackup"
                 />
               }
@@ -243,7 +240,7 @@ export const SystemSettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <TextField
               select
               fullWidth
@@ -261,7 +258,7 @@ export const SystemSettings: React.FC = () => {
             </TextField>
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <TextField
               fullWidth
               label={t('settings.system.backup.retention', 'مدة الاحتفاظ (أيام)')}
@@ -276,7 +273,7 @@ export const SystemSettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <TextField
               fullWidth
               label={t('settings.system.backup.time', 'وقت النسخ الاحتياطي')}
@@ -291,18 +288,18 @@ export const SystemSettings: React.FC = () => {
           </Grid>
 
           {/* Cache Settings */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, mt: 2 }}>
               {t('settings.system.cache.title', 'إعدادات الكاش')}
             </Typography>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <FormControlLabel
               control={
                 <Switch
                   checked={formik.values.cacheEnabled}
-                  onChange={(e) => formik.setFieldValue('cacheEnabled', e.target.checked)}
+                  onChange={e => formik.setFieldValue('cacheEnabled', e.target.checked)}
                   name="cacheEnabled"
                 />
               }
@@ -311,7 +308,7 @@ export const SystemSettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <TextField
               fullWidth
               label={t('settings.system.cache.ttl', 'وقت البقاء (ثواني)')}
@@ -327,7 +324,7 @@ export const SystemSettings: React.FC = () => {
           </Grid>
 
           {/* Mock Data Mode */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, mt: 2 }}>
               {t('settings.system.mockData.title', 'وضع البيانات الوهمية')}
             </Typography>
@@ -337,13 +334,13 @@ export const SystemSettings: React.FC = () => {
           </Grid>
 
           {/* System Actions */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, mt: 2 }}>
               {t('settings.system.actions.title', 'إجراءات النظام')}
             </Typography>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Button
               fullWidth
               variant="outlined"
@@ -354,12 +351,11 @@ export const SystemSettings: React.FC = () => {
             >
               {isClearingCache
                 ? t('settings.system.actions.clearingCache', 'جارٍ مسح الكاش...')
-                : t('settings.system.actions.clearCache', 'مسح الكاش')
-              }
+                : t('settings.system.actions.clearCache', 'مسح الكاش')}
             </Button>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Button
               fullWidth
               variant="outlined"
@@ -370,13 +366,12 @@ export const SystemSettings: React.FC = () => {
             >
               {isRestarting
                 ? t('settings.system.actions.restarting', 'جارٍ إعادة التشغيل...')
-                : t('settings.system.actions.restart', 'إعادة تشغيل النظام')
-              }
+                : t('settings.system.actions.restart', 'إعادة تشغيل النظام')}
             </Button>
           </Grid>
 
           {/* Save Button */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 3 }}>
               <Button
                 type="submit"
@@ -386,8 +381,7 @@ export const SystemSettings: React.FC = () => {
               >
                 {isUpdating
                   ? t('settings.saving', 'جارٍ الحفظ...')
-                  : t('settings.save', 'حفظ الإعدادات')
-                }
+                  : t('settings.save', 'حفظ الإعدادات')}
               </Button>
             </Box>
           </Grid>

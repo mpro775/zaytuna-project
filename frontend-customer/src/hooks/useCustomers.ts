@@ -1,16 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { customersApi } from '@/services/customers';
 import type {
-  Customer,
   CustomerFilters,
-  CreateCustomerDto,
   UpdateCustomerDto,
-  CustomersResponse,
-  CustomerStats,
-  LoyaltyStats,
-  CustomerSearchFilters,
 } from '@/services/customers';
 import { toast } from 'react-hot-toast';
 
@@ -60,8 +54,8 @@ export const useCustomers = (options: UseCustomersOptions = {}) => {
       toast.success(t('customers.messages.created', 'تم إنشاء العميل بنجاح'));
       return newCustomer;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('customers.errors.createFailed', 'فشل في إنشاء العميل');
+    onError: (error: Error) => {
+      const message = error.message || t('customers.errors.createFailed', 'فشل في إنشاء العميل');
       toast.error(message);
     },
   });
@@ -77,8 +71,8 @@ export const useCustomers = (options: UseCustomersOptions = {}) => {
       toast.success(t('customers.messages.updated', 'تم تحديث العميل بنجاح'));
       return updatedCustomer;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('customers.errors.updateFailed', 'فشل في تحديث العميل');
+    onError: (error: Error) => {
+      const message = error.message || t('customers.errors.updateFailed', 'فشل في تحديث العميل');
       toast.error(message);
     },
   });
@@ -91,8 +85,8 @@ export const useCustomers = (options: UseCustomersOptions = {}) => {
       queryClient.invalidateQueries({ queryKey: ['customer-stats'] });
       toast.success(t('customers.messages.deleted', 'تم حذف العميل بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('customers.errors.deleteFailed', 'فشل في حذف العميل');
+    onError: (error: Error) => {
+      const message = error.message || t('customers.errors.deleteFailed', 'فشل في حذف العميل');
       toast.error(message);
     },
   });
@@ -108,8 +102,8 @@ export const useCustomers = (options: UseCustomersOptions = {}) => {
       toast.success(t('customers.messages.loyaltyUpdated', 'تم تحديث نقاط الولاء بنجاح'));
       return updatedCustomer;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('customers.errors.loyaltyUpdateFailed', 'فشل في تحديث نقاط الولاء');
+    onError: (error: Error) => {
+      const message = error.message || t('customers.errors.loyaltyUpdateFailed', 'فشل في تحديث نقاط الولاء');
       toast.error(message);
     },
   });
@@ -121,8 +115,8 @@ export const useCustomers = (options: UseCustomersOptions = {}) => {
     onSuccess: () => {
       toast.success(t('customers.messages.marketingSent', 'تم إرسال الرسالة التسويقية بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('customers.errors.marketingSendFailed', 'فشل في إرسال الرسالة التسويقية');
+    onError: (error: Error) => {
+      const message = error.message || t('customers.errors.marketingSendFailed', 'فشل في إرسال الرسالة التسويقية');
       toast.error(message);
     },
   });
@@ -156,17 +150,26 @@ export const useCustomers = (options: UseCustomersOptions = {}) => {
 
   // Filter by status
   const filterByStatus = (isActive?: boolean) => {
-    updateFilters({ isActive, page: 1 });
+    updateFilters({
+      ...(isActive !== undefined && { isActive }),
+      page: 1,
+    });
   };
 
   // Filter by loyalty tier
   const filterByLoyaltyTier = (loyaltyTier?: string) => {
-    updateFilters({ loyaltyTier, page: 1 });
+    updateFilters({
+      ...(loyaltyTier !== undefined && { loyaltyTier }),
+      page: 1,
+    });
   };
 
   // Filter by gender
   const filterByGender = (gender?: string) => {
-    updateFilters({ gender, page: 1 });
+      updateFilters({
+      ...(gender !== undefined && { gender }),
+      page: 1,
+    });
   };
 
   // Change page
@@ -181,6 +184,10 @@ export const useCustomers = (options: UseCustomersOptions = {}) => {
 
   // Sort customers
   const sortCustomers = (sortBy?: string, sortOrder: 'asc' | 'desc' = 'asc') => {
+    updateFilters({
+      ...(sortBy !== undefined && { sortBy }),
+      ...(sortOrder !== undefined && { sortOrder }),
+    });
     // Implementation depends on API support
   };
 
@@ -295,8 +302,8 @@ export const useCustomer = (id: string | undefined) => {
       toast.success(t('customers.messages.updated', 'تم تحديث العميل بنجاح'));
       return updatedCustomer;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('customers.errors.updateFailed', 'فشل في تحديث العميل');
+    onError: (error: Error) => {
+      const message = error.message || t('customers.errors.updateFailed', 'فشل في تحديث العميل');
       toast.error(message);
     },
   });
@@ -309,8 +316,8 @@ export const useCustomer = (id: string | undefined) => {
       queryClient.invalidateQueries({ queryKey: ['customer-loyalty', id] });
       toast.success(t('customers.messages.loyaltyUpdated', 'تم تحديث نقاط الولاء بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('customers.errors.loyaltyUpdateFailed', 'فشل في تحديث نقاط الولاء');
+    onError: (error: Error) => {
+      const message = error.message || t('customers.errors.loyaltyUpdateFailed', 'فشل في تحديث نقاط الولاء');
       toast.error(message);
     },
   });

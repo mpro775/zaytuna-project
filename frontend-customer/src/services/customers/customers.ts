@@ -60,6 +60,8 @@ export interface CustomerFilters {
   hasMarketingConsent?: boolean;
   minPurchases?: number;
   maxPurchases?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
 export interface CustomersResponse {

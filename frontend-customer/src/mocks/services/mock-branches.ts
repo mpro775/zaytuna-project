@@ -9,7 +9,7 @@ import { filterData, sortData, paginateData, generateId, getMockDataFromStorage,
 import type { MockRequest, MockResponse } from '../types';
 
 // Load data with localStorage persistence
-let branches = getMockDataFromStorage('branches', branchesData);
+const branches = getMockDataFromStorage('branches', branchesData);
 
 // Register handlers
 mockApi.registerHandler('GET:/branches', async (request: MockRequest): Promise<MockResponse> => {
@@ -127,7 +127,7 @@ mockApi.registerHandler('DELETE:/branches/:id', async (request: MockRequest): Pr
   };
 });
 
-mockApi.registerHandler('GET:/branches/stats', async (request: MockRequest): Promise<MockResponse> => {
+mockApi.registerHandler('GET:/branches/stats', async (): Promise<MockResponse> => {
   const totalBranches = branches.length;
   const activeBranches = branches.filter((b) => b.isActive).length;
   const totalSales = branches.reduce((sum, b) => sum + (b.totalSales || 0), 0);

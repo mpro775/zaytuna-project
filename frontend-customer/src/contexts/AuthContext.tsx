@@ -118,7 +118,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated,
     isLoading,
     requiresTwoFactor,
-    twoFactorMethod,
+    ...(twoFactorMethod !== undefined && { twoFactorMethod }),
     login,
     verifyTwoFactorCode,
     sendTwoFactorCode,

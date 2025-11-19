@@ -87,8 +87,6 @@ export const useInventoryStore = create<InventoryStore>()((set, get) => ({
         isLoading: false,
         error: null,
       });
-
-      return stockItem;
     } catch (error) {
       const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'فشل في تحميل عنصر المخزون';
       set({
@@ -186,11 +184,12 @@ export const useInventoryStore = create<InventoryStore>()((set, get) => ({
     try {
       set({ isLoading: true, error: null });
 
-      const stockMovements = await inventoryApi.getStockMovements({
-        warehouseId,
-        productVariantId,
-        limit,
-      });
+      const filters: { warehouseId?: string; productVariantId?: string; limit?: number } = {};
+      if (warehouseId !== undefined) filters.warehouseId = warehouseId;
+      if (productVariantId !== undefined) filters.productVariantId = productVariantId;
+      if (limit !== undefined) filters.limit = limit;
+
+      const stockMovements = await inventoryApi.getStockMovements(filters);
 
       set({
         stockMovements,

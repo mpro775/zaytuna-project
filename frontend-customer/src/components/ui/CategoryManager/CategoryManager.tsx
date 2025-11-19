@@ -8,14 +8,13 @@ import {
   TextField,
   Box,
   Typography,
-  TreeView,
-  TreeItem,
   IconButton,
   Menu,
   MenuItem,
   Chip,
   Avatar,
 } from '@mui/material';
+import { SimpleTreeView, TreeItem } from '@mui/x-tree-view';
 import {
   ExpandMore as ExpandMoreIcon,
   ChevronRight as ChevronRightIcon,
@@ -30,7 +29,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { useProducts } from '@/hooks';
-import type { Category, CreateCategoryDto } from '@/services/products';
+import type { Category } from '@/services/products';
 
 // Validation schema
 const categorySchema = z.object({
@@ -41,7 +40,7 @@ const categorySchema = z.object({
 
 type CategoryFormData = z.infer<typeof categorySchema>;
 
-interface CategoryManagerProps {
+export interface CategoryManagerProps {
   open: boolean;
   onClose: () => void;
 }
@@ -68,7 +67,6 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ open, onClose 
     handleSubmit,
     formState: { errors },
     reset,
-    setValue,
   } = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
   });
@@ -124,13 +122,20 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ open, onClose 
   const onSubmit = async (data: CategoryFormData) => {
     try {
       if (isEditing && selectedCategory) {
-        await updateCategory(selectedCategory.id, {
-          ...data,
-          isActive: true,
+        await updateCategory({
+          id: selectedCategory.id,
+          data: {
+            name: data.name,
+            ...(data.description !== undefined && { description: data.description }),
+            ...(data.parentId !== undefined && { parentId: data.parentId }),
+            isActive: true,
+          },
         });
       } else {
         await createCategory({
-          ...data,
+          name: data.name,
+          ...(data.description !== undefined && { description: data.description }),
+          ...(data.parentId !== undefined && { parentId: data.parentId }),
           sortOrder: categories.length,
         });
       }
@@ -149,7 +154,7 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ open, onClose 
       return (
         <TreeItem
           key={node.id}
-          nodeId={node.id}
+          itemId={node.id}
           label={
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 0.5 }}>
               <Avatar sx={{ width: 24, height: 24, bgcolor: 'primary.main' }}>
@@ -211,9 +216,11 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ open, onClose 
             {t('categories.tree', 'شجرة الفئات')}
           </Typography>
 
-          <TreeView
-            defaultCollapseIcon={<ExpandMoreIcon />}
-            defaultExpandIcon={<ChevronRightIcon />}
+          <SimpleTreeView
+            slots={{
+              collapseIcon: ExpandMoreIcon,
+              expandIcon: ChevronRightIcon,
+            }}
             sx={{
               '& .MuiTreeItem-root': {
                 '&:hover': {
@@ -223,7 +230,7 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({ open, onClose 
             }}
           >
             {renderTree(categoryTree)}
-          </TreeView>
+          </SimpleTreeView>
 
           {categories.length === 0 && (
             <Box sx={{ textAlign: 'center', py: 4, color: 'text.secondary' }}>

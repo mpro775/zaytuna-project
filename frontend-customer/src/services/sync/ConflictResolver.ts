@@ -20,7 +20,13 @@ export interface ConflictDifference {
   field: string;
   localValue: any;
   serverValue: any;
-  type: 'value_change' | 'type_change' | 'field_added' | 'field_removed' | 'array_item_added' | 'array_item_removed';
+  type:
+    | 'value_change'
+    | 'type_change'
+    | 'field_added'
+    | 'field_removed'
+    | 'array_item_added'
+    | 'array_item_removed';
   significance: 'low' | 'medium' | 'high';
   fieldCategory: 'core' | 'metadata' | 'relations' | 'computed';
 }
@@ -104,7 +110,7 @@ export class ConflictResolver {
     entity: string,
     entityId: string,
     localData: LocalEntity,
-    serverData: any,
+    serverData: any
   ): ConflictAnalysis {
     const differences = this.compareEntities(localData, serverData);
 
@@ -185,7 +191,11 @@ export class ConflictResolver {
   }
 
   // مقارنة المصفوفات
-  private compareArrays(field: string, localArray: any[], serverArray: any[]): ConflictDifference[] {
+  private compareArrays(
+    field: string,
+    localArray: any[],
+    serverArray: any[]
+  ): ConflictDifference[] {
     const differences: ConflictDifference[] = [];
 
     // البحث عن العناصر المضافة
@@ -238,7 +248,10 @@ export class ConflictResolver {
   }
 
   // حساب شدة التضارب
-  private calculateSeverity(differences: ConflictDifference[], entityType: string): 'low' | 'medium' | 'high' | 'critical' {
+  private calculateSeverity(
+    differences: ConflictDifference[],
+    entityType: string
+  ): 'low' | 'medium' | 'high' | 'critical' {
     const highSignificance = differences.filter(d => d.significance === 'high').length;
     const coreFields = differences.filter(d => d.fieldCategory === 'core').length;
 
@@ -278,7 +291,11 @@ export class ConflictResolver {
   }
 
   // إيجاد أفضل استراتيجية
-  private findBestStrategy(entityType: string, differences: ConflictDifference[], severity: string) {
+  private findBestStrategy(
+    entityType: string,
+    differences: ConflictDifference[],
+    severity: string
+  ) {
     const applicableStrategies = this.smartStrategies
       .filter(s => s.applicableTo.includes('*') || s.applicableTo.includes(entityType))
       .sort((a, b) => b.priority - a.priority);
@@ -314,8 +331,8 @@ export class ConflictResolver {
   // استراتيجية دمج المخزون
   private inventoryMergeResolver(analysis: ConflictAnalysis): ConflictResolution | null {
     const inventoryFields = ['stockQuantity', 'minStockLevel', 'maxStockLevel', 'reorderPoint'];
-    const onlyInventoryChanges = analysis.differences.every(diff =>
-      inventoryFields.includes(diff.field) || diff.fieldCategory === 'metadata'
+    const onlyInventoryChanges = analysis.differences.every(
+      diff => inventoryFields.includes(diff.field) || diff.fieldCategory === 'metadata'
     );
 
     if (!onlyInventoryChanges) return null;
@@ -343,8 +360,8 @@ export class ConflictResolver {
   // استراتيجية دمج بيانات العملاء
   private customerDataMergeResolver(analysis: ConflictAnalysis): ConflictResolution | null {
     const coreFields = ['name', 'email', 'phone', 'taxId'];
-    const hasCoreConflicts = analysis.differences.some(diff =>
-      coreFields.includes(diff.field) && diff.type === 'value_change'
+    const hasCoreConflicts = analysis.differences.some(
+      diff => coreFields.includes(diff.field) && diff.type === 'value_change'
     );
 
     if (hasCoreConflicts) return null; // لا يمكن الدمج إذا كانت الحقول الأساسية متعارضة
@@ -355,19 +372,15 @@ export class ConflictResolver {
     const resolvedData = {
       ...server,
       // دمج العناوين
-      addresses: [
-        ...(server.addresses || []),
-        ...(local.addresses || []),
-      ].filter((addr: any, index: number, arr: any[]) =>
-        arr.findIndex((a: any) => a.type === addr.type && a.street === addr.street) === index
+      addresses: [...(server.addresses || []), ...(local.addresses || [])].filter(
+        (addr: any, index: number, arr: any[]) =>
+          arr.findIndex((a: any) => a.type === addr.type && a.street === addr.street) === index
       ),
 
       // دمج أرقام الهواتف
-      phoneNumbers: [
-        ...(server.phoneNumbers || []),
-        ...(local.phoneNumbers || []),
-      ].filter((phone: any, index: number, arr: any[]) =>
-        arr.findIndex((p: any) => p.number === phone.number) === index
+      phoneNumbers: [...(server.phoneNumbers || []), ...(local.phoneNumbers || [])].filter(
+        (phone: any, index: number, arr: any[]) =>
+          arr.findIndex((p: any) => p.number === phone.number) === index
       ),
 
       lastModified: new Date(),
@@ -383,8 +396,8 @@ export class ConflictResolver {
   // استراتيجية تحديث البيانات الوصفية فقط
   private metadataOnlyResolver(analysis: ConflictAnalysis): ConflictResolution | null {
     const metadataFields = ['lastModified', 'updatedAt', 'updatedBy', 'version', 'etag'];
-    const onlyMetadataChanges = analysis.differences.every(diff =>
-      metadataFields.includes(diff.field) || diff.fieldCategory === 'metadata'
+    const onlyMetadataChanges = analysis.differences.every(
+      diff => metadataFields.includes(diff.field) || diff.fieldCategory === 'metadata'
     );
 
     if (!onlyMetadataChanges) return null;
@@ -402,8 +415,8 @@ export class ConflictResolver {
   // استراتيجية الأحدث يفوز للحقول غير الحساسة
   private latestWinsNonCriticalResolver(analysis: ConflictAnalysis): ConflictResolution | null {
     // فحص إذا كانت جميع التغييرات غير حساسة
-    const hasCriticalChanges = analysis.differences.some(diff =>
-      diff.significance === 'high' || diff.fieldCategory === 'core'
+    const hasCriticalChanges = analysis.differences.some(
+      diff => diff.significance === 'high' || diff.fieldCategory === 'core'
     );
 
     if (hasCriticalChanges) return null;
@@ -423,13 +436,30 @@ export class ConflictResolver {
   // تحديد أهمية الحقل
   private getFieldSignificance(field: string): 'low' | 'medium' | 'high' {
     const highImportance = [
-      'id', 'code', 'name', 'email', 'phone', 'total', 'amount', 'price',
-      'stockQuantity', 'status', 'type', 'category'
+      'id',
+      'code',
+      'name',
+      'email',
+      'phone',
+      'total',
+      'amount',
+      'price',
+      'stockQuantity',
+      'status',
+      'type',
+      'category',
     ];
 
     const mediumImportance = [
-      'description', 'notes', 'address', 'createdAt', 'updatedAt',
-      'minStockLevel', 'maxStockLevel', 'unit', 'taxRate'
+      'description',
+      'notes',
+      'address',
+      'createdAt',
+      'updatedAt',
+      'minStockLevel',
+      'maxStockLevel',
+      'unit',
+      'taxRate',
     ];
 
     if (highImportance.includes(field)) return 'high';
@@ -440,23 +470,53 @@ export class ConflictResolver {
   // تحديد فئة الحقل
   private getFieldCategory(field: string): 'core' | 'metadata' | 'relations' | 'computed' {
     const coreFields = [
-      'id', 'code', 'name', 'title', 'email', 'phone', 'total', 'amount',
-      'price', 'status', 'type', 'category', 'stockQuantity'
+      'id',
+      'code',
+      'name',
+      'title',
+      'email',
+      'phone',
+      'total',
+      'amount',
+      'price',
+      'status',
+      'type',
+      'category',
+      'stockQuantity',
     ];
 
     const metadataFields = [
-      'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'version',
-      'lastModified', 'etag', 'syncVersion'
+      'createdAt',
+      'updatedAt',
+      'createdBy',
+      'updatedBy',
+      'version',
+      'lastModified',
+      'etag',
+      'syncVersion',
     ];
 
     const relationFields = [
-      'customerId', 'productId', 'supplierId', 'warehouseId', 'branchId',
-      'userId', 'parentId', 'children', 'tags', 'attachments'
+      'customerId',
+      'productId',
+      'supplierId',
+      'warehouseId',
+      'branchId',
+      'userId',
+      'parentId',
+      'children',
+      'tags',
+      'attachments',
     ];
 
     const computedFields = [
-      'subtotal', 'taxAmount', 'discountAmount', 'netTotal',
-      'totalItems', 'totalQuantity', 'averagePrice'
+      'subtotal',
+      'taxAmount',
+      'discountAmount',
+      'netTotal',
+      'totalItems',
+      'totalQuantity',
+      'averagePrice',
     ];
 
     if (coreFields.includes(field)) return 'core';
@@ -554,71 +614,7 @@ export class ConflictResolver {
     }
   }
 
-  // حل تضارب المنتج
-  private resolveProductConflict(conflict: Conflict): ConflictResolution | null {
-    const local = conflict.localVersion;
-    const server = conflict.serverVersion;
-
-    // إذا كان التغيير في المخزون فقط، يمكن دمجه
-    if (this.isInventoryOnlyChange(local, server)) {
-      return {
-        conflictId: conflict.id,
-        resolution: 'merge',
-        resolvedData: {
-          ...server,
-          stockQuantity: Math.max(local.stockQuantity || 0, server.stockQuantity || 0),
-          lastModified: new Date(),
-        },
-      };
-    }
-
-    // للتغييرات الأخرى، اختيار النسخة الأحدث
-    return this.resolveByTimestamp(conflict);
-  }
-
-  // حل تضارب العميل
-  private resolveCustomerConflict(conflict: Conflict): ConflictResolution | null {
-    const local = conflict.localVersion;
-    const server = conflict.serverVersion;
-
-    // يمكن دمج بعض الحقول مثل العناوين والتواصل
-    if (this.canMergeCustomerData(local, server)) {
-      return {
-        conflictId: conflict.id,
-        resolution: 'merge',
-        resolvedData: {
-          ...server,
-          addresses: [...(server.addresses || []), ...(local.addresses || [])].filter((addr, index, arr) =>
-            arr.findIndex(a => a.type === addr.type) === index // إزالة التكرارات
-          ),
-          phoneNumbers: [...(server.phoneNumbers || []), ...(local.phoneNumbers || [])].filter((phone, index, arr) =>
-            arr.findIndex(p => p.number === phone.number) === index
-          ),
-          lastModified: new Date(),
-        },
-      };
-    }
-
-    return this.resolveByTimestamp(conflict);
-  }
-
-  // حل تضارب فاتورة المبيعات
-  private resolveSalesInvoiceConflict(_conflict: Conflict): ConflictResolution | null {
-    // فواتير المبيعات عادة لا يمكن دمجها تلقائياً
-    // تحتاج إلى تدخل يدوي
-    return null; // يتطلب حل يدوي
-  }
-
   // حل بالتوقيت (الأحدث يفوز)
-  private resolveByTimestamp(conflict: Conflict): ConflictResolution {
-    const localTime = new Date(conflict.localVersion.lastModified || 0).getTime();
-    const serverTime = new Date(conflict.serverVersion.lastModified || 0).getTime();
-
-    return {
-      conflictId: conflict.id,
-      resolution: localTime > serverTime ? 'local' : 'server',
-    };
-  }
 
   // إضافة تضارب للقائمة
   addConflict(conflict: Conflict): void {
@@ -629,7 +625,9 @@ export class ConflictResolver {
       this.conflicts = this.conflicts.slice(0, this.maxConflicts);
     }
 
-    console.warn(`Conflict detected: ${conflict.entity}:${conflict.entityId} (${conflict.conflictType})`);
+    console.warn(
+      `Conflict detected: ${conflict.entity}:${conflict.entityId} (${conflict.conflictType})`
+    );
   }
 
   // حل تضارب
@@ -644,7 +642,9 @@ export class ConflictResolver {
       conflict.resolution = resolution.resolution;
       conflict.resolvedData = resolution.resolvedData;
 
-      console.log(`Conflict resolved: ${conflict.entity}:${conflict.entityId} -> ${resolution.resolution}`);
+      console.log(
+        `Conflict resolved: ${conflict.entity}:${conflict.entityId} -> ${resolution.resolution}`
+      );
     }
 
     return true;
@@ -661,11 +661,12 @@ export class ConflictResolver {
   }
 
   // تنظيف التضارب المحلول القديمة
-  cleanupResolvedConflicts(maxAge: number = 30 * 24 * 60 * 60 * 1000): void { // 30 يوم
+  cleanupResolvedConflicts(maxAge: number = 30 * 24 * 60 * 60 * 1000): void {
+    // 30 يوم
     const cutoffTime = Date.now() - maxAge;
 
-    this.conflicts = this.conflicts.filter(conflict =>
-      !conflict.resolved || conflict.timestamp.getTime() > cutoffTime
+    this.conflicts = this.conflicts.filter(
+      conflict => !conflict.resolved || conflict.timestamp.getTime() > cutoffTime
     );
   }
 
@@ -701,9 +702,12 @@ export class ConflictResolver {
       byEntity[conflict.entity] = (byEntity[conflict.entity] || 0) + 1;
 
       if (conflict.resolved) {
-        const history = this.conflictHistory.get(conflict.entity)?.find(h => h.conflictId === conflict.id);
+        const history = this.conflictHistory
+          .get(conflict.entity)
+          ?.find(h => h.conflictId === conflict.id);
         if (history) {
-          byStrategy[history.strategy || 'unknown'] = (byStrategy[history.strategy || 'unknown'] || 0) + 1;
+          byStrategy[history.strategy || 'unknown'] =
+            (byStrategy[history.strategy || 'unknown'] || 0) + 1;
 
           if (history.strategy !== 'manual') {
             autoResolved++;
@@ -712,9 +716,11 @@ export class ConflictResolver {
           }
 
           // حساب وقت الحل
-          const resolutionTime = history.timestamp.getTime() - conflict.timestamp.getTime();
-          totalResolutionTime += resolutionTime;
-          resolutionCount++;
+          if (history.timestamp) {
+            const resolutionTime = history.timestamp.getTime() - conflict.timestamp.getTime();
+            totalResolutionTime += resolutionTime;
+            resolutionCount++;
+          }
         }
 
         // تحليل شدة التضارب
@@ -754,15 +760,37 @@ export class ConflictResolver {
     analysis: ConflictAnalysis;
   }> {
     if (entityType) {
-      return this.conflictHistory.get(entityType) || [];
+      const history = this.conflictHistory.get(entityType) || [];
+      return history.map(item => ({
+        conflictId: item.conflictId,
+        entityType: entityType,
+        entityId: item.analysis?.entityId || '',
+        resolution: item.resolution,
+        strategy: item.strategy || '',
+        timestamp: item.timestamp || new Date(),
+        analysis: item.analysis || ({} as ConflictAnalysis),
+      }));
     }
 
-    const allHistory: any[] = [];
+    const allHistory: Array<{
+      conflictId: string;
+      entityType: string;
+      entityId: string;
+      resolution: ConflictResolution['resolution'];
+      strategy: string;
+      timestamp: Date;
+      analysis: ConflictAnalysis;
+    }> = [];
     this.conflictHistory.forEach((history, entity) => {
       history.forEach(item => {
         allHistory.push({
-          ...item,
+          conflictId: item.conflictId,
           entityType: entity,
+          entityId: item.analysis?.entityId || '',
+          resolution: item.resolution,
+          strategy: item.strategy || '',
+          timestamp: item.timestamp || new Date(),
+          analysis: item.analysis || ({} as ConflictAnalysis),
         });
       });
     });
@@ -777,7 +805,9 @@ export class ConflictResolver {
 
     this.conflictHistory.forEach((history, entity) => {
       const originalLength = history.length;
-      const filtered = history.filter(item => item.timestamp.getTime() > cutoffTime);
+      const filtered = history.filter(
+        item => item.timestamp && item.timestamp.getTime() > cutoffTime
+      );
       removedCount += originalLength - filtered.length;
       this.conflictHistory.set(entity, filtered);
     });
@@ -794,9 +824,13 @@ export class ConflictResolver {
     const compareFields = ['name', 'title', 'code', 'description'];
 
     for (const field of compareFields) {
-      if (localData[field] !== serverData[field] &&
-          localData[field] !== null && localData[field] !== undefined &&
-          serverData[field] !== null && serverData[field] !== undefined) {
+      if (
+        localData[field] !== serverData[field] &&
+        localData[field] !== null &&
+        localData[field] !== undefined &&
+        serverData[field] !== null &&
+        serverData[field] !== undefined
+      ) {
         return true;
       }
     }
@@ -805,32 +839,7 @@ export class ConflictResolver {
   }
 
   // مساعد: فحص إذا كان التغيير في المخزون فقط
-  private isInventoryOnlyChange(localData: any, serverData: any): boolean {
-    const inventoryFields = ['stockQuantity', 'minStockLevel', 'maxStockLevel'];
-    const otherFields = Object.keys(localData).filter(field => !inventoryFields.includes(field));
-
-    // فحص إذا كانت الحقول الأخرى متطابقة
-    for (const field of otherFields) {
-      if (JSON.stringify(localData[field]) !== JSON.stringify(serverData[field])) {
-        return false;
-      }
-    }
-
-    return true;
-  }
+ 
 
   // مساعد: فحص إمكانية دمج بيانات العميل
-  private canMergeCustomerData(localData: any, serverData: any): boolean {
-    // يمكن دمج بيانات العميل إذا لم تكن الحقول الأساسية متعارضة
-    const coreFields = ['name', 'email', 'phone'];
-
-    for (const field of coreFields) {
-      if (localData[field] !== serverData[field] &&
-          localData[field] && serverData[field]) {
-        return false; // تضارب في الحقول الأساسية
-      }
-    }
-
-    return true;
-  }
 }

@@ -9,12 +9,10 @@ import {
   Alert,
   CircularProgress,
   Avatar,
-  IconButton,
   MenuItem,
 } from '@mui/material';
 import {
   Save as SaveIcon,
-  Cancel as CancelIcon,
   Upload as UploadIcon,
   Business as BusinessIcon,
 } from '@mui/icons-material';
@@ -22,7 +20,6 @@ import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useCompanySettings } from '@/hooks';
-import type { CompanySettings } from '@/services/settings';
 import { toast } from 'react-hot-toast';
 
 export const CompanySettings: React.FC = () => {
@@ -53,7 +50,7 @@ export const CompanySettings: React.FC = () => {
       .max(500, t('settings.validation.addressMaxLength', 'العنوان يجب ألا يزيد عن 500 حرف')),
     phone: Yup.string()
       .required(t('settings.validation.phoneRequired', 'رقم الهاتف مطلوب'))
-      .matches(/^[\+]?[0-9\-\s\(\)]*$/, t('settings.validation.phoneInvalid', 'رقم الهاتف غير صحيح')),
+      .matches(/^[0-9\-\s]*$/, t('settings.validation.phoneInvalid', 'رقم الهاتف غير صحيح')),
     email: Yup.string()
       .required(t('settings.validation.emailRequired', 'البريد الإلكتروني مطلوب'))
       .email(t('settings.validation.emailInvalid', 'البريد الإلكتروني غير صحيح')),
@@ -146,9 +143,10 @@ export const CompanySettings: React.FC = () => {
       // Upload file
       try {
         await uploadLogo(file);
-      } catch (error) {
+      } catch (error: any) {
         // Reset preview on error
         setLogoPreview(companySettings?.logo || null);
+        toast.error(error?.message || t('settings.errors.logoUploadFailed', 'فشل في رفع الشعار'));
       }
     }
   };
@@ -180,7 +178,7 @@ export const CompanySettings: React.FC = () => {
       <form onSubmit={formik.handleSubmit}>
         <Grid container spacing={3}>
           {/* Logo Section */}
-          <Grid item xs={12}>
+          <Grid   size={{xs: 12}}>
             <Paper sx={{ p: 3, textAlign: 'center' }}>
               <Typography variant="h6" sx={{ mb: 2 }}>
                 {t('settings.company.logo', 'شعار الشركة')}
@@ -188,7 +186,7 @@ export const CompanySettings: React.FC = () => {
 
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                 <Avatar
-                  src={logoPreview || undefined}
+                  src={logoPreview || ''}
                   sx={{ width: 120, height: 120, cursor: 'pointer' }}
                   onClick={handleLogoClick}
                 >
@@ -223,13 +221,13 @@ export const CompanySettings: React.FC = () => {
           </Grid>
 
           {/* Basic Information */}
-          <Grid item xs={12}>
+          <Grid   size={{xs: 12}}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
               {t('settings.company.basicInfo', 'المعلومات الأساسية')}
             </Typography>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <TextField
               fullWidth
               label={t('settings.company.name', 'اسم الشركة')}
@@ -237,14 +235,14 @@ export const CompanySettings: React.FC = () => {
               value={formik.values.name}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.name && Boolean(formik.errors.name)}
+                error={Boolean(formik.touched.name && formik.errors.name)}
               helperText={formik.touched.name && formik.errors.name}
               required
               dir={isRTL ? 'rtl' : 'ltr'}
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <TextField
               fullWidth
               label={t('settings.company.taxNumber', 'الرقم الضريبي')}
@@ -252,13 +250,13 @@ export const CompanySettings: React.FC = () => {
               value={formik.values.taxNumber}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.taxNumber && Boolean(formik.errors.taxNumber)}
+              error={Boolean(formik.touched.taxNumber && formik.errors.taxNumber)}
               helperText={formik.touched.taxNumber && formik.errors.taxNumber}
               dir={isRTL ? 'rtl' : 'ltr'}
             />
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid   size={{xs: 12}}>
             <TextField
               fullWidth
               label={t('settings.company.description', 'وصف الشركة')}
@@ -266,7 +264,7 @@ export const CompanySettings: React.FC = () => {
               value={formik.values.description}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.description && Boolean(formik.errors.description)}
+              error={Boolean(formik.touched.description && formik.errors.description)}
               helperText={formik.touched.description && formik.errors.description}
               multiline
               rows={3}
@@ -275,13 +273,13 @@ export const CompanySettings: React.FC = () => {
           </Grid>
 
           {/* Contact Information */}
-          <Grid item xs={12}>
+          <Grid   size={{xs: 12}}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, mt: 2 }}>
               {t('settings.company.contactInfo', 'معلومات التواصل')}
             </Typography>
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid   size={{xs: 12}}>
             <TextField
               fullWidth
               label={t('settings.company.address', 'العنوان')}
@@ -289,7 +287,7 @@ export const CompanySettings: React.FC = () => {
               value={formik.values.address}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.address && Boolean(formik.errors.address)}
+              error={Boolean(formik.touched.address && formik.errors.address)}
               helperText={formik.touched.address && formik.errors.address}
               multiline
               rows={2}
@@ -298,7 +296,7 @@ export const CompanySettings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <TextField
               fullWidth
               label={t('settings.company.phone', 'رقم الهاتف')}
@@ -306,14 +304,14 @@ export const CompanySettings: React.FC = () => {
               value={formik.values.phone}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.phone && Boolean(formik.errors.phone)}
+              error={Boolean(formik.touched.phone && formik.errors.phone)}
               helperText={formik.touched.phone && formik.errors.phone}
               required
               dir={isRTL ? 'rtl' : 'ltr'}
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <TextField
               fullWidth
               label={t('settings.company.email', 'البريد الإلكتروني')}
@@ -322,7 +320,7 @@ export const CompanySettings: React.FC = () => {
               value={formik.values.email}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.email && Boolean(formik.errors.email)}
+              error={Boolean(formik.touched.email && formik.errors.email)}
               helperText={formik.touched.email && formik.errors.email}
               required
               dir={isRTL ? 'rtl' : 'ltr'}
@@ -330,13 +328,13 @@ export const CompanySettings: React.FC = () => {
           </Grid>
 
           {/* Regional Settings */}
-          <Grid item xs={12}>
+          <Grid   size={{xs: 12}}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, mt: 2 }}>
               {t('settings.company.regionalSettings', 'الإعدادات الإقليمية')}
             </Typography>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <TextField
               select
               fullWidth
@@ -345,7 +343,7 @@ export const CompanySettings: React.FC = () => {
               value={formik.values.currency}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.currency && Boolean(formik.errors.currency)}
+              error={Boolean(formik.touched.currency && formik.errors.currency)}
               helperText={formik.touched.currency && formik.errors.currency}
               required
               dir={isRTL ? 'rtl' : 'ltr'}
@@ -357,7 +355,7 @@ export const CompanySettings: React.FC = () => {
             </TextField>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <TextField
               select
               fullWidth
@@ -366,7 +364,7 @@ export const CompanySettings: React.FC = () => {
               value={formik.values.timezone}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.timezone && Boolean(formik.errors.timezone)}
+              error={Boolean(formik.touched.timezone && formik.errors.timezone)}
               helperText={formik.touched.timezone && formik.errors.timezone}
               required
               dir={isRTL ? 'rtl' : 'ltr'}
@@ -378,7 +376,7 @@ export const CompanySettings: React.FC = () => {
             </TextField>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <TextField
               select
               fullWidth
@@ -387,7 +385,7 @@ export const CompanySettings: React.FC = () => {
               value={formik.values.language}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.language && Boolean(formik.errors.language)}
+              error={Boolean(formik.touched.language && formik.errors.language)}
               helperText={formik.touched.language && formik.errors.language}
               required
               dir={isRTL ? 'rtl' : 'ltr'}
@@ -397,7 +395,7 @@ export const CompanySettings: React.FC = () => {
             </TextField>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid   size={{xs: 12, md: 6}}>
             <TextField
               fullWidth
               label={t('settings.company.fiscalYearStart', 'بداية السنة المالية')}
@@ -405,7 +403,7 @@ export const CompanySettings: React.FC = () => {
               value={formik.values.fiscalYearStart}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.fiscalYearStart && Boolean(formik.errors.fiscalYearStart)}
+              error={Boolean(formik.touched.fiscalYearStart && formik.errors.fiscalYearStart)}
               helperText={formik.touched.fiscalYearStart && formik.errors.fiscalYearStart}
               placeholder="MM-DD"
               required
@@ -414,13 +412,13 @@ export const CompanySettings: React.FC = () => {
           </Grid>
 
           {/* Format Settings */}
-          <Grid item xs={12}>
+          <Grid   size={{xs: 12}}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, mt: 2 }}>
               {t('settings.company.formatSettings', 'إعدادات التنسيق')}
             </Typography>
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid   size={{xs: 12, md: 4}}>
             <TextField
               select
               fullWidth
@@ -429,7 +427,7 @@ export const CompanySettings: React.FC = () => {
               value={formik.values.dateFormat}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.dateFormat && Boolean(formik.errors.dateFormat)}
+              error={Boolean(formik.touched.dateFormat && formik.errors.dateFormat)}
               helperText={formik.touched.dateFormat && formik.errors.dateFormat}
               required
               dir={isRTL ? 'rtl' : 'ltr'}
@@ -440,7 +438,7 @@ export const CompanySettings: React.FC = () => {
             </TextField>
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid   size={{xs: 12, md: 4}}>
             <TextField
               select
               fullWidth
@@ -449,7 +447,7 @@ export const CompanySettings: React.FC = () => {
               value={formik.values.timeFormat}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.timeFormat && Boolean(formik.errors.timeFormat)}
+              error={Boolean(formik.touched.timeFormat && formik.errors.timeFormat)}
               helperText={formik.touched.timeFormat && formik.errors.timeFormat}
               required
               dir={isRTL ? 'rtl' : 'ltr'}
@@ -459,7 +457,7 @@ export const CompanySettings: React.FC = () => {
             </TextField>
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid   size={{xs: 12, md: 4}}>
             <TextField
               select
               fullWidth
@@ -468,7 +466,7 @@ export const CompanySettings: React.FC = () => {
               value={formik.values.numberFormat}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.numberFormat && Boolean(formik.errors.numberFormat)}
+                  error={Boolean(formik.touched.numberFormat && formik.errors.numberFormat)}
               helperText={formik.touched.numberFormat && formik.errors.numberFormat}
               required
               dir={isRTL ? 'rtl' : 'ltr'}
@@ -480,7 +478,7 @@ export const CompanySettings: React.FC = () => {
           </Grid>
 
           {/* Actions */}
-          <Grid item xs={12}>
+          <Grid   size={{xs: 12}}>
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 3 }}>
               <Button
                 type="submit"

@@ -1,5 +1,5 @@
 import { api } from '../api';
-import { Permission, UsersApiResponse } from './types';
+import type { Permission, UsersApiResponse } from './types';
 
 /**
  * خدمة الصلاحيات - Permissions Service
@@ -44,7 +44,7 @@ export class PermissionsService {
   ): Promise<UsersApiResponse<{
     permission: string;
     isValid: boolean;
-    details?: any;
+    details?: Record<string, string>;
   }>> {
     const response = await api.get(`${this.BASE_URL}/validate/${permission}`);
     return response.data;

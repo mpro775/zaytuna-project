@@ -24,8 +24,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useWarehouse, useWarehouses, useBranches } from '@/hooks';
-import type { CreateWarehouseDto, UpdateWarehouseDto } from '@/services/warehouses';
-import { toast } from 'react-hot-toast';
+import type { CreateWarehouseDto } from '@/services/warehouses';
 
 const WarehouseForm: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -55,7 +54,7 @@ const WarehouseForm: React.FC = () => {
     address: Yup.string().max(500, t('warehouses.validation.addressMaxLength', 'العنوان يجب ألا يزيد عن 500 حرف')),
     phone: Yup.string()
       .max(50, t('warehouses.validation.phoneMaxLength', 'رقم الهاتف يجب ألا يزيد عن 50 حرف'))
-      .matches(/^[\+]?[0-9\-\s\(\)]*$/, t('warehouses.validation.phoneInvalid', 'رقم الهاتف غير صحيح')),
+      .matches(/^[+]?[0-9\-\s()]*$/, t('warehouses.validation.phoneInvalid', 'رقم الهاتف غير صحيح')),
     email: Yup.string().email(t('warehouses.validation.emailInvalid', 'البريد الإلكتروني غير صحيح')),
     isActive: Yup.boolean(),
   });
@@ -77,7 +76,7 @@ const WarehouseForm: React.FC = () => {
         setSubmitError(null);
 
         if (isEdit && id) {
-          await updateWarehouse({ id, data: values });
+          await updateWarehouse(values);
           navigate('/warehouses');
         } else {
           await createWarehouse(values as CreateWarehouseDto);
@@ -145,13 +144,13 @@ const WarehouseForm: React.FC = () => {
         <form onSubmit={formik.handleSubmit}>
           <Grid container spacing={3}>
             {/* Basic Information */}
-            <Grid item xs={12}>
+            <Grid   size={{xs: 12}}>
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                 {t('warehouses.sections.basicInfo', 'المعلومات الأساسية')}
               </Typography>
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid   size={{xs: 12, md: 6}}>
               <TextField
                 fullWidth
                 label={t('warehouses.fields.name', 'اسم المخزن')}
@@ -159,14 +158,14 @@ const WarehouseForm: React.FC = () => {
                 value={formik.values.name}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={formik.touched.name && Boolean(formik.errors.name)}
+                error={Boolean(formik.touched.name && formik.errors.name)}
                 helperText={formik.touched.name && formik.errors.name}
                 required
                 dir={isRTL ? 'rtl' : 'ltr'}
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid   size={{xs: 12, md: 6}}>
               <TextField
                 fullWidth
                 label={t('warehouses.fields.code', 'كود المخزن')}
@@ -174,14 +173,14 @@ const WarehouseForm: React.FC = () => {
                 value={formik.values.code}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={formik.touched.code && Boolean(formik.errors.code)}
+                error={Boolean(formik.touched.code && formik.errors.code)}
                 helperText={formik.touched.code && formik.errors.code}
                 required
                 dir={isRTL ? 'rtl' : 'ltr'}
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid   size={{xs: 12, md: 6}}>
               <TextField
                 select
                 fullWidth
@@ -190,7 +189,7 @@ const WarehouseForm: React.FC = () => {
                 value={formik.values.branchId}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={formik.touched.branchId && Boolean(formik.errors.branchId)}
+                error={Boolean(formik.touched.branchId && formik.errors.branchId)}
                 helperText={formik.touched.branchId && formik.errors.branchId}
                 required
                 dir={isRTL ? 'rtl' : 'ltr'}
@@ -204,13 +203,13 @@ const WarehouseForm: React.FC = () => {
             </Grid>
 
             {/* Contact Information */}
-            <Grid item xs={12}>
+            <Grid   size={{xs: 12}}>
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, mt: 2 }}>
                 {t('warehouses.sections.contactInfo', 'معلومات التواصل')}
               </Typography>
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid   size={{xs: 12}}>
               <TextField
                 fullWidth
                 label={t('warehouses.fields.address', 'العنوان')}
@@ -218,7 +217,7 @@ const WarehouseForm: React.FC = () => {
                 value={formik.values.address}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={formik.touched.address && Boolean(formik.errors.address)}
+                error={Boolean(formik.touched.address && formik.errors.address)}
                 helperText={formik.touched.address && formik.errors.address}
                 multiline
                 rows={3}
@@ -226,7 +225,7 @@ const WarehouseForm: React.FC = () => {
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid   size={{xs: 12, md: 6}}>
               <TextField
                 fullWidth
                 label={t('warehouses.fields.phone', 'رقم الهاتف')}
@@ -234,13 +233,13 @@ const WarehouseForm: React.FC = () => {
                 value={formik.values.phone}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={formik.touched.phone && Boolean(formik.errors.phone)}
+                error={Boolean(formik.touched.phone && formik.errors.phone)}
                 helperText={formik.touched.phone && formik.errors.phone}
                 dir={isRTL ? 'rtl' : 'ltr'}
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid   size={{xs: 12, md: 6}}>
               <TextField
                 fullWidth
                 label={t('warehouses.fields.email', 'البريد الإلكتروني')}
@@ -249,20 +248,20 @@ const WarehouseForm: React.FC = () => {
                 value={formik.values.email}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={formik.touched.email && Boolean(formik.errors.email)}
+                error={Boolean(formik.touched.email && formik.errors.email)}
                 helperText={formik.touched.email && formik.errors.email}
                 dir={isRTL ? 'rtl' : 'ltr'}
               />
             </Grid>
 
             {/* Settings */}
-            <Grid item xs={12}>
+            <Grid   size={{xs: 12}}>
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, mt: 2 }}>
                 {t('warehouses.sections.settings', 'الإعدادات')}
               </Typography>
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid   size={{xs: 12}}>
               <FormControlLabel
                 control={
                   <Switch
@@ -277,7 +276,7 @@ const WarehouseForm: React.FC = () => {
             </Grid>
 
             {/* Actions */}
-            <Grid item xs={12}>
+            <Grid   size={{xs: 12}}>
               <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 3 }}>
                 <Button
                   variant="outlined"

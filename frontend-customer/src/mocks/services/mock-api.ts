@@ -20,6 +20,9 @@ class MockApiService {
    */
   registerHandler(pattern: string, handler: MockApiHandler): void {
     this.handlers.set(pattern, handler);
+    if (import.meta.env.DEV) {
+      console.log('📝 Registered mock handler:', pattern);
+    }
   }
 
   /**
@@ -28,7 +31,14 @@ class MockApiService {
   private findHandler(url: string, method: string): MockApiHandler | null {
     // Try exact match first
     const exactKey = `${method}:${url}`;
+    if (import.meta.env.DEV) {
+      console.log('🔍 Looking for handler:', exactKey);
+    }
+    
     if (this.handlers.has(exactKey)) {
+      if (import.meta.env.DEV) {
+        console.log('✅ Found exact match:', exactKey);
+      }
       return this.handlers.get(exactKey)!;
     }
 
@@ -39,36 +49,24 @@ class MockApiService {
       if (patternMethod !== method) continue;
 
       // Convert pattern to regex
-      const regexPattern = patternUrl
+      const regexPattern = patternUrl || ''
         .replace(/\//g, '\\/')
         .replace(/:[^/]+/g, '[^/]+')
-        .replace(/\*/g, '.*');
+        .replace(/\*/g, '.*') || '';
       
       const regex = new RegExp(`^${regexPattern}$`);
       if (regex.test(url)) {
+        if (import.meta.env.DEV) {
+          console.log('✅ Found pattern match:', pattern, 'for', url);
+        }
         return handler;
       }
     }
 
+    if (import.meta.env.DEV) {
+      console.log('❌ No handler found for:', method, url);
+    }
     return null;
-  }
-
-  /**
-   * Extract params from URL pattern
-   */
-  private extractParams(pattern: string, url: string): Record<string, string> {
-    const params: Record<string, string> = {};
-    const patternParts = pattern.split('/');
-    const urlParts = url.split('/');
-
-    patternParts.forEach((part, index) => {
-      if (part.startsWith(':')) {
-        const paramName = part.slice(1);
-        params[paramName] = urlParts[index] || '';
-      }
-    });
-
-    return params;
   }
 
   /**
@@ -92,23 +90,43 @@ class MockApiService {
     const method = (config.method || 'GET').toUpperCase();
     const url = config.url || '';
     
+    if (import.meta.env.DEV) {
+      console.log('🔵 Mock API processing:', method, url);
+    }
+    
     // Remove base URL and query string for matching
-    const cleanUrl = url
-      .replace(/^https?:\/\/[^/]+/, '')
-      .replace(/\/api\/v\d+/, '')
-      .split('?')[0];
+    let cleanUrl = url
+      .replace(/^https?:\/\/[^/]+/, '') // Remove protocol and domain
+      .replace(/\/api\/v\d+/, '') // Remove /api/v1 or /api/v2 etc
+      .split('?')[0]; // Remove query string
+    
+    // Ensure URL starts with /
+    if (cleanUrl && !cleanUrl.startsWith('/')) {
+      cleanUrl = '/' + cleanUrl;
+    }
+
+    if (import.meta.env.DEV) {
+      console.log('🔵 Clean URL for matching:', cleanUrl);
+      console.log('🔵 Available handlers:', Array.from(this.handlers.keys()));
+    }
 
     // Find handler
-    const handler = this.findHandler(cleanUrl, method);
+    const handler = this.findHandler(cleanUrl || '', method);
     
     if (!handler) {
-      console.warn(`No mock handler found for ${method} ${cleanUrl}`);
+      console.warn(`❌ No mock handler found for ${method} ${cleanUrl}`);
+      console.warn('📋 Available handlers:', Array.from(this.handlers.keys()));
+      console.warn('🔍 Original URL:', url);
       throw createErrorResponse(404, `Mock handler not found for ${method} ${cleanUrl}`);
+    }
+    
+    if (import.meta.env.DEV) {
+      console.log('✅ Mock handler found for:', method, cleanUrl);
     }
 
     // Extract query params
     const urlObj = new URL(url, 'http://localhost');
-    const params: Record<string, any> = {};
+    const params: Record<string, string | number | boolean> = {};
     urlObj.searchParams.forEach((value, key) => {
       // Try to parse as number or boolean
       if (value === 'true') params[key] = true;
@@ -119,8 +137,8 @@ class MockApiService {
 
     // Create mock request
     const mockRequest: MockRequest = {
-      method: method as any,
-      url: cleanUrl,
+      method: method as 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
+      url: cleanUrl || '',
       params,
       data: config.data,
       headers: config.headers as Record<string, string>,
@@ -129,6 +147,12 @@ class MockApiService {
     try {
       // Call handler
       const response = await handler(mockRequest);
+      
+      // Validate response
+      if (!response || !response.data) {
+        console.error('Invalid mock response:', response);
+        throw createErrorResponse(500, 'Invalid mock response from handler');
+      }
       
       // Create axios-like response
       return {
@@ -142,11 +166,16 @@ class MockApiService {
         headers: {},
         config,
       } as AxiosResponse;
-    } catch (error: any) {
-      if (error.response) {
+    } catch (error: unknown) {
+      // Check if it's already an axios error
+      if (error && typeof error === 'object' && 'response' in error) {
         throw error;
       }
-      throw createErrorResponse(500, error.message || 'Mock handler error');
+      
+      if (error instanceof Error) {
+        throw createErrorResponse(500, error.message);
+      }
+      throw createErrorResponse(500, 'Mock handler error');
     }
   }
 
@@ -154,7 +183,15 @@ class MockApiService {
    * Check if mock mode is enabled
    */
   isEnabled(): boolean {
+    // Import dynamically to avoid circular dependency
     return mockConfig.enabled;
+  }
+  
+  /**
+   * Get list of registered handlers (for debugging)
+   */
+  getRegisteredHandlers(): string[] {
+    return Array.from(this.handlers.keys());
   }
 }
 

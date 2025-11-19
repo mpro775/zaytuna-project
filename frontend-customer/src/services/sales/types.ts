@@ -1,5 +1,6 @@
 // Sales Service Types - مرتبط بـ backend/src/modules/sales
 
+
 export interface SalesInvoiceLine {
   id: string;
   salesInvoiceId: string;
@@ -32,7 +33,7 @@ export interface Payment {
   currencyId: string;
   amount: number;
   paymentMethod: string;
-  referenceNumber?: string;
+  referenceNumber: string | null;
   notes?: string;
   paymentDate: string;
   processedBy?: string;
@@ -150,6 +151,7 @@ export interface SalesFilters {
   customerId?: string;
   status?: string;
   paymentStatus?: string;
+  page?: number;
   limit?: number;
   startDate?: string;
   endDate?: string;
@@ -161,10 +163,3 @@ export interface SalesApiResponse<T> {
   success: boolean;
 }
 
-export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}

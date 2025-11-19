@@ -3,14 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { warehousesApi } from '@/services/warehouses';
 import type {
-  Warehouse,
   WarehouseFilters,
-  CreateWarehouseDto,
   UpdateWarehouseDto,
   TransferStockDto,
-  WarehousesResponse,
-  WarehouseStats,
-  StockItem,
 } from '@/services/warehouses';
 import { toast } from 'react-hot-toast';
 
@@ -60,8 +55,8 @@ export const useWarehouses = (options: UseWarehousesOptions = {}) => {
       toast.success(t('warehouses.messages.created', 'تم إنشاء المخزن بنجاح'));
       return newWarehouse;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('warehouses.errors.createFailed', 'فشل في إنشاء المخزن');
+    onError: (error: Error) => {
+      const message = error.message || t('warehouses.errors.createFailed', 'فشل في إنشاء المخزن');
       toast.error(message);
     },
   });
@@ -77,8 +72,8 @@ export const useWarehouses = (options: UseWarehousesOptions = {}) => {
       toast.success(t('warehouses.messages.updated', 'تم تحديث المخزن بنجاح'));
       return updatedWarehouse;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('warehouses.errors.updateFailed', 'فشل في تحديث المخزن');
+    onError: (error: Error) => {
+      const message = error.message || t('warehouses.errors.updateFailed', 'فشل في تحديث المخزن');
       toast.error(message);
     },
   });
@@ -91,8 +86,8 @@ export const useWarehouses = (options: UseWarehousesOptions = {}) => {
       queryClient.invalidateQueries({ queryKey: ['warehouse-stats'] });
       toast.success(t('warehouses.messages.deleted', 'تم حذف المخزن بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('warehouses.errors.deleteFailed', 'فشل في حذف المخزن');
+    onError: (error: Error) => {
+      const message = error.message || t('warehouses.errors.deleteFailed', 'فشل في حذف المخزن');
       toast.error(message);
     },
   });
@@ -106,8 +101,8 @@ export const useWarehouses = (options: UseWarehousesOptions = {}) => {
       queryClient.invalidateQueries({ queryKey: ['inventory'] });
       toast.success(t('warehouses.messages.stockTransferred', 'تم نقل المخزون بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('warehouses.errors.transferFailed', 'فشل في نقل المخزون');
+    onError: (error: Error) => {
+      const message = error.message || t('warehouses.errors.transferFailed', 'فشل في نقل المخزون');
       toast.error(message);
     },
   });
@@ -115,13 +110,14 @@ export const useWarehouses = (options: UseWarehousesOptions = {}) => {
   // Switch warehouse mutation
   const switchWarehouseMutation = useMutation({
     mutationFn: warehousesApi.switchToWarehouse,
-    onSuccess: (warehouseId) => {
+    onSuccess: (_, warehouseId) => {
+      localStorage.setItem('selectedWarehouseId', warehouseId);
       // Update local storage and invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: ['user-context'] });
       toast.success(t('warehouses.messages.switched', 'تم تبديل المخزن بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('warehouses.errors.switchFailed', 'فشل في تبديل المخزن');
+    onError: (error: Error) => {
+      const message = error.message || t('warehouses.errors.switchFailed', 'فشل في تبديل المخزن');
       toast.error(message);
     },
   });
@@ -150,7 +146,11 @@ export const useWarehouses = (options: UseWarehousesOptions = {}) => {
 
   // Filter by status
   const filterByStatus = (isActive?: boolean) => {
-    updateFilters({ isActive, page: 1 });
+    updateFilters({
+      ...(isActive !== undefined && { isActive }),
+      page: 1,
+      ...(isActive !== undefined && { isActive }),
+    });
   };
 
   // Filter by branch
@@ -170,7 +170,10 @@ export const useWarehouses = (options: UseWarehousesOptions = {}) => {
 
   // Sort warehouses
   const sortWarehouses = (sortBy: WarehouseFilters['sortBy'], sortOrder: WarehouseFilters['sortOrder'] = 'asc') => {
-    updateFilters({ sortBy, sortOrder });
+    updateFilters({
+      ...(sortBy !== undefined && { sortBy }),
+      ...(sortOrder !== undefined && { sortOrder }),
+    });
   };
 
   // Get current selected warehouse
@@ -266,8 +269,8 @@ export const useWarehouse = (id: string | undefined) => {
       toast.success(t('warehouses.messages.updated', 'تم تحديث المخزن بنجاح'));
       return updatedWarehouse;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('warehouses.errors.updateFailed', 'فشل في تحديث المخزن');
+    onError: (error: Error) => {
+      const message = error.message || t('warehouses.errors.updateFailed', 'فشل في تحديث المخزن');
       toast.error(message);
     },
   });
@@ -275,15 +278,15 @@ export const useWarehouse = (id: string | undefined) => {
   // Transfer stock mutation
   const transferStockMutation = useMutation({
     mutationFn: (data: Omit<TransferStockDto, 'fromWarehouseId'>) =>
-      warehousesApi.transferStock({ ...data, fromWarehouseId: id! }),
+      warehousesApi.transferStock({ ...data, fromWarehouseId: id! } as TransferStockDto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['warehouse-stock', id] });
       queryClient.invalidateQueries({ queryKey: ['warehouses'] });
       queryClient.invalidateQueries({ queryKey: ['warehouse-stats'] });
       toast.success(t('warehouses.messages.stockTransferred', 'تم نقل المخزون بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('warehouses.errors.transferFailed', 'فشل في نقل المخزون');
+    onError: (error: Error) => {
+      const message = error.message || t('warehouses.errors.transferFailed', 'فشل في نقل المخزون');
       toast.error(message);
     },
   });

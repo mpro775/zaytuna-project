@@ -43,6 +43,9 @@ export interface ConflictResolution {
   conflictId: string;
   resolution: 'local' | 'server' | 'merge' | 'manual';
   resolvedData?: any;
+  timestamp?: Date;
+  strategy?: string;
+  analysis?: any;
 }
 
 export interface QueueItem {

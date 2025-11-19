@@ -1,0 +1,61 @@
+/* Cairo Font - Local Fallback */
+/* This file provides local Cairo font loading as a fallback */
+
+/* Cairo Regular */
+@font-face {
+  font-family: 'CairoLocal';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Cairo'),
+       local('Cairo-Regular'),
+       /* System Arabic fonts as fallbacks */
+       local('Segoe UI'),
+       local('Segoe UI Regular'),
+       local('Arial Unicode MS'),
+       local('Arial Unicode MS Regular'),
+       local('Tahoma'),
+       local('Arial');
+}
+
+/* Cairo Medium */
+@font-face {
+  font-family: 'CairoLocal';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: local('Cairo Medium'),
+       local('Cairo-Medium'),
+       local('Segoe UI Semibold'),
+       local('Segoe UI'),
+       local('Arial Unicode MS'),
+       local('Tahoma');
+}
+
+/* Cairo SemiBold */
+@font-face {
+  font-family: 'CairoLocal';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Cairo SemiBold'),
+       local('Cairo-SemiBold'),
+       local('Segoe UI Semibold'),
+       local('Segoe UI'),
+       local('Arial Unicode MS'),
+       local('Tahoma');
+}
+
+/* Cairo Bold */
+@font-face {
+  font-family: 'CairoLocal';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Cairo Bold'),
+       local('Cairo-Bold'),
+       local('Segoe UI Bold'),
+       local('Segoe UI'),
+       local('Arial Unicode MS'),
+       local('Tahoma');
+}

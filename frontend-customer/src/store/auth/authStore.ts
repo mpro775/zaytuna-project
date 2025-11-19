@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { authApi } from '@/services/auth';
-import type { AuthUser, LoginCredentials, LoginResponse } from '@/services/auth';
+import type { AuthUser, LoginCredentials, LoginResponse, RefreshTokenResponse } from '@/services/auth';
 import { toast } from 'react-hot-toast';
 
 // Combined store type
@@ -13,12 +13,12 @@ type AuthStore = {
   isLoading: boolean;
   error: string | null;
   requiresTwoFactor: boolean;
-  twoFactorMethod?: 'sms' | 'app' | 'email';
+  twoFactorMethod?: 'sms' | 'app' | 'email' | undefined;
 
   // Actions
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => Promise<void>;
-  refreshAccessToken: () => Promise<unknown>;
+  refreshAccessToken: () => Promise<RefreshTokenResponse>;
   verifyTwoFactorCode: (code: string) => Promise<void>;
   sendTwoFactorCode: (method: 'sms' | 'email') => Promise<void>;
   setUser: (user: AuthUser | null) => void;
@@ -26,15 +26,30 @@ type AuthStore = {
   clearTokens: () => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  setRequiresTwoFactor: (requires: boolean, method?: 'sms' | 'app' | 'email' | undefined) => void;
+  setRequiresTwoFactor: (requires: boolean, method?: 'sms' | 'app' | 'email') => void;
+  initialize: () => Promise<void>;
+};
+
+// Helper function to safely get error message
+const getErrorMessage = (error: unknown, defaultMessage: string): string => {
+  if (error && typeof error === 'object' && 'response' in error) {
+    const response = (error as { response?: { data?: { message?: string } } }).response;
+    if (response?.data?.message) {
+      return response.data.message;
+    }
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return defaultMessage;
 };
 
 // Auth store implementation
 export const useAuthStore = create<AuthStore>()((set, get) => ({
       // Initial state
       user: null,
-      accessToken: null,
-      refreshToken: null,
+      accessToken: typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null,
+      refreshToken: typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null,
       isAuthenticated: false,
       isLoading: false,
       error: null,
@@ -48,14 +63,26 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
 
           const response: LoginResponse = await authApi.login(credentials);
 
-          // Check if 2FA is required
-          if (response.requiresTwoFactor) {
+          // Validate response
+          if (!response) {
+            throw new Error('استجابة غير صحيحة من الخادم');
+          }
+
+          // Check if 2FA is required (with safe access)
+          const requiresTwoFactor = response.requiresTwoFactor === true;
+          
+          if (requiresTwoFactor) {
             set({
               requiresTwoFactor: true,
               twoFactorMethod: response.twoFactorMethod,
               isLoading: false,
             });
             return; // Don't complete login yet, wait for 2FA
+          }
+
+          // Validate required fields
+          if (!response.user || !response.accessToken || !response.refreshToken) {
+            throw new Error('بيانات تسجيل الدخول غير مكتملة');
           }
 
           // Complete login if no 2FA required
@@ -71,12 +98,14 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
           });
 
           // Save to localStorage
-          localStorage.setItem('accessToken', response.accessToken);
-          localStorage.setItem('refreshToken', response.refreshToken);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('accessToken', response.accessToken);
+            localStorage.setItem('refreshToken', response.refreshToken);
+          }
 
           toast.success('تم تسجيل الدخول بنجاح');
         } catch (error) {
-          const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'فشل في تسجيل الدخول';
+          const message = getErrorMessage(error, 'فشل في تسجيل الدخول');
           set({
             error: message,
             isLoading: false,
@@ -107,12 +136,14 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
           });
 
           // Save to localStorage
-          localStorage.setItem('accessToken', response.accessToken);
-          localStorage.setItem('refreshToken', response.refreshToken);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('accessToken', response.accessToken);
+            localStorage.setItem('refreshToken', response.refreshToken);
+          }
 
           toast.success('تم التحقق من رمز الأمان بنجاح');
         } catch (error) {
-          const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'رمز الأمان غير صحيح';
+          const message = getErrorMessage(error, 'رمز الأمان غير صحيح');
           set({ error: message, isLoading: false });
           toast.error(message);
           throw error;
@@ -128,7 +159,7 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
           toast.success(`تم إرسال رمز الأمان عبر ${method === 'sms' ? 'الرسائل النصية' : 'البريد الإلكتروني'}`);
           set({ isLoading: false });
         } catch (error) {
-          const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'فشل في إرسال رمز الأمان';
+          const message = getErrorMessage(error, 'فشل في إرسال رمز الأمان');
           set({ error: message, isLoading: false });
           toast.error(message);
           throw error;
@@ -147,8 +178,10 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
           }
 
           // Clear local storage
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+          }
 
           // Clear state
           set({
@@ -164,7 +197,7 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
 
           toast.success('تم تسجيل الخروج بنجاح');
         } catch (error) {
-          const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'فشل في تسجيل الخروج';
+          const message = getErrorMessage(error, 'فشل في تسجيل الخروج');
           set({ error: message, isLoading: false });
           toast.error(message);
         }
@@ -186,14 +219,16 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
           });
 
           // Update localStorage
-          localStorage.setItem('accessToken', response.accessToken);
-          localStorage.setItem('refreshToken', response.refreshToken);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('accessToken', response.accessToken);
+            localStorage.setItem('refreshToken', response.refreshToken);
+          }
 
           return response;
-    } catch (error) {
-      // If refresh fails, logout
-      get().logout();
-      throw error;
+        } catch (error) {
+          // If refresh fails, logout
+          get().logout();
+          throw error;
         }
       },
 
@@ -203,14 +238,18 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
 
       setTokens: (accessToken: string, refreshToken: string) => {
         set({ accessToken, refreshToken });
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('refreshToken', refreshToken);
+        }
       },
 
       clearTokens: () => {
         set({ accessToken: null, refreshToken: null });
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+        }
       },
 
       setLoading: (loading: boolean) => {
@@ -223,6 +262,31 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
 
       setRequiresTwoFactor: (requires: boolean, method?: 'sms' | 'app' | 'email') => {
         set({ requiresTwoFactor: requires, twoFactorMethod: method });
+      },
+
+      initialize: async () => {
+        try {
+          const { accessToken } = get();
+          if (!accessToken) {
+            return;
+          }
+          set({ isLoading: true });
+          const user = await authApi.getCurrentUser();
+          set({
+            user,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+          });
+        } catch {
+          get().clearTokens();
+          set({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            error: null,
+          });
+        }
       },
     })
 );

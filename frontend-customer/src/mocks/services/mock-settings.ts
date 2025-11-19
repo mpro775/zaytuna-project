@@ -5,14 +5,14 @@
 
 import settingsData from '../data/settings.json';
 import { mockApi } from './mock-api';
-import { getMockDataFromStorage, saveMockDataToStorage } from './mock-utils';
+import { getMockObjectFromStorage, saveMockObjectToStorage } from './mock-utils';
 import type { MockRequest, MockResponse } from '../types';
 
 // Load data with localStorage persistence
-let settings = getMockDataFromStorage('settings', settingsData);
+let settings = getMockObjectFromStorage('settings', settingsData);
 
 // Register handlers
-mockApi.registerHandler('GET:/settings', async (request: MockRequest): Promise<MockResponse> => {
+mockApi.registerHandler('GET:/settings', async (): Promise<MockResponse> => {
   return {
     data: settings,
     statusCode: 200,
@@ -47,7 +47,7 @@ mockApi.registerHandler('PATCH:/settings', async (request: MockRequest): Promise
     ...request.data,
   };
   
-  saveMockDataToStorage('settings', settings);
+  saveMockObjectToStorage('settings', settings);
   
   return {
     data: settings,
@@ -59,7 +59,7 @@ mockApi.registerHandler('PATCH:/settings/:key', async (request: MockRequest): Pr
   const key = request.params?.key;
   (settings as any)[key] = request.data;
   
-  saveMockDataToStorage('settings', settings);
+  saveMockObjectToStorage('settings', settings);
   
   return {
     data: (settings as any)[key],

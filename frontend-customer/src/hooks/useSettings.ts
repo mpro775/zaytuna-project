@@ -1,14 +1,8 @@
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+  import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { settingsApi } from '@/services/settings';
-import type {
-  CompanySettings,
-  SystemSettings,
-  SecuritySettings,
-  BackupSettings,
-} from '@/services/settings';
+
 import { toast } from 'react-hot-toast';
+import { settingsApi } from '@/services';
 
 // Company Settings Hook
 export const useCompanySettings = () => {
@@ -33,8 +27,8 @@ export const useCompanySettings = () => {
       toast.success(t('settings.messages.companyUpdated', 'تم تحديث إعدادات الشركة بنجاح'));
       return updatedSettings;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('settings.errors.companyUpdateFailed', 'فشل في تحديث إعدادات الشركة');
+    onError: (error: Error) => {
+      const message = error.message || t('settings.errors.companyUpdateFailed', 'فشل في تحديث إعدادات الشركة');
       toast.error(message);
     },
   });
@@ -45,8 +39,8 @@ export const useCompanySettings = () => {
       queryClient.invalidateQueries({ queryKey: ['company-settings'] });
       toast.success(t('settings.messages.logoUploaded', 'تم رفع شعار الشركة بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('settings.errors.logoUploadFailed', 'فشل في رفع شعار الشركة');
+    onError: (error: Error) => {
+      const message = error.message || t('settings.errors.logoUploadFailed', 'فشل في رفع شعار الشركة');
       toast.error(message);
     },
   });
@@ -86,8 +80,8 @@ export const useSystemSettings = () => {
       toast.success(t('settings.messages.systemUpdated', 'تم تحديث إعدادات النظام بنجاح'));
       return updatedSettings;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('settings.errors.systemUpdateFailed', 'فشل في تحديث إعدادات النظام');
+    onError: (error: Error) => {
+      const message = error.message || t('settings.errors.systemUpdateFailed', 'فشل في تحديث إعدادات النظام');
       toast.error(message);
     },
   });
@@ -97,8 +91,8 @@ export const useSystemSettings = () => {
     onSuccess: () => {
       toast.success(t('settings.messages.cacheCleared', 'تم مسح الكاش بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('settings.errors.cacheClearFailed', 'فشل في مسح الكاش');
+    onError: (error: Error) => {
+      const message = error.message || t('settings.errors.cacheClearFailed', 'فشل في مسح الكاش');
       toast.error(message);
     },
   });
@@ -108,8 +102,8 @@ export const useSystemSettings = () => {
     onSuccess: () => {
       toast.success(t('settings.messages.systemRestarted', 'تم إعادة تشغيل النظام بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('settings.errors.systemRestartFailed', 'فشل في إعادة تشغيل النظام');
+    onError: (error: Error) => {
+      const message = error.message || t('settings.errors.systemRestartFailed', 'فشل في إعادة تشغيل النظام');
       toast.error(message);
     },
   });
@@ -164,8 +158,8 @@ export const useSecuritySettings = () => {
       toast.success(t('settings.messages.securityUpdated', 'تم تحديث إعدادات الأمان بنجاح'));
       return updatedSettings;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('settings.errors.securityUpdateFailed', 'فشل في تحديث إعدادات الأمان');
+      onError: (error: Error) => {
+      const message = error.message || t('settings.errors.securityUpdateFailed', 'فشل في تحديث إعدادات الأمان');
       toast.error(message);
     },
   });
@@ -203,8 +197,8 @@ export const useBackupSettings = () => {
       toast.success(t('settings.messages.backupUpdated', 'تم تحديث إعدادات النسخ الاحتياطي بنجاح'));
       return updatedSettings;
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('settings.errors.backupUpdateFailed', 'فشل في تحديث إعدادات النسخ الاحتياطي');
+    onError: (error: Error) => {
+      const message = error.message || t('settings.errors.backupUpdateFailed', 'فشل في تحديث إعدادات النسخ الاحتياطي');
       toast.error(message);
     },
   });
@@ -215,8 +209,8 @@ export const useBackupSettings = () => {
       queryClient.invalidateQueries({ queryKey: ['backup-history'] });
       toast.success(t('settings.messages.backupCreated', 'تم إنشاء النسخة الاحتياطية بنجاح'));
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || t('settings.errors.backupCreateFailed', 'فشل في إنشاء النسخة الاحتياطية');
+    onError: (error: Error) => {
+      const message = error.message || t('settings.errors.backupCreateFailed', 'فشل في إنشاء النسخة الاحتياطية');
       toast.error(message);
     },
   });

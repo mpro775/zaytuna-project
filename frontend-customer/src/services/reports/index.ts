@@ -7,7 +7,6 @@ export type {
   TopProduct,
   DashboardData,
   ActivityItem,
-  DateRange,
   ReportsFilters,
 } from './reports';
 

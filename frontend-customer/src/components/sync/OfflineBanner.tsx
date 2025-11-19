@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Alert, AlertTitle, Box, Button, Collapse, IconButton, Typography } from '@mui/material';
 import { WifiOff, Close, Refresh } from '@mui/icons-material';
-import { pwaService, NetworkStatus } from '../../services/sync';
+import { pwaService, type NetworkStatus } from '../../services/sync';
 import { useTranslation } from 'react-i18next';
 
 interface OfflineBannerProps {

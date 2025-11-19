@@ -5,15 +5,14 @@
 
 import salesInvoicesData from '../data/sales-invoices.json';
 import paymentsData from '../data/payments.json';
-import customersData from '../data/customers.json';
-import productsData from '../data/products.json';
+
 import { mockApi } from './mock-api';
 import { filterData, sortData, paginateData, generateId, getMockDataFromStorage, saveMockDataToStorage } from './mock-utils';
 import type { MockRequest, MockResponse } from '../types';
 
 // Load data with localStorage persistence
-let salesInvoices = getMockDataFromStorage('salesInvoices', salesInvoicesData);
-let payments = getMockDataFromStorage('payments', paymentsData);
+const salesInvoices = getMockDataFromStorage('salesInvoices', salesInvoicesData);
+const payments = getMockDataFromStorage('payments', paymentsData);
 
 // Register handlers
 mockApi.registerHandler('GET:/sales/invoices', async (request: MockRequest): Promise<MockResponse> => {
@@ -78,7 +77,7 @@ mockApi.registerHandler('POST:/sales/invoices', async (request: MockRequest): Pr
   };
   
   // Calculate totals
-  newInvoice.subtotal = newInvoice.lines.reduce((sum, line) => sum + (line.unitPrice * line.quantity), 0);
+  newInvoice.subtotal = newInvoice.lines.reduce((sum: number, line: any) => sum + (line.unitPrice * line.quantity), 0);
   newInvoice.taxAmount = newInvoice.subtotal * 0.15; // 15% tax
   newInvoice.totalAmount = newInvoice.subtotal + newInvoice.taxAmount - newInvoice.discountAmount;
   
@@ -146,7 +145,7 @@ mockApi.registerHandler('DELETE:/sales/invoices/:id', async (request: MockReques
   };
 });
 
-mockApi.registerHandler('GET:/sales/stats', async (request: MockRequest): Promise<MockResponse> => {
+mockApi.registerHandler('GET:/sales/stats', async (): Promise<MockResponse> => {
   const totalInvoices = salesInvoices.length;
   const totalRevenue = salesInvoices.reduce((sum, inv) => sum + inv.totalAmount, 0);
   const totalPaid = salesInvoices
@@ -223,7 +222,7 @@ mockApi.registerHandler('POST:/sales/invoices/:id/payments', async (request: Moc
     invoice.paymentStatus = 'partial';
   }
   
-  invoice.payments = payments.filter((p) => p.salesInvoiceId === invoiceId);
+  invoice.payments = payments.filter((p) => p.salesInvoiceId === invoiceId) as any;
   saveMockDataToStorage('salesInvoices', salesInvoices);
   
   return {
