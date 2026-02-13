@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts';
 import { Loading } from '@/components/ui';
+import { canAccessPath } from '@/utils/roleAccess';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -12,8 +13,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   requiresAuth = true,
 }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
+  const pathname = location.pathname;
 
   // Show loading spinner while checking authentication
   if (isLoading) {
@@ -28,6 +30,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Redirect authenticated users away from auth pages (login, register, etc.)
   if (!requiresAuth && isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
+  }
+
+  // التحقق من صلاحية الدور للوصول للمسار
+  if (requiresAuth && isAuthenticated && user?.role) {
+    if (!canAccessPath(pathname, user.role as string)) {
+      return <Navigate to="/dashboard" replace />;
+    }
   }
 
   return <>{children}</>;

@@ -25,6 +25,16 @@ export interface LoginResponse {
   twoFactorMethod?: 'sms' | 'app' | 'email' | undefined;
 }
 
+// Registration payload based on backend RegisterDto
+export interface RegisterData {
+  username: string;
+  email: string;
+  password: string;
+  phone?: string;
+  roleId: string;
+  branchId?: string;
+}
+
 export interface RefreshTokenResponse {
   accessToken: string;
   refreshToken: string;
@@ -56,6 +66,14 @@ export const authApi = {
    */
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
     const response = await api.post<ApiResponse<LoginResponse>>('/auth/login', credentials);
+    return response.data.data;
+  },
+
+  /**
+   * تسجيل حساب جديد
+   */
+  async register(data: RegisterData): Promise<LoginResponse> {
+    const response = await api.post<ApiResponse<LoginResponse>>('/auth/register', data);
     return response.data.data;
   },
 

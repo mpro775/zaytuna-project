@@ -17,20 +17,70 @@ import './i18n';
 const Landing = React.lazy(() => import('@/pages/Landing'));
 const Dashboard = React.lazy(() => import('@/pages/Dashboard'));
 const Login = React.lazy(() => import('@/pages/Login'));
+const Signup = React.lazy(() => import('@/pages/Signup'));
 const NotFound = React.lazy(() => import('@/pages/NotFound'));
+
+// POS - نقطة البيع
+const POS = React.lazy(() => import('@/pages/POS'));
+
+// Products
 const Products = React.lazy(() => import('@/pages/Products/Products'));
 const ProductForm = React.lazy(() => import('@/pages/Products/ProductForm'));
+
+// Inventory
 const Inventory = React.lazy(() => import('@/pages/Inventory/Inventory'));
 const StockMovements = React.lazy(() => import('@/pages/Inventory/StockMovements'));
+
+// Customers
 const Customers = React.lazy(() => import('@/pages/Customers/Customers'));
 const CustomerForm = React.lazy(() => import('@/pages/Customers/CustomerForm'));
+
+// Suppliers
 const Suppliers = React.lazy(() => import('@/pages/Suppliers/Suppliers'));
 const SupplierForm = React.lazy(() => import('@/pages/Suppliers/SupplierForm'));
+
+// Branches & Warehouses
 const Branches = React.lazy(() => import('@/pages/Branches/Branches'));
 const BranchForm = React.lazy(() => import('@/pages/Branches/BranchForm'));
 const Warehouses = React.lazy(() => import('@/pages/Warehouses/Warehouses'));
 const WarehouseForm = React.lazy(() => import('@/pages/Warehouses/WarehouseForm'));
+
+// Sales
+const SalesInvoicesList = React.lazy(() => import('@/pages/Sales/SalesInvoicesList'));
+const SalesInvoiceForm = React.lazy(() => import('@/pages/Sales/SalesInvoiceForm'));
+const SaleDetails = React.lazy(() => import('@/pages/Sales/SaleDetails'));
+
+// Purchasing
+const PurchaseOrdersList = React.lazy(() => import('@/pages/Purchasing/PurchaseOrdersList'));
+const PurchaseOrderForm = React.lazy(() => import('@/pages/Purchasing/PurchaseOrderForm'));
+const PurchaseInvoicesList = React.lazy(() => import('@/pages/Purchasing/PurchaseInvoicesList'));
+
+// Returns
+const ReturnsList = React.lazy(() => import('@/pages/Returns/ReturnsList'));
+const ReturnForm = React.lazy(() => import('@/pages/Returns/ReturnForm'));
+const CreditNotesList = React.lazy(() => import('@/pages/Returns/CreditNotesList'));
+
+// Accounting
+const GLAccounts = React.lazy(() => import('@/pages/Accounting/GLAccounts'));
+const JournalEntries = React.lazy(() => import('@/pages/Accounting/JournalEntries'));
+const FinancialReports = React.lazy(() => import('@/pages/Accounting/FinancialReports'));
+
+// Users
+const UsersList = React.lazy(() => import('@/pages/Users/UsersList'));
+
+// Reports
+const ReportsDashboard = React.lazy(() => import('@/pages/Reports/ReportsDashboard'));
 const SalesReport = React.lazy(() => import('@/pages/Reports/SalesReport'));
+const InventoryReport = React.lazy(() => import('@/pages/Reports/InventoryReport'));
+const FinancialReport = React.lazy(() => import('@/pages/Reports/FinancialReport'));
+
+// Admin
+const AdminDashboard = React.lazy(() => import('@/pages/Admin/AdminDashboard'));
+const SystemHealth = React.lazy(() => import('@/pages/Admin/SystemHealth'));
+const AuditLogs = React.lazy(() => import('@/pages/Admin/AuditLogs'));
+const SystemSettings = React.lazy(() => import('@/pages/Admin/SystemSettings'));
+
+// Settings
 const Settings = React.lazy(() => import('@/pages/Settings/Settings'));
 
 // Create Query Client
@@ -247,6 +297,14 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/signup"
+                  element={
+                    <ProtectedRoute requiresAuth={false}>
+                      <Signup />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* Protected Routes with Layout */}
                 <Route
@@ -256,6 +314,16 @@ function App() {
                       <MainLayout>
                         <Dashboard />
                       </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* POS - نقطة البيع (بدون Layout لأنها شاشة كاملة) */}
+                <Route
+                  path="/pos"
+                  element={
+                    <ProtectedRoute>
+                      <POS />
                     </ProtectedRoute>
                   }
                 />
@@ -442,13 +510,265 @@ function App() {
                   }
                 />
 
+                {/* Sales Routes */}
+                <Route
+                  path="/sales"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <SalesInvoicesList />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/sales/invoices"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <SalesInvoicesList />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/sales/invoices/new"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <SalesInvoiceForm />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/sales/invoices/:id"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <SaleDetails />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Purchasing Routes */}
+                <Route
+                  path="/purchasing"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PurchaseOrdersList />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/purchasing/orders"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PurchaseOrdersList />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/purchasing/orders/new"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PurchaseOrderForm />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/purchasing/orders/:id/edit"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PurchaseOrderForm />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/purchasing/invoices"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PurchaseInvoicesList />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Returns Routes */}
+                <Route
+                  path="/returns"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <ReturnsList />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/returns/new"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <ReturnForm />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/credit-notes"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <CreditNotesList />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Accounting Routes */}
+                <Route
+                  path="/accounting"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <GLAccounts />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/accounting/gl-accounts"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <GLAccounts />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/accounting/journal-entries"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <JournalEntries />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/accounting/reports"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <FinancialReports />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Users Routes */}
+                <Route
+                  path="/users"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <UsersList />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
                 {/* Reports Routes */}
                 <Route
                   path="/reports"
                   element={
                     <ProtectedRoute>
                       <MainLayout>
+                        <ReportsDashboard />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/reports/sales"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
                         <SalesReport />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/reports/inventory"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <InventoryReport />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/reports/financial"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <FinancialReport />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Admin Routes */}
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <AdminDashboard />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/system-health"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <SystemHealth />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/audit-logs"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <AuditLogs />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/settings"
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <SystemSettings />
                       </MainLayout>
                     </ProtectedRoute>
                   }

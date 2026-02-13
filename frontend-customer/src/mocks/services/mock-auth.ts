@@ -45,10 +45,14 @@ mockApi.registerHandler('POST:/auth/login', async (request: MockRequest): Promis
   // حتى لو كان requiresTwoFactor: true في البيانات
   const requiresTwoFactor = false; // دائماً false في وضع Mock
   
+  // تخزين معرف المستخدم في التوكن لاستخدامه في GET /auth/me و refresh
+  const accessToken = `mock-token-${user.id}`;
+  const refreshToken = `mock-refresh-${user.id}--${generateId()}`;
+
   return {
     data: {
-      accessToken: `mock-token-${generateId()}`,
-      refreshToken: `mock-refresh-${generateId()}`,
+      accessToken,
+      refreshToken,
       user: {
         id: user.id,
         username: user.username,
@@ -78,9 +82,26 @@ mockApi.registerHandler('POST:/auth/logout', async (): Promise<MockResponse> => 
 mockApi.registerHandler('POST:/auth/refresh', async (request: MockRequest): Promise<MockResponse> => {
   await simulateDelay(150, 300);
   
-  const { refreshToken } = request.data || {};
+  const { refreshToken: reqRefreshToken } = request.data || {};
   
-  if (!refreshToken || !refreshToken.startsWith('mock-refresh-')) {
+  if (!reqRefreshToken || !reqRefreshToken.startsWith('mock-refresh-')) {
+    throw {
+      response: {
+        status: 401,
+        data: {
+          message: 'رمز التحديث غير صالح',
+          statusCode: 401,
+        },
+      },
+    };
+  }
+  
+  // استخراج userId من refresh token: mock-refresh-user-1--xyz
+  const parts = reqRefreshToken.replace('mock-refresh-', '').split('--');
+  const userId = parts[0] || '';
+  const user = users.find((u) => u.id === userId);
+  
+  if (!user) {
     throw {
       response: {
         status: 401,
@@ -94,8 +115,8 @@ mockApi.registerHandler('POST:/auth/refresh', async (request: MockRequest): Prom
   
   return {
     data: {
-      accessToken: `mock-token-${generateId()}`,
-      refreshToken: `mock-refresh-${generateId()}`,
+      accessToken: `mock-token-${user.id}`,
+      refreshToken: `mock-refresh-${user.id}--${generateId()}`,
       expiresIn: 3600,
     },
     statusCode: 200,
@@ -105,7 +126,6 @@ mockApi.registerHandler('POST:/auth/refresh', async (request: MockRequest): Prom
 mockApi.registerHandler('GET:/auth/me', async (request: MockRequest): Promise<MockResponse> => {
   await simulateDelay(100, 200);
   
-  // Get user from token (simplified - in real app, decode token)
   const token = request.headers?.['Authorization']?.replace('Bearer ', '');
   
   if (!token) {
@@ -120,14 +140,21 @@ mockApi.registerHandler('GET:/auth/me', async (request: MockRequest): Promise<Mo
     };
   }
   
-  // Return first user as mock
-  const user = users[0] || {
-    id: '',
-    username: '',
-    email: '',
-    role: '',
-    branch: { name: '' },
-  };
+  // استخراج معرف المستخدم من التوكن: mock-token-user-1
+  const userId = token.startsWith('mock-token-') ? token.replace('mock-token-', '') : null;
+  const user = userId ? users.find((u) => u.id === userId) : null;
+  
+  if (!user) {
+    throw {
+      response: {
+        status: 401,
+        data: {
+          message: 'غير مصرح',
+          statusCode: 401,
+        },
+      },
+    };
+  }
   
   return {
     data: {
@@ -135,7 +162,7 @@ mockApi.registerHandler('GET:/auth/me', async (request: MockRequest): Promise<Mo
       username: user.username,
       email: user.email,
       role: user.role,
-      branch: user.branch?.name,
+      branch: (user as { branch?: { name: string } }).branch?.name,
     },
     statusCode: 200,
   };
@@ -156,13 +183,18 @@ mockApi.registerHandler('GET:/auth/verify', async (request: MockRequest): Promis
     };
   }
   
-  const user = users[0] || {
-    id: '',
-    username: '',
-    email: '',
-    role: '',
-    branch: { name: '' },
-  };
+  const userId = token.replace('mock-token-', '');
+  const user = users.find((u) => u.id === userId);
+  
+  if (!user) {
+    return {
+      data: {
+        valid: false,
+        user: null,
+      },
+      statusCode: 200,
+    };
+  }
   
   return {
     data: {
@@ -172,7 +204,7 @@ mockApi.registerHandler('GET:/auth/verify', async (request: MockRequest): Promis
         username: user.username,
         email: user.email,
         role: user.role,
-        branch: user.branch?.name,
+        branch: (user as { branch?: { name: string } }).branch?.name,
       },
     },
     statusCode: 200,
@@ -207,24 +239,27 @@ mockApi.registerHandler('POST:/auth/2fa/verify', async (request: MockRequest): P
     };
   }
   
-  const user = users[0] || {
-    id: '',
-    username: '',
-    email: '',
-    role: '',
-    branch: { name: '' },
-  };
+  // في 2FA نعيد أول مستخدم (لأننا لا نعرف المستخدم من الطلب)
+  const user = users[0];
+  if (!user) {
+    throw {
+      response: {
+        status: 401,
+        data: { message: 'فشل التحقق', statusCode: 401 },
+      },
+    };
+  }
   
   return {
     data: {
-      accessToken: `mock-token-${generateId()}`,
-      refreshToken: `mock-refresh-${generateId()}`,
+      accessToken: `mock-token-${user.id}`,
+      refreshToken: `mock-refresh-${user.id}--${generateId()}`,
       user: {
         id: user.id,
         username: user.username,
         email: user.email,
         role: user.role,
-        branch: user.branch?.name,
+        branch: (user as { branch?: { name: string } }).branch?.name,
       },
       expiresIn: 3600,
     },

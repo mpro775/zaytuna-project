@@ -1,0 +1,12 @@
+{
+  "defaultWarehouseId": "warehouse-1",
+  "defaultCurrencyId": "YER",
+  "defaultTaxRate": 15,
+  "allowNegativeStock": false,
+  "requireCustomer": false,
+  "printReceiptByDefault": true,
+  "receiptPrinterType": "thermal",
+  "soundEnabled": true,
+  "quickAccessCategories": ["cat-1", "cat-2"],
+  "quickAccessProducts": ["prod-1", "prod-2", "prod-3"]
+}

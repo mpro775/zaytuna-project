@@ -76,10 +76,19 @@ mockApi.registerHandler('POST:/sales/invoices', async (request: MockRequest): Pr
     updatedAt: new Date().toISOString(),
   };
   
-  // Calculate totals
-  newInvoice.subtotal = newInvoice.lines.reduce((sum: number, line: any) => sum + (line.unitPrice * line.quantity), 0);
-  newInvoice.taxAmount = newInvoice.subtotal * 0.15; // 15% tax
-  newInvoice.totalAmount = newInvoice.subtotal + newInvoice.taxAmount - newInvoice.discountAmount;
+  // Calculate totals (line discountAmount is total discount for that line)
+  const lineSubtotal = newInvoice.lines.reduce(
+    (sum: number, line: any) => sum + (line.unitPrice || 0) * (line.quantity || 0),
+    0
+  );
+  const lineDiscount = newInvoice.lines.reduce(
+    (sum: number, line: any) => sum + (line.discountAmount || 0),
+    0
+  );
+  newInvoice.subtotal = lineSubtotal;
+  newInvoice.discountAmount = (newInvoice.discountAmount || 0) + lineDiscount;
+  newInvoice.taxAmount = (newInvoice.subtotal - newInvoice.discountAmount) * 0.15; // 15% tax
+  newInvoice.totalAmount = newInvoice.subtotal - newInvoice.discountAmount + newInvoice.taxAmount;
   
   salesInvoices.push(newInvoice);
   saveMockDataToStorage('salesInvoices', salesInvoices);
@@ -120,10 +129,10 @@ mockApi.registerHandler('PATCH:/sales/invoices/:id', async (request: MockRequest
   };
 });
 
-mockApi.registerHandler('DELETE:/sales/invoices/:id', async (request: MockRequest): Promise<MockResponse> => {
+mockApi.registerHandler('DELETE:/sales/invoices/:id/cancel', async (request: MockRequest): Promise<MockResponse> => {
   const id = request.params?.id;
   const index = salesInvoices.findIndex((inv) => inv.id === id);
-  
+
   if (index === -1) {
     throw {
       response: {
@@ -135,10 +144,63 @@ mockApi.registerHandler('DELETE:/sales/invoices/:id', async (request: MockReques
       },
     };
   }
-  
+
+  const invoice = salesInvoices[index]!;
+  invoice.status = 'cancelled';
+  invoice.updatedAt = new Date().toISOString();
+  saveMockDataToStorage('salesInvoices', salesInvoices);
+
+  return {
+    data: salesInvoices[index],
+    statusCode: 200,
+  };
+});
+
+mockApi.registerHandler('GET:/sales/invoices/:id/print', async (request: MockRequest): Promise<MockResponse> => {
+  const id = request.params?.id;
+  const invoice = salesInvoices.find((inv) => inv.id === id);
+
+  if (!invoice) {
+    throw {
+      response: {
+        status: 404,
+        data: {
+          message: 'الفاتورة غير موجودة',
+          statusCode: 404,
+        },
+      },
+    };
+  }
+
+  return {
+    data: {
+      ...invoice,
+      printFormat: 'receipt',
+      printedAt: new Date().toISOString(),
+    },
+    statusCode: 200,
+  };
+});
+
+mockApi.registerHandler('DELETE:/sales/invoices/:id', async (request: MockRequest): Promise<MockResponse> => {
+  const id = request.params?.id;
+  const index = salesInvoices.findIndex((inv) => inv.id === id);
+
+  if (index === -1) {
+    throw {
+      response: {
+        status: 404,
+        data: {
+          message: 'الفاتورة غير موجودة',
+          statusCode: 404,
+        },
+      },
+    };
+  }
+
   salesInvoices.splice(index, 1);
   saveMockDataToStorage('salesInvoices', salesInvoices);
-  
+
   return {
     data: { message: 'تم حذف الفاتورة بنجاح' },
     statusCode: 200,

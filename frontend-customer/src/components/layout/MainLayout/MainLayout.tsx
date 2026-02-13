@@ -20,6 +20,7 @@ import {
 import {
   Menu as MenuIcon,
   Dashboard as DashboardIcon,
+  PointOfSale as PointOfSaleIcon,
   Store as StoreIcon,
   Inventory as InventoryIcon,
   ShoppingCart as ShoppingCartIcon,
@@ -81,36 +82,53 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     await logout();
   };
 
-  const menuItems = [
+  // صلاحيات القائمة حسب الدور (من GUIDE.md)
+  // admin: كامل | manager: فروع، مخازن، منتجات، مبيعات | cashier: فواتير، منتجات، مخزون | warehouse_manager: مخزون فقط
+  const knownRoles = ['admin', 'manager', 'cashier', 'warehouse_manager'];
+  const userRole = knownRoles.includes(user?.role as string) ? (user?.role as string) : 'cashier';
+  const canAccess = (allowedRoles: string[]) => allowedRoles.includes(userRole);
+
+  const allMenuItems = [
     // Main Operations
-    { textKey: 'navigation.dashboard', icon: <DashboardIcon />, path: '/dashboard', section: 'main' },
+    { textKey: 'navigation.dashboard', icon: <DashboardIcon />, path: '/dashboard', section: 'main', allowedRoles: ['admin', 'manager', 'cashier', 'warehouse_manager'] },
+    { textKey: 'navigation.pos', icon: <PointOfSaleIcon />, path: '/pos', section: 'main', allowedRoles: ['admin', 'manager', 'cashier'] },
 
     // Products & Inventory
-    { textKey: 'navigation.products', icon: <StoreIcon />, path: '/products', section: 'inventory' },
-    { textKey: 'navigation.inventory', icon: <InventoryIcon />, path: '/inventory', section: 'inventory' },
+    { textKey: 'navigation.products', icon: <StoreIcon />, path: '/products', section: 'inventory', allowedRoles: ['admin', 'manager', 'cashier', 'warehouse_manager'] },
+    { textKey: 'navigation.inventory', icon: <InventoryIcon />, path: '/inventory', section: 'inventory', allowedRoles: ['admin', 'manager', 'cashier', 'warehouse_manager'] },
 
     // Sales & Customers
-    { textKey: 'navigation.sales', icon: <ShoppingCartIcon />, path: '/sales', section: 'sales' },
-    { textKey: 'navigation.customers', icon: <PersonIcon />, path: '/customers', section: 'sales' },
-    { textKey: 'navigation.suppliers', icon: <SupplierIcon />, path: '/suppliers', section: 'sales' },
+    { textKey: 'navigation.sales', icon: <ShoppingCartIcon />, path: '/sales', section: 'sales', allowedRoles: ['admin', 'manager', 'cashier'] },
+    { textKey: 'navigation.customers', icon: <PersonIcon />, path: '/customers', section: 'sales', allowedRoles: ['admin', 'manager', 'cashier'] },
+    { textKey: 'navigation.suppliers', icon: <SupplierIcon />, path: '/suppliers', section: 'sales', allowedRoles: ['admin', 'manager'] },
 
     // Business Management
-    { textKey: 'navigation.branches', icon: <BusinessIcon />, path: '/branches', section: 'management' },
-    { textKey: 'navigation.warehouses', icon: <WarehouseIcon />, path: '/warehouses', section: 'management' },
+    { textKey: 'navigation.branches', icon: <BusinessIcon />, path: '/branches', section: 'management', allowedRoles: ['admin', 'manager'] },
+    { textKey: 'navigation.warehouses', icon: <WarehouseIcon />, path: '/warehouses', section: 'management', allowedRoles: ['admin', 'manager', 'warehouse_manager'] },
 
     // Reports & Settings
-    { textKey: 'navigation.reports', icon: <AssessmentIcon />, path: '/reports', section: 'reports' },
-    { textKey: 'navigation.settings', icon: <SettingsIcon />, path: '/settings', section: 'system' },
+    { textKey: 'navigation.reports', icon: <AssessmentIcon />, path: '/reports', section: 'reports', allowedRoles: ['admin', 'manager'] },
+    { textKey: 'navigation.settings', icon: <SettingsIcon />, path: '/settings', section: 'system', allowedRoles: ['admin', 'manager', 'cashier', 'warehouse_manager'] },
   ];
 
-  const sections = [
-    { key: 'main', label: 'الرئيسية', items: menuItems.filter(item => item.section === 'main') },
-    { key: 'inventory', label: 'إدارة المخزون', items: menuItems.filter(item => item.section === 'inventory') },
-    { key: 'sales', label: 'المبيعات والعملاء', items: menuItems.filter(item => item.section === 'sales') },
-    { key: 'management', label: 'إدارة الأعمال', items: menuItems.filter(item => item.section === 'management') },
-    { key: 'reports', label: 'التقارير', items: menuItems.filter(item => item.section === 'reports') },
-    { key: 'system', label: 'النظام', items: menuItems.filter(item => item.section === 'system') },
+  const menuItems = allMenuItems.filter(item => canAccess(item.allowedRoles));
+
+  const sectionConfig = [
+    { key: 'main', label: 'الرئيسية' },
+    { key: 'inventory', label: 'إدارة المخزون' },
+    { key: 'sales', label: 'المبيعات والعملاء' },
+    { key: 'management', label: 'إدارة الأعمال' },
+    { key: 'reports', label: 'التقارير' },
+    { key: 'system', label: 'النظام' },
   ];
+
+  const sections = sectionConfig
+    .map(({ key, label }) => ({
+      key,
+      label,
+      items: menuItems.filter(item => item.section === key),
+    }))
+    .filter(section => section.items.length > 0);
 
   const drawer = (
     <Box sx={{
@@ -162,7 +180,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 lineHeight: 1.2
               }}
             >
-              زيتونة
+              زيتون
             </Typography>
             <Typography
               variant="body2"

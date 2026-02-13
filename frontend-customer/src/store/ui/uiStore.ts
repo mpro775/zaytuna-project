@@ -94,7 +94,7 @@ export const useUiStore = create<UiStore>()(
 
       formSubmitting: {},
 
-      appTitle: 'زيتونة SaaS',
+      appTitle: 'زيتون SaaS',
       appVersion: '1.0.0',
 
       // Actions

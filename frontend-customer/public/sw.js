@@ -1,4 +1,4 @@
-// Service Worker لتطبيق زيتونة SaaS PWA
+// Service Worker لتطبيق زيتون SaaS PWA
 // يدير التخزين المؤقت و background sync
 
 let workbox;

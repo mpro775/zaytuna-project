@@ -5,4 +5,5 @@ export type {
   LoginResponse,
   RefreshTokenResponse,
   ChangePasswordData,
+  RegisterData,
 } from './auth';

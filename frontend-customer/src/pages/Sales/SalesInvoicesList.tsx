@@ -21,6 +21,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import {
+  Add as AddIcon,
   Visibility as VisibilityIcon,
   Print as PrintIcon,
   Refresh as RefreshIcon,
@@ -188,11 +189,20 @@ const SalesInvoicesList: React.FC = () => {
         <Typography variant="h4" sx={{ fontWeight: 700 }}>
           {t('sales.invoices.title', 'فواتير المبيعات')}
         </Typography>
-        <Tooltip title={t('common.actions.refresh', 'تحديث')}>
-          <IconButton onClick={() => refetch()} disabled={isLoading}>
-            <RefreshIcon />
-          </IconButton>
-        </Tooltip>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/sales/invoices/new')}
+          >
+            {t('sales.invoices.newInvoice', 'فاتورة جديدة')}
+          </Button>
+          <Tooltip title={t('common.actions.refresh', 'تحديث')}>
+            <IconButton onClick={() => refetch()} disabled={isLoading}>
+              <RefreshIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Box>
 
       {/* Filters */}
@@ -273,7 +283,11 @@ const SalesInvoicesList: React.FC = () => {
                 invoices.map((invoice) => (
                   <TableRow key={invoice.id} hover>
                     <TableCell>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      <Typography
+                        variant="body2"
+                        sx={{ fontWeight: 600, cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+                        onClick={() => navigate(`/sales/invoices/${invoice.id}`)}
+                      >
                         {invoice.invoiceNumber}
                       </Typography>
                     </TableCell>

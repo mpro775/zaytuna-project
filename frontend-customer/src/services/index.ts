@@ -12,6 +12,7 @@ export * from './suppliers';
 export * from './branches';
 export * from './warehouses';
 export * from './settings';
+export * from './returns';
 
 // Resolve naming conflicts with named exports
 export type { ProductVariant as InventoryProductVariant } from './inventory';

@@ -26,40 +26,67 @@ class MockApiService {
   }
 
   /**
-   * Find handler for a given URL
+   * Extract path params from URL based on pattern (e.g. :id from /sales/invoices/:id)
    */
-  private findHandler(url: string, method: string): MockApiHandler | null {
+  private extractPathParams(patternUrl: string, actualUrl: string): Record<string, string> {
+    const params: Record<string, string> = {};
+    const patternParts = patternUrl.split('/').filter(Boolean);
+    const actualParts = actualUrl.split('/').filter(Boolean);
+
+    if (patternParts.length !== actualParts.length) return params;
+
+    for (let i = 0; i < patternParts.length; i++) {
+      const patternPart = patternParts[i]!;
+      const actualPart = actualParts[i]!;
+      if (patternPart.startsWith(':') && actualPart) {
+        const paramName = patternPart.slice(1);
+        params[paramName] = actualPart;
+      }
+    }
+    return params;
+  }
+
+  /**
+   * Find handler for a given URL
+   * Returns handler and matched pattern (for path param extraction)
+   */
+  private findHandler(
+    url: string,
+    method: string
+  ): { handler: MockApiHandler; patternUrl?: string } | null {
     // Try exact match first
     const exactKey = `${method}:${url}`;
     if (import.meta.env.DEV) {
       console.log('🔍 Looking for handler:', exactKey);
     }
-    
+
     if (this.handlers.has(exactKey)) {
       if (import.meta.env.DEV) {
         console.log('✅ Found exact match:', exactKey);
       }
-      return this.handlers.get(exactKey)!;
+      return { handler: this.handlers.get(exactKey)! };
     }
 
     // Try pattern matching
     for (const [pattern, handler] of this.handlers.entries()) {
-      const [patternMethod, patternUrl] = pattern.split(':');
-      
+      const colonIndex = pattern.indexOf(':');
+      const patternMethod = pattern.slice(0, colonIndex);
+      const patternUrl = pattern.slice(colonIndex + 1);
+
       if (patternMethod !== method) continue;
 
       // Convert pattern to regex
-      const regexPattern = patternUrl || ''
-        .replace(/\//g, '\\/')
-        .replace(/:[^/]+/g, '[^/]+')
-        .replace(/\*/g, '.*') || '';
-      
+      const regexPattern =
+        (patternUrl || '')
+          .replace(/\//g, '\\/')
+          .replace(/:[^/]+/g, '[^/]+')
+          .replace(/\*/g, '.*') || '';
       const regex = new RegExp(`^${regexPattern}$`);
       if (regex.test(url)) {
         if (import.meta.env.DEV) {
           console.log('✅ Found pattern match:', pattern, 'for', url);
         }
-        return handler;
+        return { handler, patternUrl };
       }
     }
 
@@ -111,15 +138,17 @@ class MockApiService {
     }
 
     // Find handler
-    const handler = this.findHandler(cleanUrl || '', method);
-    
-    if (!handler) {
+    const match = this.findHandler(cleanUrl || '', method);
+
+    if (!match) {
       console.warn(`❌ No mock handler found for ${method} ${cleanUrl}`);
       console.warn('📋 Available handlers:', Array.from(this.handlers.keys()));
       console.warn('🔍 Original URL:', url);
       throw createErrorResponse(404, `Mock handler not found for ${method} ${cleanUrl}`);
     }
-    
+
+    const { handler, patternUrl } = match;
+
     if (import.meta.env.DEV) {
       console.log('✅ Mock handler found for:', method, cleanUrl);
     }
@@ -134,6 +163,12 @@ class MockApiService {
       else if (!isNaN(Number(value)) && value !== '') params[key] = Number(value);
       else params[key] = value;
     });
+
+    // Extract and merge path params (e.g. :id from /sales/invoices/:id)
+    if (patternUrl) {
+      const pathParams = this.extractPathParams(patternUrl, cleanUrl || '');
+      Object.assign(params, pathParams);
+    }
 
     // Create mock request
     const mockRequest: MockRequest = {

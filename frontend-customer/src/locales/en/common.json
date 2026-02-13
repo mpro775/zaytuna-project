@@ -45,6 +45,7 @@
   },
   "navigation": {
     "dashboard": "Dashboard",
+    "pos": "Point of Sale",
     "products": "Products Management",
     "inventory": "Inventory Management",
     "sales": "Sales Management",

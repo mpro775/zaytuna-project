@@ -15,6 +15,7 @@ import './mock-branches';
 import './mock-suppliers';
 import './mock-warehouses';
 import './mock-settings';
+import './mock-pos';
 
 export * from './mock-api';
 export * from './mock-utils';

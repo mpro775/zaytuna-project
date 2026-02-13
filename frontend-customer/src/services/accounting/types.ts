@@ -186,6 +186,7 @@ export interface CreateJournalEntryDto {
 }
 
 export interface AccountingFilters {
+  search?: string;
   includeInactive?: boolean;
   accountType?: string;
   status?: string;

@@ -95,6 +95,7 @@ export class AccountingService {
   static async getJournalEntries(filters: AccountingFilters = {}): Promise<AccountingApiResponse<JournalEntry[]>> {
     const params = new URLSearchParams();
 
+    if (filters.search) params.append('search', filters.search);
     if (filters.status) params.append('status', filters.status);
     if (filters.sourceModule) params.append('sourceModule', filters.sourceModule);
     if (filters.startDate) params.append('startDate', filters.startDate);

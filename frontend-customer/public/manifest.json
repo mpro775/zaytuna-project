@@ -1,6 +1,6 @@
 {
-  "name": "زيتونة SaaS - لوحة التحكم",
-  "short_name": "زيتونة SaaS",
+  "name": "زيتون SaaS - لوحة التحكم",
+  "short_name": "زيتون SaaS",
   "description": "نظام إدارة الأعمال الشامل للشركات - يعمل بدون اتصال بالإنترنت",
   "start_url": "/",
   "display": "standalone",
