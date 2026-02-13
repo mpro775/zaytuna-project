@@ -45,6 +45,14 @@ let mockServicesLoaded = false;
 async function handleMockRequest<T = any, R = AxiosResponse<T, any, unknown>, D = any>(
   config: AxiosRequestConfig<D>
 ): Promise<R> {
+  // طلبات Mock تتجاوز معالج الطلبات - تأكد من إضافة التوكن للطلبات المحمية
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers = (config.headers || {}) as Record<string, string>;
+      (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
+    }
+  }
   // Ensure config has full URL
   if (config.url && !config.url.startsWith('http')) {
     config.url = `${BASE_URL}${config.url.startsWith('/') ? '' : '/'}${config.url}`;
@@ -260,30 +268,35 @@ api.interceptors.response.use(
     const { status, data } = error.response;
     const errorMessage = (data as { message?: string })?.message || 'حدث خطأ غير متوقع';
 
-    // Handle unauthorized errors
-    if (status === 401 && !originalRequest._retry) {
+    // Handle unauthorized errors - لا تحاول refresh إذا كان الطلب الفاشل هو طلب refresh نفسه
+    const isRefreshRequest = originalRequest.url?.includes('/auth/refresh') ?? false;
+    if (status === 401 && !originalRequest._retry && !isRefreshRequest) {
       originalRequest._retry = true;
 
       try {
-        // Try to refresh token
+        // Try to refresh token - استخدم api بدل axios ليدعم وضع Mock
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
-          const response = await axios.post(`${BASE_URL}/auth/refresh`, {
+          const response = await api.post<{ data?: { accessToken: string; refreshToken: string }; accessToken?: string; refreshToken?: string }>('/auth/refresh', {
             refreshToken,
           });
 
-          const { accessToken, refreshToken: newRefreshToken } = response.data;
+          // دعم هيكل الاستجابة: { data: { data: {...} } } أو { data: {...} }
+          const responseData = (response.data as { data?: { accessToken: string; refreshToken: string } })?.data ?? response.data as { accessToken: string; refreshToken: string };
+          const { accessToken, refreshToken: newRefreshToken } = responseData;
 
-          // Save new tokens
-          localStorage.setItem('accessToken', accessToken);
-          localStorage.setItem('refreshToken', newRefreshToken);
+          if (accessToken && newRefreshToken) {
+            // Save new tokens
+            localStorage.setItem('accessToken', accessToken);
+            localStorage.setItem('refreshToken', newRefreshToken);
 
-          // Retry original request with new token
-          if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+            // Retry original request with new token
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+            }
+
+            return api(originalRequest);
           }
-
-          return api(originalRequest);
         }
       } catch (refreshError) {
         // Refresh failed, redirect to login

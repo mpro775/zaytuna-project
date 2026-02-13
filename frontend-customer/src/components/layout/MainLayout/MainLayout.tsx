@@ -29,7 +29,12 @@ import {
   Business as BusinessIcon,
   Warehouse as WarehouseIcon,
   Person as PersonIcon,
+  People as PeopleIcon,
   LocalShipping as SupplierIcon,
+  AdminPanelSettings as AdminIcon,
+  AccountBalance as AccountingIcon,
+  ShoppingBasket as PurchasingIcon,
+  AssignmentReturn as ReturnsIcon,
   AccountCircle,
   Logout,
   ChevronRight as ChevronRightIcon,
@@ -101,13 +106,22 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     { textKey: 'navigation.sales', icon: <ShoppingCartIcon />, path: '/sales', section: 'sales', allowedRoles: ['admin', 'manager', 'cashier'] },
     { textKey: 'navigation.customers', icon: <PersonIcon />, path: '/customers', section: 'sales', allowedRoles: ['admin', 'manager', 'cashier'] },
     { textKey: 'navigation.suppliers', icon: <SupplierIcon />, path: '/suppliers', section: 'sales', allowedRoles: ['admin', 'manager'] },
+    { textKey: 'navigation.purchasing', icon: <PurchasingIcon />, path: '/purchasing/orders', section: 'sales', allowedRoles: ['admin', 'manager'] },
+    { textKey: 'navigation.returns', icon: <ReturnsIcon />, path: '/returns', section: 'sales', allowedRoles: ['admin', 'manager'] },
 
     // Business Management
     { textKey: 'navigation.branches', icon: <BusinessIcon />, path: '/branches', section: 'management', allowedRoles: ['admin', 'manager'] },
     { textKey: 'navigation.warehouses', icon: <WarehouseIcon />, path: '/warehouses', section: 'management', allowedRoles: ['admin', 'manager', 'warehouse_manager'] },
 
-    // Reports & Settings
+    // Reports & Accounting
     { textKey: 'navigation.reports', icon: <AssessmentIcon />, path: '/reports', section: 'reports', allowedRoles: ['admin', 'manager'] },
+    { textKey: 'navigation.accounting', icon: <AccountingIcon />, path: '/accounting', section: 'reports', allowedRoles: ['admin'] },
+
+    // Admin (admin only)
+    { textKey: 'navigation.admin', icon: <AdminIcon />, path: '/admin', section: 'admin', allowedRoles: ['admin'] },
+    { textKey: 'navigation.users', icon: <PeopleIcon />, path: '/users', section: 'admin', allowedRoles: ['admin'] },
+
+    // Settings
     { textKey: 'navigation.settings', icon: <SettingsIcon />, path: '/settings', section: 'system', allowedRoles: ['admin', 'manager', 'cashier', 'warehouse_manager'] },
   ];
 
@@ -118,7 +132,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     { key: 'inventory', label: 'إدارة المخزون' },
     { key: 'sales', label: 'المبيعات والعملاء' },
     { key: 'management', label: 'إدارة الأعمال' },
-    { key: 'reports', label: 'التقارير' },
+    { key: 'reports', label: 'التقارير والمحاسبة' },
+    { key: 'admin', label: 'الإدارة' },
     { key: 'system', label: 'النظام' },
   ];
 
@@ -240,10 +255,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             )}
 
             <List sx={{ px: 1, py: 0 }}>
-              {section.items.map((item) => (
+              {section.items.map((item) => {
+                const isSelected = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path + '/'));
+                return (
                 <ListItem key={item.path} disablePadding sx={{ mb: 0.25 }}>
                   <ListItemButton
-                    selected={location.pathname === item.path}
+                    selected={isSelected}
                     onClick={() => {
                       navigate(item.path);
                       if (isMobile) {
@@ -298,7 +315,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                         }
                       }}
                     />
-                    {location.pathname === item.path && (
+                    {isSelected && (
                       <ChevronRightIcon
                         sx={{
                           color: theme.palette.secondary.main,
@@ -309,7 +326,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     )}
                   </ListItemButton>
                 </ListItem>
-              ))}
+              );
+              })}
             </List>
           </Box>
         ))}

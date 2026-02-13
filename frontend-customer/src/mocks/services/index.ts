@@ -5,6 +5,7 @@
 
 // Import all mock services to register their handlers
 import './mock-auth';
+import './mock-users';
 import './mock-products';
 import './mock-customers';
 import './mock-sales';

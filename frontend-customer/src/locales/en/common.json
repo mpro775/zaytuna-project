@@ -50,10 +50,16 @@
     "inventory": "Inventory Management",
     "sales": "Sales Management",
     "customers": "Customer Management",
+    "suppliers": "Suppliers Management",
     "reports": "Reports",
     "settings": "Settings",
     "users": "User Management",
-    "branches": "Branch Management"
+    "branches": "Branch Management",
+    "warehouses": "Warehouses Management",
+    "admin": "Admin Panel",
+    "accounting": "Accounting",
+    "purchasing": "Purchasing",
+    "returns": "Returns"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -102,6 +108,7 @@
   },
   "common": {
     "actions": {
+      "actions": "Actions",
       "save": "Save",
       "cancel": "Cancel",
       "edit": "Edit",
@@ -110,6 +117,7 @@
       "search": "Search",
       "filter": "Filter",
       "refresh": "Refresh",
+      "retry": "Retry",
       "export": "Export",
       "import": "Import",
       "view": "View",
@@ -148,6 +156,35 @@
       "maxLength": "Must be less than {{max}} characters",
       "numeric": "Must be a number",
       "positive": "Must be a positive number"
+    }
+  },
+  "users": {
+    "title": "User Management",
+    "username": "Username",
+    "email": "Email",
+    "phone": "Phone",
+    "role": "Role",
+    "branch": "Branch",
+    "status": "Status",
+    "lastLogin": "Last Login",
+    "active": "Active",
+    "inactive": "Inactive",
+    "addUser": "Add New User",
+    "toggle": "Toggle Status",
+    "changePassword": "Change Password",
+    "noUsers": "No users match the selected filters",
+    "filters": {
+      "status": "Status",
+      "allStatuses": "All Statuses",
+      "search": "Search",
+      "searchPlaceholder": "Username or email...",
+      "role": "Role",
+      "allRoles": "All Roles",
+      "branch": "Branch",
+      "allBranches": "All Branches"
+    },
+    "errors": {
+      "loadFailed": "Failed to load users"
     }
   },
   "settings": {

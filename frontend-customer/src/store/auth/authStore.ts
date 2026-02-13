@@ -51,7 +51,7 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
       accessToken: typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null,
       refreshToken: typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null,
       isAuthenticated: false,
-      isLoading: false,
+      isLoading: typeof window !== 'undefined' ? !!localStorage.getItem('accessToken') : false,
       error: null,
       requiresTwoFactor: false,
       twoFactorMethod: undefined,
