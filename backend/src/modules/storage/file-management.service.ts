@@ -1,4 +1,4 @@
-import {
+﻿import {
   Injectable,
   Logger,
   BadRequestException,
@@ -36,7 +36,7 @@ export class FileManagementService {
   ) {}
 
   /**
-   * إنشاء نسخة احتياطية من الملف
+   * ط¥ظ†ط´ط§ط، ظ†ط³ط®ط© ط§ط­طھظٹط§ط·ظٹط© ظ…ظ† ط§ظ„ظ…ظ„ظپ
    */
   async createFileBackup(
     fileId: string,
@@ -44,21 +44,23 @@ export class FileManagementService {
     createdBy?: string,
   ): Promise<FileOperationsResult> {
     try {
-      this.logger.log(`إنشاء نسخة احتياطية من الملف: ${fileId}`);
+      this.logger.log(
+        `ط¥ظ†ط´ط§ط، ظ†ط³ط®ط© ط§ط­طھظٹط§ط·ظٹط© ظ…ظ† ط§ظ„ظ…ظ„ظپ: ${fileId}`,
+      );
 
       const file = await this.prisma.file.findUnique({
         where: { id: fileId },
       });
 
       if (!file) {
-        throw new NotFoundException('الملف غير موجود');
+        throw new NotFoundException('ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظ…ظˆط¬ظˆط¯');
       }
 
-      // إنشاء نسخة احتياطية من الملف
+      // ط¥ظ†ط´ط§ط، ظ†ط³ط®ط© ط§ط­طھظٹط§ط·ظٹط© ظ…ظ† ط§ظ„ظ…ظ„ظپ
       const backupPath = this.generateBackupPath(file.path);
       await fs.copyFile(file.path, backupPath);
 
-      // تسجيل النسخة الاحتياطية في قاعدة البيانات
+      // طھط³ط¬ظٹظ„ ط§ظ„ظ†ط³ط®ط© ط§ظ„ط§ط­طھظٹط§ط·ظٹط© ظپظٹ ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ
       await this.prisma.fileVersion.create({
         data: {
           fileId,
@@ -70,11 +72,11 @@ export class FileManagementService {
           path: backupPath,
           checksum: file.checksum,
           modifiedBy: createdBy,
-          changeReason: `نسخة احتياطية: ${reason}`,
+          changeReason: `ظ†ط³ط®ط© ط§ط­طھظٹط§ط·ظٹط©: ${reason}`,
         },
       });
 
-      // تسجيل في سجل التدقيق
+      // طھط³ط¬ظٹظ„ ظپظٹ ط³ط¬ظ„ ط§ظ„طھط¯ظ‚ظٹظ‚
       await this.auditService.log({
         action: 'FILE_BACKUP_CREATED',
         entity: 'File',
@@ -88,24 +90,30 @@ export class FileManagementService {
         category: 'file_management',
       });
 
-      this.logger.log(`تم إنشاء نسخة احتياطية بنجاح: ${fileId}`);
+      this.logger.log(
+        `طھظ… ط¥ظ†ط´ط§ط، ظ†ط³ط®ط© ط§ط­طھظٹط§ط·ظٹط© ط¨ظ†ط¬ط§ط­: ${fileId}`,
+      );
 
       return {
         success: true,
-        message: 'تم إنشاء نسخة احتياطية من الملف بنجاح',
+        message:
+          'طھظ… ط¥ظ†ط´ط§ط، ظ†ط³ط®ط© ط§ط­طھظٹط§ط·ظٹط© ظ…ظ† ط§ظ„ظ…ظ„ظپ ط¨ظ†ط¬ط§ط­',
         details: { backupPath },
       };
     } catch (error) {
-      this.logger.error(`فشل في إنشاء نسخة احتياطية: ${fileId}`, error);
+      this.logger.error(
+        `ظپط´ظ„ ظپظٹ ط¥ظ†ط´ط§ط، ظ†ط³ط®ط© ط§ط­طھظٹط§ط·ظٹط©: ${fileId}`,
+        error,
+      );
       return {
         success: false,
-        message: `فشل في إنشاء نسخة احتياطية: ${error.message}`,
+        message: `ظپط´ظ„ ظپظٹ ط¥ظ†ط´ط§ط، ظ†ط³ط®ط© ط§ط­طھظٹط§ط·ظٹط©: ${error.message}`,
       };
     }
   }
 
   /**
-   * استعادة ملف من نسخة احتياطية
+   * ط§ط³طھط¹ط§ط¯ط© ظ…ظ„ظپ ظ…ظ† ظ†ط³ط®ط© ط§ط­طھظٹط§ط·ظٹط©
    */
   async restoreFileFromBackup(
     fileId: string,
@@ -113,17 +121,19 @@ export class FileManagementService {
     restoredBy?: string,
   ): Promise<FileOperationsResult> {
     try {
-      this.logger.log(`استعادة الملف من نسخة احتياطية: ${fileId}, الإصدار: ${versionNumber}`);
+      this.logger.log(
+        `ط§ط³طھط¹ط§ط¯ط© ط§ظ„ظ…ظ„ظپ ظ…ظ† ظ†ط³ط®ط© ط§ط­طھظٹط§ط·ظٹط©: ${fileId}, ط§ظ„ط¥طµط¯ط§ط±: ${versionNumber}`,
+      );
 
       const file = await this.prisma.file.findUnique({
         where: { id: fileId },
       });
 
       if (!file) {
-        throw new NotFoundException('الملف غير موجود');
+        throw new NotFoundException('ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظ…ظˆط¬ظˆط¯');
       }
 
-      // الحصول على النسخة الاحتياطية
+      // ط§ظ„ط­طµظˆظ„ ط¹ظ„ظ‰ ط§ظ„ظ†ط³ط®ط© ط§ظ„ط§ط­طھظٹط§ط·ظٹط©
       const backupVersion = await this.prisma.fileVersion.findFirst({
         where: {
           fileId,
@@ -132,16 +142,22 @@ export class FileManagementService {
       });
 
       if (!backupVersion) {
-        throw new NotFoundException('النسخة الاحتياطية غير موجودة');
+        throw new NotFoundException(
+          'ط§ظ„ظ†ط³ط®ط© ط§ظ„ط§ط­طھظٹط§ط·ظٹط© ط؛ظٹط± ظ…ظˆط¬ظˆط¯ط©',
+        );
       }
 
-      // إنشاء نسخة احتياطية من الإصدار الحالي قبل الاستعادة
-      await this.createFileBackup(fileId, 'قبل الاستعادة', restoredBy);
+      // ط¥ظ†ط´ط§ط، ظ†ط³ط®ط© ط§ط­طھظٹط§ط·ظٹط© ظ…ظ† ط§ظ„ط¥طµط¯ط§ط± ط§ظ„ط­ط§ظ„ظٹ ظ‚ط¨ظ„ ط§ظ„ط§ط³طھط¹ط§ط¯ط©
+      await this.createFileBackup(
+        fileId,
+        'ظ‚ط¨ظ„ ط§ظ„ط§ط³طھط¹ط§ط¯ط©',
+        restoredBy,
+      );
 
-      // استعادة الملف
+      // ط§ط³طھط¹ط§ط¯ط© ط§ظ„ظ…ظ„ظپ
       await fs.copyFile(backupVersion.path, file.path);
 
-      // تحديث معلومات الملف
+      // طھط­ط¯ظٹط« ظ…ط¹ظ„ظˆظ…ط§طھ ط§ظ„ظ…ظ„ظپ
       await this.prisma.file.update({
         where: { id: fileId },
         data: {
@@ -154,7 +170,7 @@ export class FileManagementService {
         },
       });
 
-      // تسجيل في سجل التدقيق
+      // طھط³ط¬ظٹظ„ ظپظٹ ط³ط¬ظ„ ط§ظ„طھط¯ظ‚ظٹظ‚
       await this.auditService.log({
         action: 'FILE_RESTORED',
         entity: 'File',
@@ -167,23 +183,27 @@ export class FileManagementService {
         category: 'file_management',
       });
 
-      this.logger.log(`تم استعادة الملف بنجاح: ${fileId}`);
+      this.logger.log(`طھظ… ط§ط³طھط¹ط§ط¯ط© ط§ظ„ظ…ظ„ظپ ط¨ظ†ط¬ط§ط­: ${fileId}`);
 
       return {
         success: true,
-        message: 'تم استعادة الملف من النسخة الاحتياطية بنجاح',
+        message:
+          'طھظ… ط§ط³طھط¹ط§ط¯ط© ط§ظ„ظ…ظ„ظپ ظ…ظ† ط§ظ„ظ†ط³ط®ط© ط§ظ„ط§ط­طھظٹط§ط·ظٹط© ط¨ظ†ط¬ط§ط­',
       };
     } catch (error) {
-      this.logger.error(`فشل في استعادة الملف: ${fileId}`, error);
+      this.logger.error(
+        `ظپط´ظ„ ظپظٹ ط§ط³طھط¹ط§ط¯ط© ط§ظ„ظ…ظ„ظپ: ${fileId}`,
+        error,
+      );
       return {
         success: false,
-        message: `فشل في استعادة الملف: ${error.message}`,
+        message: `ظپط´ظ„ ظپظٹ ط§ط³طھط¹ط§ط¯ط© ط§ظ„ظ…ظ„ظپ: ${error.message}`,
       };
     }
   }
 
   /**
-   * الحصول على إصدارات الملف
+   * ط§ظ„ط­طµظˆظ„ ط¹ظ„ظ‰ ط¥طµط¯ط§ط±ط§طھ ط§ظ„ظ…ظ„ظپ
    */
   async getFileVersions(fileId: string): Promise<FileVersionInfo[]> {
     try {
@@ -200,7 +220,7 @@ export class FileManagementService {
         },
       });
 
-      return versions.map(v => ({
+      return versions.map((v) => ({
         id: v.id,
         version: v.version,
         filename: v.filename,
@@ -209,20 +229,23 @@ export class FileManagementService {
         modifiedBy: v.modifiedBy || undefined,
       }));
     } catch (error) {
-      this.logger.error(`فشل في الحصول على إصدارات الملف: ${fileId}`, error);
+      this.logger.error(
+        `ظپط´ظ„ ظپظٹ ط§ظ„ط­طµظˆظ„ ط¹ظ„ظ‰ ط¥طµط¯ط§ط±ط§طھ ط§ظ„ظ…ظ„ظپ: ${fileId}`,
+        error,
+      );
       return [];
     }
   }
 
   /**
-   * حذف نسخة احتياطية
+   * ط­ط°ظپ ظ†ط³ط®ط© ط§ط­طھظٹط§ط·ظٹط©
    */
   async deleteFileVersion(
     versionId: string,
     deletedBy?: string,
   ): Promise<FileOperationsResult> {
     try {
-      this.logger.log(`حذف نسخة احتياطية: ${versionId}`);
+      this.logger.log(`ط­ط°ظپ ظ†ط³ط®ط© ط§ط­طھظٹط§ط·ظٹط©: ${versionId}`);
 
       const version = await this.prisma.fileVersion.findUnique({
         where: { id: versionId },
@@ -230,22 +253,27 @@ export class FileManagementService {
       });
 
       if (!version) {
-        throw new NotFoundException('النسخة الاحتياطية غير موجودة');
+        throw new NotFoundException(
+          'ط§ظ„ظ†ط³ط®ط© ط§ظ„ط§ط­طھظٹط§ط·ظٹط© ط؛ظٹط± ظ…ظˆط¬ظˆط¯ط©',
+        );
       }
 
-      // حذف الملف من النظام
+      // ط­ط°ظپ ط§ظ„ظ…ظ„ظپ ظ…ظ† ط§ظ„ظ†ط¸ط§ظ…
       try {
         await fs.unlink(version.path);
       } catch (error) {
-        this.logger.warn(`فشل في حذف الملف من النظام: ${version.path}`, error);
+        this.logger.warn(
+          `ظپط´ظ„ ظپظٹ ط­ط°ظپ ط§ظ„ظ…ظ„ظپ ظ…ظ† ط§ظ„ظ†ط¸ط§ظ…: ${version.path}`,
+          error,
+        );
       }
 
-      // حذف السجل من قاعدة البيانات
+      // ط­ط°ظپ ط§ظ„ط³ط¬ظ„ ظ…ظ† ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ
       await this.prisma.fileVersion.delete({
         where: { id: versionId },
       });
 
-      // تسجيل في سجل التدقيق
+      // طھط³ط¬ظٹظ„ ظپظٹ ط³ط¬ظ„ ط§ظ„طھط¯ظ‚ظٹظ‚
       await this.auditService.log({
         action: 'FILE_VERSION_DELETED',
         entity: 'FileVersion',
@@ -259,23 +287,28 @@ export class FileManagementService {
         category: 'file_management',
       });
 
-      this.logger.log(`تم حذف النسخة الاحتياطية بنجاح: ${versionId}`);
+      this.logger.log(
+        `طھظ… ط­ط°ظپ ط§ظ„ظ†ط³ط®ط© ط§ظ„ط§ط­طھظٹط§ط·ظٹط© ط¨ظ†ط¬ط§ط­: ${versionId}`,
+      );
 
       return {
         success: true,
-        message: 'تم حذف النسخة الاحتياطية بنجاح',
+        message: 'طھظ… ط­ط°ظپ ط§ظ„ظ†ط³ط®ط© ط§ظ„ط§ط­طھظٹط§ط·ظٹط© ط¨ظ†ط¬ط§ط­',
       };
     } catch (error) {
-      this.logger.error(`فشل في حذف النسخة الاحتياطية: ${versionId}`, error);
+      this.logger.error(
+        `ظپط´ظ„ ظپظٹ ط­ط°ظپ ط§ظ„ظ†ط³ط®ط© ط§ظ„ط§ط­طھظٹط§ط·ظٹط©: ${versionId}`,
+        error,
+      );
       return {
         success: false,
-        message: `فشل في حذف النسخة الاحتياطية: ${error.message}`,
+        message: `ظپط´ظ„ ظپظٹ ط­ط°ظپ ط§ظ„ظ†ط³ط®ط© ط§ظ„ط§ط­طھظٹط§ط·ظٹط©: ${error.message}`,
       };
     }
   }
 
   /**
-   * نقل ملف إلى حاوية أخرى
+   * ظ†ظ‚ظ„ ظ…ظ„ظپ ط¥ظ„ظ‰ ط­ط§ظˆظٹط© ط£ط®ط±ظ‰
    */
   async moveFileToBucket(
     fileId: string,
@@ -283,34 +316,38 @@ export class FileManagementService {
     movedBy?: string,
   ): Promise<FileOperationsResult> {
     try {
-      this.logger.log(`نقل الملف إلى حاوية أخرى: ${fileId} -> ${newBucket}`);
+      this.logger.log(
+        `ظ†ظ‚ظ„ ط§ظ„ظ…ظ„ظپ ط¥ظ„ظ‰ ط­ط§ظˆظٹط© ط£ط®ط±ظ‰: ${fileId} -> ${newBucket}`,
+      );
 
       const file = await this.prisma.file.findUnique({
         where: { id: fileId },
       });
 
       if (!file) {
-        throw new NotFoundException('الملف غير موجود');
+        throw new NotFoundException('ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظ…ظˆط¬ظˆط¯');
       }
 
       if (file.bucket === newBucket) {
-        throw new BadRequestException('الملف موجود بالفعل في هذه الحاوية');
+        throw new BadRequestException(
+          'ط§ظ„ظ…ظ„ظپ ظ…ظˆط¬ظˆط¯ ط¨ط§ظ„ظپط¹ظ„ ظپظٹ ظ‡ط°ظ‡ ط§ظ„ط­ط§ظˆظٹط©',
+        );
       }
 
-      // إنشاء المسار الجديد
+      // ط¥ظ†ط´ط§ط، ط§ظ„ظ…ط³ط§ط± ط§ظ„ط¬ط¯ظٹط¯
       const newPath = path.join(
         path.dirname(path.dirname(file.path)),
         newBucket,
-        path.basename(file.path)
+        path.basename(file.path),
       );
 
-      // إنشاء المجلد إذا لم يكن موجوداً
+      // ط¥ظ†ط´ط§ط، ط§ظ„ظ…ط¬ظ„ط¯ ط¥ط°ط§ ظ„ظ… ظٹظƒظ† ظ…ظˆط¬ظˆط¯ط§ظ‹
       await fs.mkdir(path.dirname(newPath), { recursive: true });
 
-      // نقل الملف
+      // ظ†ظ‚ظ„ ط§ظ„ظ…ظ„ظپ
       await fs.rename(file.path, newPath);
 
-      // تحديث سجل الملف
+      // طھط­ط¯ظٹط« ط³ط¬ظ„ ط§ظ„ظ…ظ„ظپ
       await this.prisma.file.update({
         where: { id: fileId },
         data: {
@@ -321,13 +358,13 @@ export class FileManagementService {
         },
       });
 
-      // نقل الصورة المصغرة إذا وجدت
+      // ظ†ظ‚ظ„ ط§ظ„طµظˆط±ط© ط§ظ„ظ…طµط؛ط±ط© ط¥ط°ط§ ظˆط¬ط¯طھ
       if (file.thumbnailPath) {
         const newThumbnailPath = path.join(
           path.dirname(path.dirname(file.thumbnailPath)),
           newBucket,
           'thumbnails',
-          path.basename(file.thumbnailPath)
+          path.basename(file.thumbnailPath),
         );
 
         try {
@@ -339,11 +376,14 @@ export class FileManagementService {
             data: { thumbnailPath: newThumbnailPath },
           });
         } catch (error) {
-          this.logger.warn(`فشل في نقل الصورة المصغرة: ${file.thumbnailPath}`, error);
+          this.logger.warn(
+            `ظپط´ظ„ ظپظٹ ظ†ظ‚ظ„ ط§ظ„طµظˆط±ط© ط§ظ„ظ…طµط؛ط±ط©: ${file.thumbnailPath}`,
+            error,
+          );
         }
       }
 
-      // تسجيل في سجل التدقيق
+      // طھط³ط¬ظٹظ„ ظپظٹ ط³ط¬ظ„ ط§ظ„طھط¯ظ‚ظٹظ‚
       await this.auditService.log({
         action: 'FILE_MOVED',
         entity: 'File',
@@ -357,24 +397,25 @@ export class FileManagementService {
         category: 'file_management',
       });
 
-      this.logger.log(`تم نقل الملف بنجاح: ${fileId}`);
+      this.logger.log(`طھظ… ظ†ظ‚ظ„ ط§ظ„ظ…ظ„ظپ ط¨ظ†ط¬ط§ط­: ${fileId}`);
 
       return {
         success: true,
-        message: 'تم نقل الملف إلى الحاوية الجديدة بنجاح',
+        message:
+          'طھظ… ظ†ظ‚ظ„ ط§ظ„ظ…ظ„ظپ ط¥ظ„ظ‰ ط§ظ„ط­ط§ظˆظٹط© ط§ظ„ط¬ط¯ظٹط¯ط© ط¨ظ†ط¬ط§ط­',
         details: { newBucket },
       };
     } catch (error) {
-      this.logger.error(`فشل في نقل الملف: ${fileId}`, error);
+      this.logger.error(`ظپط´ظ„ ظپظٹ ظ†ظ‚ظ„ ط§ظ„ظ…ظ„ظپ: ${fileId}`, error);
       return {
         success: false,
-        message: `فشل في نقل الملف: ${error.message}`,
+        message: `ظپط´ظ„ ظپظٹ ظ†ظ‚ظ„ ط§ظ„ظ…ظ„ظپ: ${error.message}`,
       };
     }
   }
 
   /**
-   * تحويل ملف من خاص إلى عام أو العكس
+   * طھط­ظˆظٹظ„ ظ…ظ„ظپ ظ…ظ† ط®ط§طµ ط¥ظ„ظ‰ ط¹ط§ظ… ط£ظˆ ط§ظ„ط¹ظƒط³
    */
   async toggleFileVisibility(
     fileId: string,
@@ -382,27 +423,33 @@ export class FileManagementService {
     changedBy?: string,
   ): Promise<FileOperationsResult> {
     try {
-      this.logger.log(`${makePublic ? 'جعل الملف عام' : 'جعل الملف خاص'}: ${fileId}`);
+      this.logger.log(
+        `${makePublic ? 'ط¬ط¹ظ„ ط§ظ„ظ…ظ„ظپ ط¹ط§ظ…' : 'ط¬ط¹ظ„ ط§ظ„ظ…ظ„ظپ ط®ط§طµ'}: ${fileId}`,
+      );
 
       const file = await this.prisma.file.findUnique({
         where: { id: fileId },
       });
 
       if (!file) {
-        throw new NotFoundException('الملف غير موجود');
+        throw new NotFoundException('ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظ…ظˆط¬ظˆط¯');
       }
 
       if (file.isPublic === makePublic) {
         return {
           success: true,
-          message: `الملف ${makePublic ? 'عام بالفعل' : 'خاص بالفعل'}`,
+          message: `ط§ظ„ظ…ظ„ظپ ${makePublic ? 'ط¹ط§ظ… ط¨ط§ظ„ظپط¹ظ„' : 'ط®ط§طµ ط¨ط§ظ„ظپط¹ظ„'}`,
         };
       }
 
-      // تحديث رابط URL
-      const newUrl = this.generateNewFileUrl(file.filename, file.bucket, makePublic);
+      // طھط­ط¯ظٹط« ط±ط§ط¨ط· URL
+      const newUrl = this.generateNewFileUrl(
+        file.filename,
+        file.bucket,
+        makePublic,
+      );
 
-      // تحديث الملف
+      // طھط­ط¯ظٹط« ط§ظ„ظ…ظ„ظپ
       await this.prisma.file.update({
         where: { id: fileId },
         data: {
@@ -412,7 +459,7 @@ export class FileManagementService {
         },
       });
 
-      // تسجيل في سجل التدقيق
+      // طھط³ط¬ظٹظ„ ظپظٹ ط³ط¬ظ„ ط§ظ„طھط¯ظ‚ظٹظ‚
       await this.auditService.log({
         action: makePublic ? 'FILE_MADE_PUBLIC' : 'FILE_MADE_PRIVATE',
         entity: 'File',
@@ -426,23 +473,28 @@ export class FileManagementService {
         category: 'access_control',
       });
 
-      this.logger.log(`تم تحديث رؤية الملف بنجاح: ${fileId}`);
+      this.logger.log(
+        `طھظ… طھط­ط¯ظٹط« ط±ط¤ظٹط© ط§ظ„ظ…ظ„ظپ ط¨ظ†ط¬ط§ط­: ${fileId}`,
+      );
 
       return {
         success: true,
-        message: `تم ${makePublic ? 'جعل الملف عام' : 'جعل الملف خاص'} بنجاح`,
+        message: `طھظ… ${makePublic ? 'ط¬ط¹ظ„ ط§ظ„ظ…ظ„ظپ ط¹ط§ظ…' : 'ط¬ط¹ظ„ ط§ظ„ظ…ظ„ظپ ط®ط§طµ'} ط¨ظ†ط¬ط§ط­`,
       };
     } catch (error) {
-      this.logger.error(`فشل في تحديث رؤية الملف: ${fileId}`, error);
+      this.logger.error(
+        `ظپط´ظ„ ظپظٹ طھط­ط¯ظٹط« ط±ط¤ظٹط© ط§ظ„ظ…ظ„ظپ: ${fileId}`,
+        error,
+      );
       return {
         success: false,
-        message: `فشل في تحديث رؤية الملف: ${error.message}`,
+        message: `ظپط´ظ„ ظپظٹ طھط­ط¯ظٹط« ط±ط¤ظٹط© ط§ظ„ظ…ظ„ظپ: ${error.message}`,
       };
     }
   }
 
   /**
-   * دمج ملفات PDF
+   * ط¯ظ…ط¬ ظ…ظ„ظپط§طھ PDF
    */
   async mergePdfFiles(
     fileIds: string[],
@@ -450,9 +502,9 @@ export class FileManagementService {
     mergedBy?: string,
   ): Promise<FileOperationsResult> {
     try {
-      this.logger.log(`دمج ملفات PDF: ${fileIds.length} ملف`);
+      this.logger.log(`ط¯ظ…ط¬ ظ…ظ„ظپط§طھ PDF: ${fileIds.length} ظ…ظ„ظپ`);
 
-      // التحقق من أن جميع الملفات PDF
+      // ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط£ظ† ط¬ظ…ظٹط¹ ط§ظ„ظ…ظ„ظپط§طھ PDF
       const files = await this.prisma.file.findMany({
         where: {
           id: { in: fileIds },
@@ -461,63 +513,67 @@ export class FileManagementService {
       });
 
       if (files.length !== fileIds.length) {
-        throw new BadRequestException('بعض الملفات المحددة ليست ملفات PDF أو غير موجودة');
+        throw new BadRequestException(
+          'ط¨ط¹ط¶ ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط­ط¯ط¯ط© ظ„ظٹط³طھ ظ…ظ„ظپط§طھ PDF ط£ظˆ ط؛ظٹط± ظ…ظˆط¬ظˆط¯ط©',
+        );
       }
 
-      // TODO: تنفيذ دمج ملفات PDF باستخدام مكتبة مثل pdf-lib
-      // للآن، سنحاكي العملية
+      // MVP note: طھظ†ظپظٹط° ط¯ظ…ط¬ ظ…ظ„ظپط§طھ PDF ط¨ط§ط³طھط®ط¯ط§ظ… ظ…ظƒطھط¨ط© ظ…ط«ظ„ pdf-lib
+      // ظ„ظ„ط¢ظ†طŒ ط³ظ†ط­ط§ظƒظٹ ط§ظ„ط¹ظ…ظ„ظٹط©
 
-      this.logger.log(`[MOCK] تم دمج ${files.length} ملف PDF`);
+      this.logger.log(`[MVP_LOCAL] طھظ… ط¯ظ…ط¬ ${files.length} ظ…ظ„ظپ PDF`);
 
       return {
         success: true,
-        message: 'تم دمج ملفات PDF بنجاح',
+        message: 'طھظ… ط¯ظ…ط¬ ظ…ظ„ظپط§طھ PDF ط¨ظ†ط¬ط§ط­',
         details: {
           outputFilename,
           mergedFilesCount: files.length,
         },
       };
     } catch (error) {
-      this.logger.error('فشل في دمج ملفات PDF', error);
+      this.logger.error('ظپط´ظ„ ظپظٹ ط¯ظ…ط¬ ظ…ظ„ظپط§طھ PDF', error);
       return {
         success: false,
-        message: `فشل في دمج ملفات PDF: ${error.message}`,
+        message: `ظپط´ظ„ ظپظٹ ط¯ظ…ط¬ ظ…ظ„ظپط§طھ PDF: ${error.message}`,
       };
     }
   }
 
   /**
-   * استخراج نص من ملف PDF أو صورة
+   * ط§ط³طھط®ط±ط§ط¬ ظ†طµ ظ…ظ† ظ…ظ„ظپ PDF ط£ظˆ طµظˆط±ط©
    */
   async extractTextFromFile(
     fileId: string,
     extractedBy?: string,
   ): Promise<{ success: boolean; text?: string; error?: string }> {
     try {
-      this.logger.log(`استخراج نص من الملف: ${fileId}`);
+      this.logger.log(`ط§ط³طھط®ط±ط§ط¬ ظ†طµ ظ…ظ† ط§ظ„ظ…ظ„ظپ: ${fileId}`);
 
       const file = await this.prisma.file.findUnique({
         where: { id: fileId },
       });
 
       if (!file) {
-        throw new NotFoundException('الملف غير موجود');
+        throw new NotFoundException('ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظ…ظˆط¬ظˆط¯');
       }
 
       let extractedText = '';
 
-      // TODO: تنفيذ استخراج النص باستخدام مكتبات مثل tesseract أو pdf-parse
-      // للآن، سنحاكي العملية
+      // MVP note: طھظ†ظپظٹط° ط§ط³طھط®ط±ط§ط¬ ط§ظ„ظ†طµ ط¨ط§ط³طھط®ط¯ط§ظ… ظ…ظƒطھط¨ط§طھ ظ…ط«ظ„ tesseract ط£ظˆ pdf-parse
+      // ظ„ظ„ط¢ظ†طŒ ط³ظ†ط­ط§ظƒظٹ ط§ظ„ط¹ظ…ظ„ظٹط©
 
       if (file.mimeType === 'application/pdf') {
-        extractedText = `[MOCK] نص مستخرج من ملف PDF: ${file.originalName}`;
+        extractedText = `[MVP_LOCAL] ظ†طµ ظ…ط³طھط®ط±ط¬ ظ…ظ† ظ…ظ„ظپ PDF: ${file.originalName}`;
       } else if (file.mimeType.startsWith('image/')) {
-        extractedText = `[MOCK] نص مستخرج من الصورة: ${file.originalName}`;
+        extractedText = `[MVP_LOCAL] ظ†طµ ظ…ط³طھط®ط±ط¬ ظ…ظ† ط§ظ„طµظˆط±ط©: ${file.originalName}`;
       } else {
-        throw new BadRequestException('نوع الملف غير مدعوم لاستخراج النص');
+        throw new BadRequestException(
+          'ظ†ظˆط¹ ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظ…ط¯ط¹ظˆظ… ظ„ط§ط³طھط®ط±ط§ط¬ ط§ظ„ظ†طµ',
+        );
       }
 
-      // تسجيل في سجل التدقيق
+      // طھط³ط¬ظٹظ„ ظپظٹ ط³ط¬ظ„ ط§ظ„طھط¯ظ‚ظٹظ‚
       await this.auditService.log({
         action: 'TEXT_EXTRACTED',
         entity: 'File',
@@ -535,7 +591,10 @@ export class FileManagementService {
         text: extractedText,
       };
     } catch (error) {
-      this.logger.error(`فشل في استخراج النص: ${fileId}`, error);
+      this.logger.error(
+        `ظپط´ظ„ ظپظٹ ط§ط³طھط®ط±ط§ط¬ ط§ظ„ظ†طµ: ${fileId}`,
+        error,
+      );
       return {
         success: false,
         error: error.message,
@@ -544,7 +603,7 @@ export class FileManagementService {
   }
 
   /**
-   * تحويل ملف إلى تنسيق آخر
+   * طھط­ظˆظٹظ„ ظ…ظ„ظپ ط¥ظ„ظ‰ طھظ†ط³ظٹظ‚ ط¢ط®ط±
    */
   async convertFileFormat(
     fileId: string,
@@ -552,37 +611,44 @@ export class FileManagementService {
     convertedBy?: string,
   ): Promise<FileOperationsResult> {
     try {
-      this.logger.log(`تحويل تنسيق الملف: ${fileId} -> ${targetFormat}`);
+      this.logger.log(
+        `طھط­ظˆظٹظ„ طھظ†ط³ظٹظ‚ ط§ظ„ظ…ظ„ظپ: ${fileId} -> ${targetFormat}`,
+      );
 
       const file = await this.prisma.file.findUnique({
         where: { id: fileId },
       });
 
       if (!file) {
-        throw new NotFoundException('الملف غير موجود');
+        throw new NotFoundException('ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظ…ظˆط¬ظˆط¯');
       }
 
-      // TODO: تنفيذ تحويل التنسيق باستخدام مكتبات مناسبة
-      // مثل: sharp للصور، pandoc للمستندات، إلخ
+      // MVP note: طھظ†ظپظٹط° طھط­ظˆظٹظ„ ط§ظ„طھظ†ط³ظٹظ‚ ط¨ط§ط³طھط®ط¯ط§ظ… ظ…ظƒطھط¨ط§طھ ظ…ظ†ط§ط³ط¨ط©
+      // ظ…ط«ظ„: sharp ظ„ظ„طµظˆط±طŒ pandoc ظ„ظ„ظ…ط³طھظ†ط¯ط§طھطŒ ط¥ظ„ط®
 
-      this.logger.log(`[MOCK] تم تحويل الملف إلى تنسيق: ${targetFormat}`);
+      this.logger.log(
+        `[MVP_LOCAL] طھظ… طھط­ظˆظٹظ„ ط§ظ„ظ…ظ„ظپ ط¥ظ„ظ‰ طھظ†ط³ظٹظ‚: ${targetFormat}`,
+      );
 
       return {
         success: true,
-        message: `تم تحويل الملف إلى تنسيق ${targetFormat} بنجاح`,
+        message: `طھظ… طھط­ظˆظٹظ„ ط§ظ„ظ…ظ„ظپ ط¥ظ„ظ‰ طھظ†ط³ظٹظ‚ ${targetFormat} ط¨ظ†ط¬ط§ط­`,
         details: { targetFormat },
       };
     } catch (error) {
-      this.logger.error(`فشل في تحويل تنسيق الملف: ${fileId}`, error);
+      this.logger.error(
+        `ظپط´ظ„ ظپظٹ طھط­ظˆظٹظ„ طھظ†ط³ظٹظ‚ ط§ظ„ظ…ظ„ظپ: ${fileId}`,
+        error,
+      );
       return {
         success: false,
-        message: `فشل في تحويل تنسيق الملف: ${error.message}`,
+        message: `ظپط´ظ„ ظپظٹ طھط­ظˆظٹظ„ طھظ†ط³ظٹظ‚ ط§ظ„ظ…ظ„ظپ: ${error.message}`,
       };
     }
   }
 
   /**
-   * ضغط ملف
+   * ط¶ط؛ط· ظ…ظ„ظپ
    */
   async compressFile(
     fileId: string,
@@ -590,38 +656,42 @@ export class FileManagementService {
     compressedBy?: string,
   ): Promise<FileOperationsResult> {
     try {
-      this.logger.log(`ضغط الملف: ${fileId}, مستوى: ${compressionLevel}`);
+      this.logger.log(
+        `ط¶ط؛ط· ط§ظ„ظ…ظ„ظپ: ${fileId}, ظ…ط³طھظˆظ‰: ${compressionLevel}`,
+      );
 
       const file = await this.prisma.file.findUnique({
         where: { id: fileId },
       });
 
       if (!file) {
-        throw new NotFoundException('الملف غير موجود');
+        throw new NotFoundException('ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظ…ظˆط¬ظˆط¯');
       }
 
-      // TODO: تنفيذ الضغط حسب نوع الملف
-      // صور: استخدام sharp
-      // ملفات أخرى: استخدام مكتبات ضغط مناسبة
+      // MVP note: طھظ†ظپظٹط° ط§ظ„ط¶ط؛ط· ط­ط³ط¨ ظ†ظˆط¹ ط§ظ„ظ…ظ„ظپ
+      // طµظˆط±: ط§ط³طھط®ط¯ط§ظ… sharp
+      // ظ…ظ„ظپط§طھ ط£ط®ط±ظ‰: ط§ط³طھط®ط¯ط§ظ… ظ…ظƒطھط¨ط§طھ ط¶ط؛ط· ظ…ظ†ط§ط³ط¨ط©
 
-      this.logger.log(`[MOCK] تم ضغط الملف بمستوى: ${compressionLevel}`);
+      this.logger.log(
+        `[MVP_LOCAL] طھظ… ط¶ط؛ط· ط§ظ„ظ…ظ„ظپ ط¨ظ…ط³طھظˆظ‰: ${compressionLevel}`,
+      );
 
       return {
         success: true,
-        message: 'تم ضغط الملف بنجاح',
+        message: 'طھظ… ط¶ط؛ط· ط§ظ„ظ…ظ„ظپ ط¨ظ†ط¬ط§ط­',
         details: { compressionLevel },
       };
     } catch (error) {
-      this.logger.error(`فشل في ضغط الملف: ${fileId}`, error);
+      this.logger.error(`ظپط´ظ„ ظپظٹ ط¶ط؛ط· ط§ظ„ظ…ظ„ظپ: ${fileId}`, error);
       return {
         success: false,
-        message: `فشل في ضغط الملف: ${error.message}`,
+        message: `ظپط´ظ„ ظپظٹ ط¶ط؛ط· ط§ظ„ظ…ظ„ظپ: ${error.message}`,
       };
     }
   }
 
   /**
-   * تنظيف الملفات المؤقتة والقديمة
+   * طھظ†ط¸ظٹظپ ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط¤ظ‚طھط© ظˆط§ظ„ظ‚ط¯ظٹظ…ط©
    */
   async cleanupOrphanedFiles(): Promise<{
     deletedFiles: number;
@@ -629,18 +699,20 @@ export class FileManagementService {
     errors: string[];
   }> {
     try {
-      this.logger.log('تنظيف الملفات اليتيمة والقديمة');
+      this.logger.log(
+        'طھظ†ط¸ظٹظپ ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظٹطھظٹظ…ط© ظˆط§ظ„ظ‚ط¯ظٹظ…ط©',
+      );
 
       let deletedFiles = 0;
       let freedSpace = 0;
       const errors: string[] = [];
 
-      // البحث عن ملفات في النظام غير موجودة في قاعدة البيانات
-      // TODO: تنفيذ فحص شامل للملفات
+      // ط§ظ„ط¨ط­ط« ط¹ظ† ظ…ظ„ظپط§طھ ظپظٹ ط§ظ„ظ†ط¸ط§ظ… ط؛ظٹط± ظ…ظˆط¬ظˆط¯ط© ظپظٹ ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ
+      // MVP note: طھظ†ظپظٹط° ظپط­طµ ط´ط§ظ…ظ„ ظ„ظ„ظ…ظ„ظپط§طھ
 
-      // البحث عن ملفات قديمة جداً
+      // ط§ظ„ط¨ط­ط« ط¹ظ† ظ…ظ„ظپط§طھ ظ‚ط¯ظٹظ…ط© ط¬ط¯ط§ظ‹
       const cutoffDate = new Date();
-      cutoffDate.setFullYear(cutoffDate.getFullYear() - 1); // ملفات أقدم من سنة
+      cutoffDate.setFullYear(cutoffDate.getFullYear() - 1); // ظ…ظ„ظپط§طھ ط£ظ‚ط¯ظ… ظ…ظ† ط³ظ†ط©
 
       const oldVersions = await this.prisma.fileVersion.findMany({
         where: {
@@ -651,21 +723,23 @@ export class FileManagementService {
 
       for (const version of oldVersions) {
         try {
-          // حذف الملف من النظام
+          // ط­ط°ظپ ط§ظ„ظ…ظ„ظپ ظ…ظ† ط§ظ„ظ†ط¸ط§ظ…
           await fs.unlink(version.path);
           deletedFiles++;
           freedSpace += Number(version.size);
 
-          // حذف السجل من قاعدة البيانات
+          // ط­ط°ظپ ط§ظ„ط³ط¬ظ„ ظ…ظ† ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ
           await this.prisma.fileVersion.delete({
             where: { id: version.id },
           });
         } catch (error) {
-          errors.push(`فشل في حذف النسخة ${version.id}: ${error.message}`);
+          errors.push(
+            `ظپط´ظ„ ظپظٹ ط­ط°ظپ ط§ظ„ظ†ط³ط®ط© ${version.id}: ${error.message}`,
+          );
         }
       }
 
-      // تنظيف الرموز المؤقتة المنتهية الصلاحية
+      // طھظ†ط¸ظٹظپ ط§ظ„ط±ظ…ظˆط² ط§ظ„ظ…ط¤ظ‚طھط© ط§ظ„ظ…ظ†طھظ‡ظٹط© ط§ظ„طµظ„ط§ط­ظٹط©
       const expiredTokens = await this.prisma.file.findMany({
         where: {
           accessToken: { not: null },
@@ -683,7 +757,9 @@ export class FileManagementService {
         });
       }
 
-      this.logger.log(`تم تنظيف ${deletedFiles} ملف قديم، تم تحرير ${freedSpace} بايت`);
+      this.logger.log(
+        `طھظ… طھظ†ط¸ظٹظپ ${deletedFiles} ظ…ظ„ظپ ظ‚ط¯ظٹظ…طŒ طھظ… طھط­ط±ظٹط± ${freedSpace} ط¨ط§ظٹطھ`,
+      );
 
       return {
         deletedFiles,
@@ -691,7 +767,7 @@ export class FileManagementService {
         errors,
       };
     } catch (error) {
-      this.logger.error('فشل في تنظيف الملفات', error);
+      this.logger.error('ظپط´ظ„ ظپظٹ طھظ†ط¸ظٹظپ ط§ظ„ظ…ظ„ظپط§طھ', error);
       return {
         deletedFiles: 0,
         freedSpace: 0,
@@ -701,7 +777,7 @@ export class FileManagementService {
   }
 
   /**
-   * الحصول على إحصائيات استخدام الملفات
+   * ط§ظ„ط­طµظˆظ„ ط¹ظ„ظ‰ ط¥ط­طµط§ط¦ظٹط§طھ ط§ط³طھط®ط¯ط§ظ… ط§ظ„ظ…ظ„ظپط§طھ
    */
   async getUsageStats(branchId?: string): Promise<{
     totalStorageUsed: number;
@@ -727,28 +803,37 @@ export class FileManagementService {
         },
       });
 
-      const totalStorageUsed = files.reduce((sum, file) => sum + Number(file.size), 0);
+      const totalStorageUsed = files.reduce(
+        (sum, file) => sum + Number(file.size),
+        0,
+      );
       const filesCount = files.length;
-      const averageFileSize = filesCount > 0 ? totalStorageUsed / filesCount : 0;
+      const averageFileSize =
+        filesCount > 0 ? totalStorageUsed / filesCount : 0;
 
-      // أكبر ملف
+      // ط£ظƒط¨ط± ظ…ظ„ظپ
       const largestFile = files.reduce((max, file) =>
-        Number(file.size) > Number(max.size) ? file : max
+        Number(file.size) > Number(max.size) ? file : max,
       );
 
-      // إحصائيات حسب الفئة
+      // ط¥ط­طµط§ط¦ظٹط§طھ ط­ط³ط¨ ط§ظ„ظپط¦ط©
       const storageByCategory: Record<string, number> = {};
       const storageByType: Record<string, number> = {};
 
-      files.forEach(file => {
-        storageByCategory[file.category] = (storageByCategory[file.category] || 0) + Number(file.size);
+      files.forEach((file) => {
+        storageByCategory[file.category] =
+          (storageByCategory[file.category] || 0) + Number(file.size);
 
         const type = this.getFileTypeFromMime(file.mimeType);
         storageByType[type] = (storageByType[type] || 0) + Number(file.size);
       });
 
-      // TODO: أكثر الملفات تحميلاً
-      const mostDownloadedFiles: Array<{ id: string; name: string; downloads: number }> = [];
+      // MVP note: ط£ظƒط«ط± ط§ظ„ظ…ظ„ظپط§طھ طھط­ظ…ظٹظ„ط§ظ‹
+      const mostDownloadedFiles: Array<{
+        id: string;
+        name: string;
+        downloads: number;
+      }> = [];
 
       return {
         totalStorageUsed,
@@ -764,7 +849,10 @@ export class FileManagementService {
         storageByType,
       };
     } catch (error) {
-      this.logger.error('فشل في حساب إحصائيات الاستخدام', error);
+      this.logger.error(
+        'ظپط´ظ„ ظپظٹ ط­ط³ط§ط¨ ط¥ط­طµط§ط¦ظٹط§طھ ط§ظ„ط§ط³طھط®ط¯ط§ظ…',
+        error,
+      );
       throw error;
     }
   }
@@ -772,7 +860,7 @@ export class FileManagementService {
   // ========== PRIVATE METHODS ==========
 
   /**
-   * إنشاء مسار للنسخة الاحتياطية
+   * ط¥ظ†ط´ط§ط، ظ…ط³ط§ط± ظ„ظ„ظ†ط³ط®ط© ط§ظ„ط§ط­طھظٹط§ط·ظٹط©
    */
   private generateBackupPath(originalPath: string): string {
     const dir = path.dirname(originalPath);
@@ -784,7 +872,7 @@ export class FileManagementService {
   }
 
   /**
-   * الحصول على رقم الإصدار التالي
+   * ط§ظ„ط­طµظˆظ„ ط¹ظ„ظ‰ ط±ظ‚ظ… ط§ظ„ط¥طµط¯ط§ط± ط§ظ„طھط§ظ„ظٹ
    */
   private async getNextVersionNumber(fileId: string): Promise<number> {
     const lastVersion = await this.prisma.fileVersion.findFirst({
@@ -797,23 +885,29 @@ export class FileManagementService {
   }
 
   /**
-   * إنشاء رابط URL جديد للملف
+   * ط¥ظ†ط´ط§ط، ط±ط§ط¨ط· URL ط¬ط¯ظٹط¯ ظ„ظ„ظ…ظ„ظپ
    */
-  private generateNewFileUrl(filename: string, bucket: string, isPublic: boolean): string | undefined {
-    // TODO: استخدام منطق مشابه لـ StorageService
+  private generateNewFileUrl(
+    filename: string,
+    bucket: string,
+    isPublic: boolean,
+  ): string | undefined {
+    // MVP note: ط§ط³طھط®ط¯ط§ظ… ظ…ظ†ط·ظ‚ ظ…ط´ط§ط¨ظ‡ ظ„ظ€ StorageService
     return undefined;
   }
 
   /**
-   * الحصول على نوع الملف من MIME type
+   * ط§ظ„ط­طµظˆظ„ ط¹ظ„ظ‰ ظ†ظˆط¹ ط§ظ„ظ…ظ„ظپ ظ…ظ† MIME type
    */
   private getFileTypeFromMime(mimeType: string): string {
     if (mimeType.startsWith('image/')) return 'image';
     if (mimeType.startsWith('video/')) return 'video';
     if (mimeType.startsWith('audio/')) return 'audio';
     if (mimeType.includes('pdf')) return 'document';
-    if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) return 'spreadsheet';
-    if (mimeType.includes('word') || mimeType.includes('document')) return 'document';
+    if (mimeType.includes('spreadsheet') || mimeType.includes('excel'))
+      return 'spreadsheet';
+    if (mimeType.includes('word') || mimeType.includes('document'))
+      return 'document';
     return 'other';
   }
 }

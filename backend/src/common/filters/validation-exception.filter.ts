@@ -57,7 +57,9 @@ export class ValidationExceptionFilter implements ExceptionFilter {
     }
 
     if (response.message && Array.isArray(response.message)) {
-      return response.message.map((error: any) => this.parseValidationError(error));
+      return response.message.map((error: any) =>
+        this.parseValidationError(error),
+      );
     }
 
     if (response.message && typeof response.message === 'string') {
@@ -67,7 +69,9 @@ export class ValidationExceptionFilter implements ExceptionFilter {
     return [{ field: 'general', reason: 'خطأ في التحقق من البيانات' }];
   }
 
-  private parseValidationError(error: ValidationError | string): ValidationErrorDetail {
+  private parseValidationError(
+    error: ValidationError | string,
+  ): ValidationErrorDetail {
     if (typeof error === 'string') {
       // محاولة استخراج اسم الحقل من الرسالة
       const fieldMatch = error.match(/^(.*?)\s/);
@@ -84,7 +88,9 @@ export class ValidationExceptionFilter implements ExceptionFilter {
 
     // الحصول على أول constraint
     const firstConstraintKey = Object.keys(constraints)[0];
-    const reason = firstConstraintKey ? constraints[firstConstraintKey] : 'خطأ في التحقق';
+    const reason = firstConstraintKey
+      ? constraints[firstConstraintKey]
+      : 'خطأ في التحقق';
 
     return {
       field,

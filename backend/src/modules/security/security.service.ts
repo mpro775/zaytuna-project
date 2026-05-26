@@ -28,11 +28,14 @@ export class SecurityService implements OnModuleInit {
       legacyHeaders: rateLimitConfig.legacyHeaders,
       skip: (req) => {
         // تخطي rate limiting للطلبات من نفس الخادم
-        const forwarded = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        const forwarded =
+          req.headers['x-forwarded-for'] || req.connection.remoteAddress;
         return forwarded === '127.0.0.1' || forwarded === '::1';
       },
       handler: (req, res) => {
-        this.logger.warn(`تم تجاوز حد الطلبات من IP: ${req.ip}, Path: ${req.path}`);
+        this.logger.warn(
+          `تم تجاوز حد الطلبات من IP: ${req.ip}, Path: ${req.path}`,
+        );
         res.status(429).json(rateLimitConfig.message);
       },
     });
@@ -84,7 +87,9 @@ export class SecurityService implements OnModuleInit {
         }
 
         // ضغط الاستجابات النصية فقط
-        return /json|text|javascript|css|xml|html/i.test(res.getHeader('Content-Type')?.toString() || '');
+        return /json|text|javascript|css|xml|html/i.test(
+          res.getHeader('Content-Type')?.toString() || '',
+        );
       },
     });
   }
@@ -112,7 +117,11 @@ export class SecurityService implements OnModuleInit {
 
     try {
       const rateLimitConfig = this.configService.get('security.rateLimit');
-      if (!rateLimitConfig || !rateLimitConfig.windowMs || !rateLimitConfig.max) {
+      if (
+        !rateLimitConfig ||
+        !rateLimitConfig.windowMs ||
+        !rateLimitConfig.max
+      ) {
         errors.push('إعدادات Rate Limiting غير صحيحة');
       }
 
@@ -163,7 +172,9 @@ export class SecurityService implements OnModuleInit {
     const recommendations: string[] = [];
 
     if (errors.includes('إعدادات Rate Limiting غير صحيحة')) {
-      recommendations.push('تحقق من متغيرات البيئة RATE_LIMIT_WINDOW_MS و RATE_LIMIT_MAX');
+      recommendations.push(
+        'تحقق من متغيرات البيئة RATE_LIMIT_WINDOW_MS و RATE_LIMIT_MAX',
+      );
     }
 
     if (errors.includes('إعدادات CORS غير صحيحة')) {
@@ -172,12 +183,19 @@ export class SecurityService implements OnModuleInit {
 
     if (process.env.NODE_ENV === 'production') {
       if (!process.env.HTTPS_ENFORCE || process.env.HTTPS_ENFORCE !== 'true') {
-        recommendations.push('فعل إجبار HTTPS في الإنتاج عبر متغير HTTPS_ENFORCE');
+        recommendations.push(
+          'فعل إجبار HTTPS في الإنتاج عبر متغير HTTPS_ENFORCE',
+        );
       }
     }
 
-    if (!process.env.SECURITY_HEADERS_ENABLED || process.env.SECURITY_HEADERS_ENABLED !== 'true') {
-      recommendations.push('فعل رؤوس الأمان عبر متغير SECURITY_HEADERS_ENABLED');
+    if (
+      !process.env.SECURITY_HEADERS_ENABLED ||
+      process.env.SECURITY_HEADERS_ENABLED !== 'true'
+    ) {
+      recommendations.push(
+        'فعل رؤوس الأمان عبر متغير SECURITY_HEADERS_ENABLED',
+      );
     }
 
     return recommendations;

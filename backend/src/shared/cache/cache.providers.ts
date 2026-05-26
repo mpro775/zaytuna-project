@@ -8,8 +8,12 @@ export const redisProviders: Provider[] = [
   {
     provide: REDIS_CLIENT,
     useFactory: async (configService: ConfigService): Promise<any> => {
-      const cacheEnabled = configService.get<boolean>('app.cache.enabled') ?? process.env.CACHE_ENABLED === 'true';
-      const redisEnabled = configService.get<boolean>('redis.enabled') ?? process.env.REDIS_ENABLED === 'true';
+      const cacheEnabled =
+        configService.get<boolean>('app.cache.enabled') ??
+        process.env.CACHE_ENABLED === 'true';
+      const redisEnabled =
+        configService.get<boolean>('redis.enabled') ??
+        process.env.REDIS_ENABLED === 'true';
 
       if (!cacheEnabled || !redisEnabled) {
         const store = new Map<string, { value: string; expiresAt?: number }>();

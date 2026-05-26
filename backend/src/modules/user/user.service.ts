@@ -1,4 +1,9 @@
-import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../shared/database/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -55,7 +60,10 @@ export class UserService {
     }
 
     // تشفير كلمة المرور
-    const passwordHash = await bcrypt.hash(createUserDto.password, this.saltRounds);
+    const passwordHash = await bcrypt.hash(
+      createUserDto.password,
+      this.saltRounds,
+    );
 
     // إنشاء المستخدم
     const user = await this.prisma.user.create({
@@ -94,7 +102,11 @@ export class UserService {
   /**
    * الحصول على جميع المستخدمين
    */
-  async findAll(options?: { branchId?: string; roleId?: string; isActive?: boolean }) {
+  async findAll(options?: {
+    branchId?: string;
+    roleId?: string;
+    isActive?: boolean;
+  }) {
     const where: any = {};
 
     if (options?.branchId) {
@@ -133,7 +145,7 @@ export class UserService {
     });
 
     // إزالة passwordHash من الاستجابة
-    return users.map(user => {
+    return users.map((user) => {
       const { passwordHash, ...userWithoutPassword } = user;
       return userWithoutPassword;
     });
@@ -193,19 +205,27 @@ export class UserService {
             { id: { not: id } },
             {
               OR: [
-                updateUserDto.username ? { username: updateUserDto.username } : {},
+                updateUserDto.username
+                  ? { username: updateUserDto.username }
+                  : {},
                 updateUserDto.email ? { email: updateUserDto.email } : {},
-              ].filter(condition => Object.keys(condition).length > 0),
+              ].filter((condition) => Object.keys(condition).length > 0),
             },
           ],
         },
       });
 
       if (duplicateUser) {
-        if (updateUserDto.username && duplicateUser.username === updateUserDto.username) {
+        if (
+          updateUserDto.username &&
+          duplicateUser.username === updateUserDto.username
+        ) {
           throw new ConflictException('اسم المستخدم موجود بالفعل');
         }
-        if (updateUserDto.email && duplicateUser.email === updateUserDto.email) {
+        if (
+          updateUserDto.email &&
+          duplicateUser.email === updateUserDto.email
+        ) {
           throw new ConflictException('البريد الإلكتروني موجود بالفعل');
         }
       }
@@ -302,7 +322,10 @@ export class UserService {
     }
 
     // تشفير كلمة المرور الجديدة
-    const passwordHash = await bcrypt.hash(changePasswordDto.newPassword, this.saltRounds);
+    const passwordHash = await bcrypt.hash(
+      changePasswordDto.newPassword,
+      this.saltRounds,
+    );
 
     // تحديث كلمة المرور
     await this.prisma.user.update({
@@ -319,45 +342,54 @@ export class UserService {
    * الحصول على إحصائيات المستخدمين
    */
   async getUserStats() {
-    const [totalUsers, activeUsers, inactiveUsers, usersByRole, usersByBranch] = await Promise.all([
-      this.prisma.user.count(),
-      this.prisma.user.count({ where: { isActive: true } }),
-      this.prisma.user.count({ where: { isActive: false } }),
-      this.prisma.user.groupBy({
-        by: ['roleId'],
-        _count: { id: true },
-      }),
-      this.prisma.user.groupBy({
-        by: ['branchId'],
-        _count: { id: true },
-        where: { branchId: { not: null } },
-      }),
-    ]);
+    const [totalUsers, activeUsers, inactiveUsers, usersByRole, usersByBranch] =
+      await Promise.all([
+        this.prisma.user.count(),
+        this.prisma.user.count({ where: { isActive: true } }),
+        this.prisma.user.count({ where: { isActive: false } }),
+        this.prisma.user.groupBy({
+          by: ['roleId'],
+          _count: { id: true },
+        }),
+        this.prisma.user.groupBy({
+          by: ['branchId'],
+          _count: { id: true },
+          where: { branchId: { not: null } },
+        }),
+      ]);
 
     // جلب أسماء الأدوار والفروع
     const roles = await this.prisma.role.findMany({
-      where: { id: { in: usersByRole.map(r => r.roleId) } },
+      where: { id: { in: usersByRole.map((r) => r.roleId) } },
       select: { id: true, name: true },
     });
 
     const branches = await this.prisma.branch.findMany({
-      where: { id: { in: usersByBranch.map(b => b.branchId!).filter(Boolean) } },
+      where: {
+        id: { in: usersByBranch.map((b) => b.branchId!).filter(Boolean) },
+      },
       select: { id: true, name: true },
     });
 
-    const roleMap = roles.reduce((acc, role) => ({ ...acc, [role.id]: role.name }), {});
-    const branchMap = branches.reduce((acc, branch) => ({ ...acc, [branch.id]: branch.name }), {});
+    const roleMap = roles.reduce(
+      (acc, role) => ({ ...acc, [role.id]: role.name }),
+      {},
+    );
+    const branchMap = branches.reduce(
+      (acc, branch) => ({ ...acc, [branch.id]: branch.name }),
+      {},
+    );
 
     return {
       total: totalUsers,
       active: activeUsers,
       inactive: inactiveUsers,
-      byRole: usersByRole.map(r => ({
+      byRole: usersByRole.map((r) => ({
         roleId: r.roleId,
         roleName: roleMap[r.roleId] || 'غير معروف',
         count: r._count.id,
       })),
-      byBranch: usersByBranch.map(b => ({
+      byBranch: usersByBranch.map((b) => ({
         branchId: b.branchId,
         branchName: branchMap[b.branchId!] || 'غير معروف',
         count: b._count.id,

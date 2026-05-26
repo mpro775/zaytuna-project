@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 // TODO: Uncomment when Sentry packages are installed
 /*
@@ -27,7 +32,10 @@ export class SentryService implements OnModuleInit, OnModuleDestroy {
   private async initializeSentry() {
     try {
       const dsn = this.configService.get<string>('SENTRY_DSN');
-      const environment = this.configService.get<string>('NODE_ENV', 'development');
+      const environment = this.configService.get<string>(
+        'NODE_ENV',
+        'development',
+      );
 
       if (!dsn) {
         this.logger.warn('لم يتم العثور على SENTRY_DSN، سيتم تعطيل Sentry');
@@ -71,7 +79,6 @@ export class SentryService implements OnModuleInit, OnModuleDestroy {
 
       this.isInitialized = true;
       this.logger.log('[MOCK] تم تهيئة Sentry بنجاح');
-
     } catch (error) {
       this.logger.error('فشل في تهيئة Sentry:', error);
     }
@@ -148,7 +155,9 @@ export class SentryService implements OnModuleInit, OnModuleDestroy {
     ];
 
     for (const key in obj) {
-      if (sensitiveKeys.some(sensitive => key.toLowerCase().includes(sensitive))) {
+      if (
+        sensitiveKeys.some((sensitive) => key.toLowerCase().includes(sensitive))
+      ) {
         obj[key] = '[REDACTED]';
       } else if (typeof obj[key] === 'object' && obj[key] !== null) {
         this.sanitizeObject(obj[key]);
@@ -159,12 +168,15 @@ export class SentryService implements OnModuleInit, OnModuleDestroy {
   /**
    * تسجيل خطأ
    */
-  captureException(error: Error, context?: {
-    user?: any;
-    tags?: Record<string, string>;
-    extra?: Record<string, any>;
-    level?: 'fatal' | 'error' | 'warning' | 'info' | 'debug';
-  }) {
+  captureException(
+    error: Error,
+    context?: {
+      user?: any;
+      tags?: Record<string, string>;
+      extra?: Record<string, any>;
+      level?: 'fatal' | 'error' | 'warning' | 'info' | 'debug';
+    },
+  ) {
     try {
       if (!this.isInitialized) {
         this.logger.error('Sentry غير مهيأ:', error);
@@ -216,11 +228,14 @@ export class SentryService implements OnModuleInit, OnModuleDestroy {
   /**
    * تسجيل رسالة
    */
-  captureMessage(message: string, context?: {
-    level?: 'fatal' | 'error' | 'warning' | 'info' | 'debug';
-    tags?: Record<string, string>;
-    extra?: Record<string, any>;
-  }) {
+  captureMessage(
+    message: string,
+    context?: {
+      level?: 'fatal' | 'error' | 'warning' | 'info' | 'debug';
+      tags?: Record<string, string>;
+      extra?: Record<string, any>;
+    },
+  ) {
     try {
       if (!this.isInitialized) {
         this.logger.log(`رسالة: ${message}`, context?.extra);
@@ -426,7 +441,9 @@ export class SentryService implements OnModuleInit, OnModuleDestroy {
   getSentryInfo() {
     return {
       initialized: this.isInitialized,
-      dsn: this.configService.get<string>('SENTRY_DSN') ? 'configured' : 'not_configured',
+      dsn: this.configService.get<string>('SENTRY_DSN')
+        ? 'configured'
+        : 'not_configured',
       environment: this.configService.get<string>('NODE_ENV', 'development'),
       version: process.env.npm_package_version || '1.0.0',
     };

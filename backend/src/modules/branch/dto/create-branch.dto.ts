@@ -1,5 +1,12 @@
 import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
-import { IsNotEmpty, IsString, IsOptional, IsEmail, IsBoolean, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsEmail,
+  IsBoolean,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateBranchDto {
   @IsNotEmpty({ message: 'اسم الفرع مطلوب' })

@@ -74,7 +74,11 @@ export class PaymentSecurityService {
     try {
       const encryptionKey = this.getEncryptionKey();
 
-      const decipher = crypto.createDecipheriv(this.algorithm, encryptionKey, Buffer.from(encryptedData.iv, 'hex'));
+      const decipher = crypto.createDecipheriv(
+        this.algorithm,
+        encryptionKey,
+        Buffer.from(encryptedData.iv, 'hex'),
+      );
 
       if (encryptedData.tag) {
         decipher.setAuthTag(Buffer.from(encryptedData.tag, 'hex'));
@@ -179,7 +183,10 @@ export class PaymentSecurityService {
       }
 
       // التحقق من عدم انتهاء الصلاحية
-      if (expiryYear < currentYear || (expiryYear === currentYear && expiryMonth < currentMonth)) {
+      if (
+        expiryYear < currentYear ||
+        (expiryYear === currentYear && expiryMonth < currentMonth)
+      ) {
         return false;
       }
 
@@ -229,7 +236,7 @@ export class PaymentSecurityService {
       const calculatedHash = this.createDataHash(data);
       return crypto.timingSafeEqual(
         Buffer.from(calculatedHash, 'hex'),
-        Buffer.from(expectedHash, 'hex')
+        Buffer.from(expectedHash, 'hex'),
       );
     } catch (error) {
       this.logger.error('فشل في التحقق من hash البيانات', error);
@@ -243,7 +250,10 @@ export class PaymentSecurityService {
   createHMAC(data: any, secret: string): string {
     try {
       const dataString = JSON.stringify(data);
-      return crypto.createHmac('sha256', secret).update(dataString).digest('hex');
+      return crypto
+        .createHmac('sha256', secret)
+        .update(dataString)
+        .digest('hex');
     } catch (error) {
       this.logger.error('فشل في إنشاء HMAC', error);
       throw new Error('فشل في إنشاء HMAC');
@@ -258,7 +268,7 @@ export class PaymentSecurityService {
       const calculatedHMAC = this.createHMAC(data, secret);
       return crypto.timingSafeEqual(
         Buffer.from(calculatedHMAC, 'hex'),
-        Buffer.from(hmac, 'hex')
+        Buffer.from(hmac, 'hex'),
       );
     } catch (error) {
       this.logger.error('فشل في التحقق من HMAC', error);

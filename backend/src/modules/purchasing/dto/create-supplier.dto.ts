@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, IsOptional, IsBoolean, IsEmail } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsEmail,
+} from 'class-validator';
 
 export class CreateSupplierDto {
   @IsNotEmpty({ message: 'اسم المورد مطلوب' })

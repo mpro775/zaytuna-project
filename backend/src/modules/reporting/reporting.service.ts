@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  BadRequestException,
-} from '@nestjs/common';
+﻿import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../shared/database/prisma.service';
 import { CacheService } from '../../shared/cache/cache.service';
 
@@ -193,7 +189,7 @@ export class ReportingService {
   ) {}
 
   /**
-   * تقرير المبيعات الشامل
+   * طھظ‚ط±ظٹط± ط§ظ„ظ…ط¨ظٹط¹ط§طھ ط§ظ„ط´ط§ظ…ظ„
    */
   async getSalesReport(
     startDate: Date,
@@ -202,7 +198,9 @@ export class ReportingService {
     customerId?: string,
   ): Promise<SalesReport> {
     try {
-      this.logger.log(`إنشاء تقرير المبيعات: ${startDate.toISOString()} - ${endDate.toISOString()}`);
+      this.logger.log(
+        `ط¥ظ†ط´ط§ط، طھظ‚ط±ظٹط± ط§ظ„ظ…ط¨ظٹط¹ط§طھ: ${startDate.toISOString()} - ${endDate.toISOString()}`,
+      );
 
       const cacheKey = `sales_report:${startDate.toISOString()}:${endDate.toISOString()}:${branchId || 'all'}:${customerId || 'all'}`;
 
@@ -211,7 +209,7 @@ export class ReportingService {
         return cachedReport;
       }
 
-      // استعلامات البيانات الأساسية
+      // ط§ط³طھط¹ظ„ط§ظ…ط§طھ ط§ظ„ط¨ظٹط§ظ†ط§طھ ط§ظ„ط£ط³ط§ط³ظٹط©
       const whereClause: any = {
         createdAt: {
           gte: startDate,
@@ -226,7 +224,7 @@ export class ReportingService {
         whereClause.branchId = branchId;
       }
 
-      // الملخص العام
+      // ط§ظ„ظ…ظ„ط®طµ ط§ظ„ط¹ط§ظ…
       const salesSummary = await this.prisma.salesInvoice.aggregate({
         where: whereClause,
         _count: { id: true },
@@ -240,9 +238,10 @@ export class ReportingService {
 
       const totalSales = Number(salesSummary._sum.totalAmount || 0);
       const totalInvoices = salesSummary._count.id;
-      const averageOrderValue = totalInvoices > 0 ? totalSales / totalInvoices : 0;
+      const averageOrderValue =
+        totalInvoices > 0 ? totalSales / totalInvoices : 0;
 
-      // أفضل المنتجات مبيعاً
+      // ط£ظپط¶ظ„ ط§ظ„ظ…ظ†طھط¬ط§طھ ظ…ط¨ظٹط¹ط§ظ‹
       const topSellingProducts = await this.prisma.salesInvoiceLine.groupBy({
         by: ['productVariantId'],
         where: {
@@ -260,7 +259,7 @@ export class ReportingService {
         take: 10,
       });
 
-      // جلب تفاصيل المنتجات
+      // ط¬ظ„ط¨ طھظپط§طµظٹظ„ ط§ظ„ظ…ظ†طھط¬ط§طھ
       const topProductsWithDetails = await Promise.all(
         topSellingProducts.map(async (item) => {
           const productVariant = await this.prisma.productVariant.findUnique({
@@ -270,20 +269,22 @@ export class ReportingService {
 
           return {
             productId: productVariant?.product.id || '',
-            productName: productVariant?.product.name || 'غير معروف',
+            productName: productVariant?.product.name || 'ط؛ظٹط± ظ…ط¹ط±ظˆظپ',
             quantity: Number(item._sum.quantity || 0),
             revenue: Number(item._sum.lineTotal || 0),
           };
-        })
+        }),
       );
 
-      // المبيعات حسب الفترة (يومياً)
-      const salesByPeriod = await this.prisma.$queryRaw<Array<{
-        period: string;
-        sales: number;
-        revenue: number;
-        invoices: number;
-      }>>`
+      // ط§ظ„ظ…ط¨ظٹط¹ط§طھ ط­ط³ط¨ ط§ظ„ظپطھط±ط© (ظٹظˆظ…ظٹط§ظ‹)
+      const salesByPeriod = await this.prisma.$queryRaw<
+        Array<{
+          period: string;
+          sales: number;
+          revenue: number;
+          invoices: number;
+        }>
+      >`
         SELECT
           DATE(created_at) as period,
           COUNT(*) as invoices,
@@ -298,7 +299,7 @@ export class ReportingService {
         ORDER BY DATE(created_at)
       `;
 
-      // المبيعات حسب الفرع
+      // ط§ظ„ظ…ط¨ظٹط¹ط§طھ ط­ط³ط¨ ط§ظ„ظپط±ط¹
       const salesByBranch = await this.prisma.salesInvoice.groupBy({
         by: ['branchId'],
         where: whereClause,
@@ -318,15 +319,15 @@ export class ReportingService {
 
           return {
             branchId: item.branchId,
-            branchName: branch?.name || 'غير معروف',
+            branchName: branch?.name || 'ط؛ظٹط± ظ…ط¹ط±ظˆظپ',
             sales: Number(item._sum.subtotal || 0),
             revenue: Number(item._sum.totalAmount || 0),
             invoices: item._count.id,
           };
-        })
+        }),
       );
 
-      // المبيعات حسب العميل
+      // ط§ظ„ظ…ط¨ظٹط¹ط§طھ ط­ط³ط¨ ط§ظ„ط¹ظ…ظٹظ„
       const salesByCustomer = await this.prisma.salesInvoice.groupBy({
         by: ['customerId'],
         where: {
@@ -352,16 +353,16 @@ export class ReportingService {
 
           return {
             customerId: item.customerId!,
-            customerName: customer?.name || 'عميل نقدي',
+            customerName: customer?.name || 'ط¹ظ…ظٹظ„ ظ†ظ‚ط¯ظٹ',
             sales: Number(item._sum.subtotal || 0),
             revenue: Number(item._sum.totalAmount || 0),
             invoices: item._count.id,
             lastPurchase: item._max.createdAt!,
           };
-        })
+        }),
       );
 
-      // المبيعات حسب طريقة الدفع
+      // ط§ظ„ظ…ط¨ظٹط¹ط§طھ ط­ط³ط¨ ط·ط±ظٹظ‚ط© ط§ظ„ط¯ظپط¹
       const paymentsByMethod = await this.prisma.payment.groupBy({
         by: ['paymentMethod'],
         where: {
@@ -371,13 +372,19 @@ export class ReportingService {
         _sum: { amount: true },
       });
 
-      const totalPayments = paymentsByMethod.reduce((sum, item) => sum + Number(item._sum.amount || 0), 0);
+      const totalPayments = paymentsByMethod.reduce(
+        (sum, item) => sum + Number(item._sum.amount || 0),
+        0,
+      );
 
-      const paymentsByMethodWithPercentage = paymentsByMethod.map(item => ({
+      const paymentsByMethodWithPercentage = paymentsByMethod.map((item) => ({
         method: item.paymentMethod,
         amount: Number(item._sum.amount || 0),
         count: item._count.id,
-        percentage: totalPayments > 0 ? (Number(item._sum.amount || 0) / totalPayments) * 100 : 0,
+        percentage:
+          totalPayments > 0
+            ? (Number(item._sum.amount || 0) / totalPayments) * 100
+            : 0,
       }));
 
       const report: SalesReport = {
@@ -390,50 +397,58 @@ export class ReportingService {
           averageOrderValue,
           topSellingProducts: topProductsWithDetails,
         },
-        byPeriod: salesByPeriod.map(item => ({
+        byPeriod: salesByPeriod.map((item) => ({
           period: item.period,
           sales: Number(item.sales || 0),
           revenue: Number(item.revenue || 0),
           invoices: Number(item.invoices || 0),
         })),
         byBranch: branchesWithNames,
-        byCustomer: customersWithNames.sort((a, b) => b.revenue - a.revenue).slice(0, 20),
+        byCustomer: customersWithNames
+          .sort((a, b) => b.revenue - a.revenue)
+          .slice(0, 20),
         byPaymentMethod: paymentsByMethodWithPercentage,
       };
 
-      await this.cacheService.set(cacheKey, report, { ttl: 1800 }); // 30 دقيقة
+      await this.cacheService.set(cacheKey, report, { ttl: 1800 }); // 30 ط¯ظ‚ظٹظ‚ط©
 
       return report;
     } catch (error) {
-      this.logger.error('فشل في إنشاء تقرير المبيعات', error);
+      this.logger.error(
+        'ظپط´ظ„ ظپظٹ ط¥ظ†ط´ط§ط، طھظ‚ط±ظٹط± ط§ظ„ظ…ط¨ظٹط¹ط§طھ',
+        error,
+      );
       throw error;
     }
   }
 
   /**
-   * تقرير المخزون الشامل
+   * طھظ‚ط±ظٹط± ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ط´ط§ظ…ظ„
    */
   async getInventoryReport(
     warehouseId?: string,
     categoryId?: string,
   ): Promise<InventoryReport> {
     try {
-      this.logger.log(`إنشاء تقرير المخزون: ${warehouseId || 'all'} - ${categoryId || 'all'}`);
+      this.logger.log(
+        `ط¥ظ†ط´ط§ط، طھظ‚ط±ظٹط± ط§ظ„ظ…ط®ط²ظˆظ†: ${warehouseId || 'all'} - ${categoryId || 'all'}`,
+      );
 
       const cacheKey = `inventory_report:${warehouseId || 'all'}:${categoryId || 'all'}`;
 
-      const cachedReport = await this.cacheService.get<InventoryReport>(cacheKey);
+      const cachedReport =
+        await this.cacheService.get<InventoryReport>(cacheKey);
       if (cachedReport) {
         return cachedReport;
       }
 
-      // استعلامات البيانات الأساسية
+      // ط§ط³طھط¹ظ„ط§ظ…ط§طھ ط§ظ„ط¨ظٹط§ظ†ط§طھ ط§ظ„ط£ط³ط§ط³ظٹط©
       const stockWhere: any = {};
       if (warehouseId) {
         stockWhere.warehouseId = warehouseId;
       }
 
-      // ملخص المخزون
+      // ظ…ظ„ط®طµ ط§ظ„ظ…ط®ط²ظˆظ†
       const stockItems = await this.prisma.stockItem.findMany({
         where: stockWhere,
         include: {
@@ -446,23 +461,31 @@ export class ReportingService {
         },
       });
 
-      // فلترة حسب الفئة إذا تم تحديدها
+      // ظپظ„طھط±ط© ط­ط³ط¨ ط§ظ„ظپط¦ط© ط¥ط°ط§ طھظ… طھط­ط¯ظٹط¯ظ‡ط§
       const filteredStockItems = categoryId
-        ? stockItems.filter(item => item.productVariant?.product?.categoryId === categoryId)
+        ? stockItems.filter(
+            (item) => item.productVariant?.product?.categoryId === categoryId,
+          )
         : stockItems;
 
-      // حساب الإحصائيات
+      // ط­ط³ط§ط¨ ط§ظ„ط¥ط­طµط§ط¦ظٹط§طھ
       const totalItems = filteredStockItems.length;
       const totalValue = filteredStockItems.reduce((sum, item) => {
         const costPrice = item.productVariant?.costPrice || 0;
-        return sum + (Number(item.quantity) * Number(costPrice));
+        return sum + Number(item.quantity) * Number(costPrice);
       }, 0);
 
-      const lowStockItems = filteredStockItems.filter(item => Number(item.quantity) <= Number(item.minStock)).length;
-      const outOfStockItems = filteredStockItems.filter(item => Number(item.quantity) <= 0).length;
-      const overStockItems = filteredStockItems.filter(item => Number(item.quantity) >= Number(item.maxStock)).length;
+      const lowStockItems = filteredStockItems.filter(
+        (item) => Number(item.quantity) <= Number(item.minStock),
+      ).length;
+      const outOfStockItems = filteredStockItems.filter(
+        (item) => Number(item.quantity) <= 0,
+      ).length;
+      const overStockItems = filteredStockItems.filter(
+        (item) => Number(item.quantity) >= Number(item.maxStock),
+      ).length;
 
-      // المخزون حسب المخزن
+      // ط§ظ„ظ…ط®ط²ظˆظ† ط­ط³ط¨ ط§ظ„ظ…ط®ط²ظ†
       const stockByWarehouse = await this.prisma.stockItem.groupBy({
         by: ['warehouseId'],
         where: stockWhere,
@@ -477,42 +500,46 @@ export class ReportingService {
             select: { name: true },
           });
 
-          const warehouseItems = filteredStockItems.filter(stock => stock.warehouseId === item.warehouseId);
+          const warehouseItems = filteredStockItems.filter(
+            (stock) => stock.warehouseId === item.warehouseId,
+          );
           const warehouseValue = warehouseItems.reduce((sum, stockItem) => {
             const costPrice = stockItem.productVariant?.costPrice || 0;
-            return sum + (Number(stockItem.quantity) * Number(costPrice));
+            return sum + Number(stockItem.quantity) * Number(costPrice);
           }, 0);
 
-          const lowStockCount = warehouseItems.filter(stockItem =>
-            Number(stockItem.quantity) <= Number(stockItem.minStock)
+          const lowStockCount = warehouseItems.filter(
+            (stockItem) =>
+              Number(stockItem.quantity) <= Number(stockItem.minStock),
           ).length;
 
           return {
             warehouseId: item.warehouseId,
-            warehouseName: warehouse?.name || 'غير معروف',
+            warehouseName: warehouse?.name || 'ط؛ظٹط± ظ…ط¹ط±ظˆظپ',
             totalItems: item._count.id,
             totalValue: warehouseValue,
             lowStockItems: lowStockCount,
           };
-        })
+        }),
       );
 
-      // تنبيهات المخزون المنخفض
+      // طھظ†ط¨ظٹظ‡ط§طھ ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ظ…ظ†ط®ظپط¶
       const lowStockAlerts = filteredStockItems
-        .filter(item => Number(item.quantity) <= Number(item.minStock))
-        .map(item => ({
+        .filter((item) => Number(item.quantity) <= Number(item.minStock))
+        .map((item) => ({
           productVariantId: item.productVariantId,
-          productName: item.productVariant?.product?.name || 'غير معروف',
+          productName:
+            item.productVariant?.product?.name || 'ط؛ظٹط± ظ…ط¹ط±ظˆظپ',
           variantName: item.productVariant?.name || '',
-          warehouseName: item.warehouse?.name || 'غير معروف',
+          warehouseName: item.warehouse?.name || 'ط؛ظٹط± ظ…ط¹ط±ظˆظپ',
           currentStock: Number(item.quantity),
           minStock: Number(item.minStock),
-          reorderPoint: Number(item.minStock) * 0.8, // نقطة إعادة الطلب = 80% من الحد الأدنى
+          reorderPoint: Number(item.minStock) * 0.8, // ظ†ظ‚ط·ط© ط¥ط¹ط§ط¯ط© ط§ظ„ط·ظ„ط¨ = 80% ظ…ظ† ط§ظ„ط­ط¯ ط§ظ„ط£ط¯ظ†ظ‰
         }))
         .sort((a, b) => a.currentStock - b.currentStock)
         .slice(0, 50);
 
-      // حركات المخزون الأخيرة
+      // ط­ط±ظƒط§طھ ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ط£ط®ظٹط±ط©
       const stockMovements = await this.prisma.stockMovement.findMany({
         where: stockWhere,
         include: {
@@ -525,22 +552,23 @@ export class ReportingService {
         take: 100,
       });
 
-      const movementsFormatted = stockMovements.map(movement => ({
+      const movementsFormatted = stockMovements.map((movement) => ({
         date: movement.createdAt,
-        productName: `${movement.productVariant?.product?.name || 'غير معروف'} ${movement.productVariant?.name || ''}`.trim(),
+        productName:
+          `${movement.productVariant?.product?.name || 'ط؛ظٹط± ظ…ط¹ط±ظˆظپ'} ${movement.productVariant?.name || ''}`.trim(),
         movementType: movement.movementType,
         quantity: Number(movement.quantity),
-        warehouseName: movement.warehouse?.name || 'غير معروف',
+        warehouseName: movement.warehouse?.name || 'ط؛ظٹط± ظ…ط¹ط±ظˆظپ',
         reason: movement.reason || '',
       }));
 
-      // المنتجات الأكثر حركة
+      // ط§ظ„ظ…ظ†طھط¬ط§طھ ط§ظ„ط£ظƒط«ط± ط­ط±ظƒط©
       const productMovements = await this.prisma.stockMovement.groupBy({
         by: ['productVariantId'],
         where: {
           ...stockWhere,
           createdAt: {
-            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // آخر 30 يوم
+            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // ط¢ط®ط± 30 ظٹظˆظ…
           },
         },
         _sum: { quantity: true },
@@ -548,7 +576,11 @@ export class ReportingService {
 
       const topMovingProducts = await Promise.all(
         productMovements
-          .sort((a, b) => Math.abs(Number(b._sum.quantity || 0)) - Math.abs(Number(a._sum.quantity || 0)))
+          .sort(
+            (a, b) =>
+              Math.abs(Number(b._sum.quantity || 0)) -
+              Math.abs(Number(a._sum.quantity || 0)),
+          )
           .slice(0, 20)
           .map(async (item) => {
             const productVariant = await this.prisma.productVariant.findUnique({
@@ -556,33 +588,41 @@ export class ReportingService {
               include: { product: true },
             });
 
-            const totalIn = Math.abs(Number(
-              await this.prisma.stockMovement.aggregate({
-                where: {
-                  productVariantId: item.productVariantId,
-                  warehouseId: warehouseId,
-                  movementType: { in: ['in', 'purchase', 'adjustment_in'] },
-                  createdAt: {
-                    gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-                  },
-                },
-                _sum: { quantity: true },
-              }).then(result => result._sum.quantity || 0)
-            ));
+            const totalIn = Math.abs(
+              Number(
+                await this.prisma.stockMovement
+                  .aggregate({
+                    where: {
+                      productVariantId: item.productVariantId,
+                      warehouseId: warehouseId,
+                      movementType: { in: ['in', 'purchase', 'adjustment_in'] },
+                      createdAt: {
+                        gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+                      },
+                    },
+                    _sum: { quantity: true },
+                  })
+                  .then((result) => result._sum.quantity || 0),
+              ),
+            );
 
-            const totalOut = Math.abs(Number(
-              await this.prisma.stockMovement.aggregate({
-                where: {
-                  productVariantId: item.productVariantId,
-                  warehouseId: warehouseId,
-                  movementType: { in: ['out', 'sale', 'adjustment_out'] },
-                  createdAt: {
-                    gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-                  },
-                },
-                _sum: { quantity: true },
-              }).then(result => result._sum.quantity || 0)
-            ));
+            const totalOut = Math.abs(
+              Number(
+                await this.prisma.stockMovement
+                  .aggregate({
+                    where: {
+                      productVariantId: item.productVariantId,
+                      warehouseId: warehouseId,
+                      movementType: { in: ['out', 'sale', 'adjustment_out'] },
+                      createdAt: {
+                        gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+                      },
+                    },
+                    _sum: { quantity: true },
+                  })
+                  .then((result) => result._sum.quantity || 0),
+              ),
+            );
 
             const currentStock = await this.prisma.stockItem.findFirst({
               where: {
@@ -594,13 +634,13 @@ export class ReportingService {
 
             return {
               productId: productVariant?.product.id || '',
-              productName: productVariant?.product.name || 'غير معروف',
+              productName: productVariant?.product.name || 'ط؛ظٹط± ظ…ط¹ط±ظˆظپ',
               totalIn,
               totalOut,
               netMovement: totalIn - totalOut,
               currentStock: Number(currentStock?.quantity || 0),
             };
-          })
+          }),
       );
 
       const report: InventoryReport = {
@@ -617,33 +657,39 @@ export class ReportingService {
         topMovingProducts,
       };
 
-      await this.cacheService.set(cacheKey, report, { ttl: 900 }); // 15 دقيقة
+      await this.cacheService.set(cacheKey, report, { ttl: 900 }); // 15 ط¯ظ‚ظٹظ‚ط©
 
       return report;
     } catch (error) {
-      this.logger.error('فشل في إنشاء تقرير المخزون', error);
+      this.logger.error(
+        'ظپط´ظ„ ظپظٹ ط¥ظ†ط´ط§ط، طھظ‚ط±ظٹط± ط§ظ„ظ…ط®ط²ظˆظ†',
+        error,
+      );
       throw error;
     }
   }
 
   /**
-   * التقرير المالي الشامل
+   * ط§ظ„طھظ‚ط±ظٹط± ط§ظ„ظ…ط§ظ„ظٹ ط§ظ„ط´ط§ظ…ظ„
    */
   async getFinancialReport(
     asOfDate: Date,
     includeCashFlow: boolean = false,
   ): Promise<FinancialReport> {
     try {
-      this.logger.log(`إنشاء التقرير المالي حتى: ${asOfDate.toISOString()}`);
+      this.logger.log(
+        `ط¥ظ†ط´ط§ط، ط§ظ„طھظ‚ط±ظٹط± ط§ظ„ظ…ط§ظ„ظٹ ط­طھظ‰: ${asOfDate.toISOString()}`,
+      );
 
       const cacheKey = `financial_report:${asOfDate.toISOString()}:${includeCashFlow}`;
 
-      const cachedReport = await this.cacheService.get<FinancialReport>(cacheKey);
+      const cachedReport =
+        await this.cacheService.get<FinancialReport>(cacheKey);
       if (cachedReport) {
         return cachedReport;
       }
 
-      // الميزانية العمومية
+      // ط§ظ„ظ…ظٹط²ط§ظ†ظٹط© ط§ظ„ط¹ظ…ظˆظ…ظٹط©
       const balanceSheet = await this.calculateBalanceSheet(asOfDate);
       const profitLoss = await this.calculateProfitLoss(asOfDate);
 
@@ -663,21 +709,26 @@ export class ReportingService {
         },
       };
 
-      await this.cacheService.set(cacheKey, report, { ttl: 3600 }); // ساعة واحدة
+      await this.cacheService.set(cacheKey, report, { ttl: 3600 }); // ط³ط§ط¹ط© ظˆط§ط­ط¯ط©
 
       return report;
     } catch (error) {
-      this.logger.error('فشل في إنشاء التقرير المالي', error);
+      this.logger.error(
+        'ظپط´ظ„ ظپظٹ ط¥ظ†ط´ط§ط، ط§ظ„طھظ‚ط±ظٹط± ط§ظ„ظ…ط§ظ„ظٹ',
+        error,
+      );
       throw error;
     }
   }
 
   /**
-   * بيانات لوحة المؤشرات
+   * ط¨ظٹط§ظ†ط§طھ ظ„ظˆط­ط© ط§ظ„ظ…ط¤ط´ط±ط§طھ
    */
   async getDashboardData(branchId?: string): Promise<DashboardData> {
     try {
-      this.logger.log(`إنشاء بيانات لوحة المؤشرات: ${branchId || 'all'}`);
+      this.logger.log(
+        `ط¥ظ†ط´ط§ط، ط¨ظٹط§ظ†ط§طھ ظ„ظˆط­ط© ط§ظ„ظ…ط¤ط´ط±ط§طھ: ${branchId || 'all'}`,
+      );
 
       const cacheKey = `dashboard_data:${branchId || 'all'}`;
 
@@ -687,16 +738,24 @@ export class ReportingService {
       }
 
       const now = new Date();
-      const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-      const twoMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, now.getDate());
+      const lastMonth = new Date(
+        now.getFullYear(),
+        now.getMonth() - 1,
+        now.getDate(),
+      );
+      const twoMonthsAgo = new Date(
+        now.getFullYear(),
+        now.getMonth() - 2,
+        now.getDate(),
+      );
 
-      // استعلامات البيانات الأساسية
+      // ط§ط³طھط¹ظ„ط§ظ…ط§طھ ط§ظ„ط¨ظٹط§ظ†ط§طھ ط§ظ„ط£ط³ط§ط³ظٹط©
       const whereClause: any = {};
       if (branchId) {
         whereClause.branchId = branchId;
       }
 
-      // الإحصائيات العامة
+      // ط§ظ„ط¥ط­طµط§ط¦ظٹط§طھ ط§ظ„ط¹ط§ظ…ط©
       const currentMonthSales = await this.prisma.salesInvoice.aggregate({
         where: {
           ...whereClause,
@@ -723,7 +782,11 @@ export class ReportingService {
       });
 
       const totalCustomers = await this.prisma.customer.count({
-        where: branchId ? { /* TODO: إضافة ربط العملاء بالفروع */ } : {},
+        where: branchId
+          ? {
+              /* MVP note: ط¥ط¶ط§ظپط© ط±ط¨ط· ط§ظ„ط¹ظ…ظ„ط§ط، ط¨ط§ظ„ظپط±ظˆط¹ */
+            }
+          : {},
       });
 
       const lastMonthCustomers = await this.prisma.customer.count({
@@ -735,22 +798,30 @@ export class ReportingService {
         },
       });
 
-      // حساب التغييرات
+      // ط­ط³ط§ط¨ ط§ظ„طھط؛ظٹظٹط±ط§طھ
       const currentRevenue = Number(currentMonthSales._sum.totalAmount || 0);
       const lastRevenue = Number(lastMonthSales._sum.totalAmount || 0);
-      const revenueChange = lastRevenue > 0 ? ((currentRevenue - lastRevenue) / lastRevenue) * 100 : 0;
+      const revenueChange =
+        lastRevenue > 0
+          ? ((currentRevenue - lastRevenue) / lastRevenue) * 100
+          : 0;
 
       const currentOrders = currentMonthSales._count.id;
       const lastOrders = lastMonthSales._count.id;
-      const ordersChange = lastOrders > 0 ? ((currentOrders - lastOrders) / lastOrders) * 100 : 0;
+      const ordersChange =
+        lastOrders > 0 ? ((currentOrders - lastOrders) / lastOrders) * 100 : 0;
 
-      const customersChange = lastMonthCustomers > 0 ? ((totalCustomers - lastMonthCustomers) / lastMonthCustomers) * 100 : 0;
+      const customersChange =
+        lastMonthCustomers > 0
+          ? ((totalCustomers - lastMonthCustomers) / lastMonthCustomers) * 100
+          : 0;
 
       const currentAOV = currentOrders > 0 ? currentRevenue / currentOrders : 0;
       const lastAOV = lastOrders > 0 ? lastRevenue / lastOrders : 0;
-      const aovChange = lastAOV > 0 ? ((currentAOV - lastAOV) / lastAOV) * 100 : 0;
+      const aovChange =
+        lastAOV > 0 ? ((currentAOV - lastAOV) / lastAOV) * 100 : 0;
 
-      // الإيرادات حسب الفترة (آخر 12 شهر)
+      // ط§ظ„ط¥ظٹط±ط§ط¯ط§طھ ط­ط³ط¨ ط§ظ„ظپطھط±ط© (ط¢ط®ط± 12 ط´ظ‡ط±)
       const revenueByPeriod: Array<{
         period: string;
         revenue: number;
@@ -758,7 +829,11 @@ export class ReportingService {
       }> = [];
       for (let i = 11; i >= 0; i--) {
         const periodStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const periodEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+        const periodEnd = new Date(
+          now.getFullYear(),
+          now.getMonth() - i + 1,
+          1,
+        );
 
         const periodSales = await this.prisma.salesInvoice.aggregate({
           where: {
@@ -774,19 +849,24 @@ export class ReportingService {
         });
 
         revenueByPeriod.push({
-          period: periodStart.toLocaleDateString('ar-SA', { year: 'numeric', month: 'short' }),
+          period: periodStart.toLocaleDateString('ar-SA', {
+            year: 'numeric',
+            month: 'short',
+          }),
           revenue: Number(periodSales._sum.totalAmount || 0),
           orders: periodSales._count.id,
         });
       }
 
-      // المبيعات حسب الفئة
-      const salesByCategory = await this.prisma.$queryRaw<Array<{
-        category: string;
-        revenue: number;
-      }>>`
+      // ط§ظ„ظ…ط¨ظٹط¹ط§طھ ط­ط³ط¨ ط§ظ„ظپط¦ط©
+      const salesByCategory = await this.prisma.$queryRaw<
+        Array<{
+          category: string;
+          revenue: number;
+        }>
+      >`
         SELECT
-          COALESCE(c.name, 'غير مصنف') as category,
+          COALESCE(c.name, 'ط؛ظٹط± ظ…طµظ†ظپ') as category,
           SUM(si.total_amount) as revenue
         FROM sales_invoices si
         LEFT JOIN sales_invoice_lines sil ON si.id = sil.sales_invoice_id
@@ -801,15 +881,21 @@ export class ReportingService {
         LIMIT 10
       `;
 
-      const totalCategoryRevenue = salesByCategory.reduce((sum, item) => sum + Number(item.revenue || 0), 0);
+      const totalCategoryRevenue = salesByCategory.reduce(
+        (sum, item) => sum + Number(item.revenue || 0),
+        0,
+      );
 
-      const salesByCategoryWithPercentage = salesByCategory.map(item => ({
-        category: item.category || 'غير مصنف',
+      const salesByCategoryWithPercentage = salesByCategory.map((item) => ({
+        category: item.category || 'ط؛ظٹط± ظ…طµظ†ظپ',
         revenue: Number(item.revenue || 0),
-        percentage: totalCategoryRevenue > 0 ? (Number(item.revenue || 0) / totalCategoryRevenue) * 100 : 0,
+        percentage:
+          totalCategoryRevenue > 0
+            ? (Number(item.revenue || 0) / totalCategoryRevenue) * 100
+            : 0,
       }));
 
-      // أفضل المنتجات
+      // ط£ظپط¶ظ„ ط§ظ„ظ…ظ†طھط¬ط§طھ
       const topProducts = await this.prisma.salesInvoiceLine.groupBy({
         by: ['productVariantId'],
         where: {
@@ -842,20 +928,24 @@ export class ReportingService {
 
           return {
             productId: productVariant?.product.id || '',
-            productName: productVariant?.product.name || 'غير معروف',
+            productName: productVariant?.product.name || 'ط؛ظٹط± ظ…ط¹ط±ظˆظپ',
             revenue: Number(item._sum.lineTotal || 0),
             quantity: Number(item._sum.quantity || 0),
           };
-        })
+        }),
       );
 
-      // نمو العملاء
+      // ظ†ظ…ظˆ ط§ظ„ط¹ظ…ظ„ط§ط،
       const customerGrowth: Array<{
         period: string;
         customers: number;
       }> = [];
       for (let i = 11; i >= 0; i--) {
-        const periodEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+        const periodEnd = new Date(
+          now.getFullYear(),
+          now.getMonth() - i + 1,
+          1,
+        );
         const periodStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
 
         const customersCount = await this.prisma.customer.count({
@@ -867,12 +957,15 @@ export class ReportingService {
         });
 
         customerGrowth.push({
-          period: periodStart.toLocaleDateString('ar-SA', { year: 'numeric', month: 'short' }),
+          period: periodStart.toLocaleDateString('ar-SA', {
+            year: 'numeric',
+            month: 'short',
+          }),
           customers: customersCount,
         });
       }
 
-      // التنبيهات
+      // ط§ظ„طھظ†ط¨ظٹظ‡ط§طھ
       const lowStockItems = await this.prisma.stockItem.count({
         where: {
           quantity: {
@@ -881,7 +974,7 @@ export class ReportingService {
         },
       });
 
-      // الأنشطة الأخيرة
+      // ط§ظ„ط£ظ†ط´ط·ط© ط§ظ„ط£ط®ظٹط±ط©
       const recentSales = await this.prisma.salesInvoice.findMany({
         where: {
           ...whereClause,
@@ -894,12 +987,12 @@ export class ReportingService {
         take: 10,
       });
 
-      const recentActivity = recentSales.map(sale => ({
+      const recentActivity = recentSales.map((sale) => ({
         type: 'sale' as const,
-        description: `مبيعات للعميل ${sale.customer?.name || 'عميل نقدي'}`,
+        description: `ظ…ط¨ظٹط¹ط§طھ ظ„ظ„ط¹ظ…ظٹظ„ ${sale.customer?.name || 'ط¹ظ…ظٹظ„ ظ†ظ‚ط¯ظٹ'}`,
         amount: Number(sale.totalAmount),
         date: sale.createdAt,
-        reference: `فاتورة رقم ${sale.invoiceNumber}`,
+        reference: `ظپط§طھظˆط±ط© ط±ظ‚ظ… ${sale.invoiceNumber}`,
       }));
 
       const dashboardData: DashboardData = {
@@ -921,48 +1014,61 @@ export class ReportingService {
         },
         alerts: {
           lowStockItems,
-          overduePayments: 0, // TODO: تنفيذ لاحقاً
-          pendingOrders: 0, // TODO: تنفيذ لاحقاً
-          expiringProducts: 0, // TODO: تنفيذ لاحقاً
+          overduePayments: 0, // MVP note: طھظ†ظپظٹط° ظ„ط§ط­ظ‚ط§ظ‹
+          pendingOrders: 0, // MVP note: طھظ†ظپظٹط° ظ„ط§ط­ظ‚ط§ظ‹
+          expiringProducts: 0, // MVP note: طھظ†ظپظٹط° ظ„ط§ط­ظ‚ط§ظ‹
         },
         recentActivity,
       };
 
-      await this.cacheService.set(cacheKey, dashboardData, { ttl: 300 }); // 5 دقائق
+      await this.cacheService.set(cacheKey, dashboardData, { ttl: 300 }); // 5 ط¯ظ‚ط§ط¦ظ‚
 
       return dashboardData;
     } catch (error) {
-      this.logger.error('فشل في إنشاء بيانات لوحة المؤشرات', error);
+      this.logger.error(
+        'ظپط´ظ„ ظپظٹ ط¥ظ†ط´ط§ط، ط¨ظٹط§ظ†ط§طھ ظ„ظˆط­ط© ط§ظ„ظ…ط¤ط´ط±ط§طھ',
+        error,
+      );
       throw error;
     }
   }
 
   /**
-   * تصدير التقرير كملف Excel
+   * طھطµط¯ظٹط± ط§ظ„طھظ‚ط±ظٹط± ظƒظ…ظ„ظپ Excel
    */
   async exportReportToExcel(reportType: string, filters: any): Promise<Buffer> {
     try {
-      this.logger.log(`تصدير تقرير ${reportType} إلى Excel`);
+      this.logger.log(`طھطµط¯ظٹط± طھظ‚ط±ظٹط± ${reportType} ط¥ظ„ظ‰ Excel`);
 
-      // TODO: تنفيذ تصدير Excel باستخدام مكتبة مثل exceljs
-      throw new BadRequestException('ميزة التصدير إلى Excel ستكون متاحة قريباً');
+      // MVP note: طھظ†ظپظٹط° طھطµط¯ظٹط± Excel ط¨ط§ط³طھط®ط¯ط§ظ… ظ…ظƒطھط¨ط© ظ…ط«ظ„ exceljs
+      throw new BadRequestException(
+        'ظ…ظٹط²ط© ط§ظ„طھطµط¯ظٹط± ط¥ظ„ظ‰ Excel ط³طھظƒظˆظ† ظ…طھط§ط­ط© ظ‚ط±ظٹط¨ط§ظ‹',
+      );
     } catch (error) {
-      this.logger.error(`فشل في تصدير تقرير ${reportType}`, error);
+      this.logger.error(
+        `ظپط´ظ„ ظپظٹ طھطµط¯ظٹط± طھظ‚ط±ظٹط± ${reportType}`,
+        error,
+      );
       throw error;
     }
   }
 
   /**
-   * تصدير التقرير كملف PDF
+   * طھطµط¯ظٹط± ط§ظ„طھظ‚ط±ظٹط± ظƒظ…ظ„ظپ PDF
    */
   async exportReportToPDF(reportType: string, filters: any): Promise<Buffer> {
     try {
-      this.logger.log(`تصدير تقرير ${reportType} إلى PDF`);
+      this.logger.log(`طھطµط¯ظٹط± طھظ‚ط±ظٹط± ${reportType} ط¥ظ„ظ‰ PDF`);
 
-      // TODO: تنفيذ تصدير PDF باستخدام مكتبة مثل puppeteer أو pdfkit
-      throw new BadRequestException('ميزة التصدير إلى PDF ستكون متاحة قريباً');
+      // MVP note: طھظ†ظپظٹط° طھطµط¯ظٹط± PDF ط¨ط§ط³طھط®ط¯ط§ظ… ظ…ظƒطھط¨ط© ظ…ط«ظ„ puppeteer ط£ظˆ pdfkit
+      throw new BadRequestException(
+        'ظ…ظٹط²ط© ط§ظ„طھطµط¯ظٹط± ط¥ظ„ظ‰ PDF ط³طھظƒظˆظ† ظ…طھط§ط­ط© ظ‚ط±ظٹط¨ط§ظ‹',
+      );
     } catch (error) {
-      this.logger.error(`فشل في تصدير تقرير ${reportType}`, error);
+      this.logger.error(
+        `ظپط´ظ„ ظپظٹ طھطµط¯ظٹط± طھظ‚ط±ظٹط± ${reportType}`,
+        error,
+      );
       throw error;
     }
   }
@@ -970,10 +1076,12 @@ export class ReportingService {
   // ========== HELPER METHODS ==========
 
   /**
-   * حساب الميزانية العمومية
+   * ط­ط³ط§ط¨ ط§ظ„ظ…ظٹط²ط§ظ†ظٹط© ط§ظ„ط¹ظ…ظˆظ…ظٹط©
    */
-  private async calculateBalanceSheet(asOfDate: Date): Promise<FinancialReport['balanceSheet']> {
-    // TODO: تنفيذ حساب الميزانية العمومية بناءً على أرصدة الحسابات
+  private async calculateBalanceSheet(
+    asOfDate: Date,
+  ): Promise<FinancialReport['balanceSheet']> {
+    // MVP note: طھظ†ظپظٹط° ط­ط³ط§ط¨ ط§ظ„ظ…ظٹط²ط§ظ†ظٹط© ط§ظ„ط¹ظ…ظˆظ…ظٹط© ط¨ظ†ط§ط،ظ‹ ط¹ظ„ظ‰ ط£ط±طµط¯ط© ط§ظ„ط­ط³ط§ط¨ط§طھ
     return {
       assets: {
         currentAssets: 0,
@@ -995,10 +1103,12 @@ export class ReportingService {
   }
 
   /**
-   * حساب قائمة الدخل
+   * ط­ط³ط§ط¨ ظ‚ط§ط¦ظ…ط© ط§ظ„ط¯ط®ظ„
    */
-  private async calculateProfitLoss(asOfDate: Date): Promise<FinancialReport['profitLoss']> {
-    // TODO: تنفيذ حساب قائمة الدخل بناءً على حركة الحسابات
+  private async calculateProfitLoss(
+    asOfDate: Date,
+  ): Promise<FinancialReport['profitLoss']> {
+    // MVP note: طھظ†ظپظٹط° ط­ط³ط§ط¨ ظ‚ط§ط¦ظ…ط© ط§ظ„ط¯ط®ظ„ ط¨ظ†ط§ط،ظ‹ ط¹ظ„ظ‰ ط­ط±ظƒط© ط§ظ„ط­ط³ط§ط¨ط§طھ
     return {
       revenue: {
         salesRevenue: 0,
@@ -1017,10 +1127,12 @@ export class ReportingService {
   }
 
   /**
-   * حساب التدفق النقدي
+   * ط­ط³ط§ط¨ ط§ظ„طھط¯ظپظ‚ ط§ظ„ظ†ظ‚ط¯ظٹ
    */
-  private async calculateCashFlow(asOfDate: Date): Promise<FinancialReport['cashFlow']> {
-    // TODO: تنفيذ حساب التدفق النقدي
+  private async calculateCashFlow(
+    asOfDate: Date,
+  ): Promise<FinancialReport['cashFlow']> {
+    // MVP note: طھظ†ظپظٹط° ط­ط³ط§ط¨ ط§ظ„طھط¯ظپظ‚ ط§ظ„ظ†ظ‚ط¯ظٹ
     return {
       operatingActivities: 0,
       investingActivities: 0,
@@ -1030,12 +1142,14 @@ export class ReportingService {
   }
 
   /**
-   * إبطال كاش التقارير
+   * ط¥ط¨ط·ط§ظ„ ظƒط§ط´ ط§ظ„طھظ‚ط§ط±ظٹط±
    */
   private async invalidateReportsCache(): Promise<void> {
     await this.cacheService.delete(this.reportsCacheKey);
 
-    const reportKeys = await this.cacheService.getKeys(`${this.reportsCacheKey}:*`);
+    const reportKeys = await this.cacheService.getKeys(
+      `${this.reportsCacheKey}:*`,
+    );
     for (const key of reportKeys) {
       await this.cacheService.delete(key);
     }

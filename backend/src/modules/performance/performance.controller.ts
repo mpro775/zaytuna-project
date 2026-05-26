@@ -8,10 +8,26 @@ import {
   HttpStatus,
   HttpCode,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { QueryOptimizationService, PerformanceReport } from './query-optimization.service';
-import { CacheOptimizationService, CacheStats, CacheOptimizationResult } from './cache-optimization.service';
-import { LoadTestingService, LoadTestConfig, LoadTestResult } from './load-testing.service';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+import {
+  QueryOptimizationService,
+  PerformanceReport,
+} from './query-optimization.service';
+import {
+  CacheOptimizationService,
+  CacheStats,
+  CacheOptimizationResult,
+} from './cache-optimization.service';
+import {
+  LoadTestingService,
+  LoadTestConfig,
+  LoadTestResult,
+} from './load-testing.service';
 import { PermissionGuard } from '../../common/guards/permission.guard';
 import { Permissions } from '../../common/decorators/permission.decorator';
 
@@ -254,7 +270,9 @@ export class PerformanceController {
     const stopped = this.loadTestingService.stopLoadTest(testId);
     return {
       stopped,
-      message: stopped ? 'تم إيقاف اختبار الحمل' : 'اختبار الحمل غير موجود أو متوقف بالفعل',
+      message: stopped
+        ? 'تم إيقاف اختبار الحمل'
+        : 'اختبار الحمل غير موجود أو متوقف بالفعل',
     };
   }
 

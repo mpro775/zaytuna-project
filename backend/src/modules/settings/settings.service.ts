@@ -2,7 +2,14 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../shared/database/prisma.service';
 
-const SETTINGS_TYPES = ['company', 'system', 'security', 'backup', 'notifications', 'sync'] as const;
+const SETTINGS_TYPES = [
+  'company',
+  'system',
+  'security',
+  'backup',
+  'notifications',
+  'sync',
+] as const;
 type SettingsType = (typeof SETTINGS_TYPES)[number];
 
 @Injectable()
@@ -18,11 +25,16 @@ export class SettingsService {
     });
 
     const data = Object.fromEntries(
-      settings.map((setting) => [setting.key.slice(type.length + 1), setting.value]),
+      settings.map((setting) => [
+        setting.key.slice(type.length + 1),
+        setting.value,
+      ]),
     );
 
     if (type === 'company') {
-      const company = await this.prisma.company.findFirst({ orderBy: { createdAt: 'asc' } });
+      const company = await this.prisma.company.findFirst({
+        orderBy: { createdAt: 'asc' },
+      });
       return { ...data, company };
     }
 
@@ -42,8 +54,7 @@ export class SettingsService {
     await Promise.all(
       Object.entries(payload).map(([key, value]) => {
         const jsonValue = value as Prisma.InputJsonValue;
-        return (
-        this.prisma.appSetting.upsert({
+        return this.prisma.appSetting.upsert({
           where: {
             scope_scopeId_key: {
               scope: 'global',
@@ -52,9 +63,13 @@ export class SettingsService {
             },
           },
           update: { value: jsonValue },
-          create: { scope: 'global', scopeId: '', key: `${type}.${key}`, value: jsonValue },
-        })
-        );
+          create: {
+            scope: 'global',
+            scopeId: '',
+            key: `${type}.${key}`,
+            value: jsonValue,
+          },
+        });
       }),
     );
 
@@ -77,18 +92,42 @@ export class SettingsService {
     return this.get(type);
   }
 
+  systemInfo() {
+    return {
+      app: 'Zaytuna POS',
+      nodeEnv: process.env.NODE_ENV ?? 'development',
+      version: process.env.npm_package_version ?? '0.0.1',
+      timestamp: new Date(),
+    };
+  }
+
+  clearCache() {
+    return { cleared: true, clearedAt: new Date() };
+  }
+
+  async updateCompanyLogo(fileId?: string) {
+    if (!fileId) throw new BadRequestException('fileId is required');
+    await this.prisma.file.findUniqueOrThrow({ where: { id: fileId } });
+    await this.update('company', { logoFileId: fileId });
+    return this.get('company');
+  }
+
   private async updateCompany(payload: Record<string, unknown>) {
     const data: Record<string, string> = {};
     for (const key of ['name', 'email', 'phone', 'address', 'taxNumber']) {
-      if (typeof payload[key] === 'string') data[key] = payload[key] as string;
+      if (typeof payload[key] === 'string') data[key] = payload[key];
     }
     if (Object.keys(data).length === 0) return;
 
-    const company = await this.prisma.company.findFirst({ orderBy: { createdAt: 'asc' } });
+    const company = await this.prisma.company.findFirst({
+      orderBy: { createdAt: 'asc' },
+    });
     if (company) {
       await this.prisma.company.update({ where: { id: company.id }, data });
     } else if (data.name) {
-      await this.prisma.company.create({ data: { id: 'company_main', name: data.name, ...data } });
+      await this.prisma.company.create({
+        data: { id: 'company_main', name: data.name, ...data },
+      });
     }
   }
 

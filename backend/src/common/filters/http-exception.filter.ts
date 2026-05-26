@@ -83,7 +83,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
         return {
           statusCode: status,
           code: errorResponse.code || this.getErrorCodeFromStatus(status),
-          message: errorResponse.message || errorResponse.error || 'خطأ غير معروف',
+          message:
+            errorResponse.message || errorResponse.error || 'خطأ غير معروف',
           details: errorResponse.details,
         };
       }
@@ -145,9 +146,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
     return (
       exception instanceof Error &&
       (exception.name === 'PrismaClientKnownRequestError' ||
-       exception.name === 'PrismaClientUnknownRequestError' ||
-       exception.name === 'PrismaClientValidationError' ||
-       exception.message.toLowerCase().includes('database'))
+        exception.name === 'PrismaClientUnknownRequestError' ||
+        exception.name === 'PrismaClientValidationError' ||
+        exception.message.toLowerCase().includes('database'))
     );
   }
 
@@ -155,8 +156,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     return (
       exception instanceof Error &&
       (exception.name === 'ValidationError' ||
-       exception.name === 'BadRequestException' ||
-       exception.message.toLowerCase().includes('validation'))
+        exception.name === 'BadRequestException' ||
+        exception.message.toLowerCase().includes('validation'))
     );
   }
 

@@ -22,10 +22,10 @@ export class RoleGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     // الحصول على الأدوار المطلوبة
-    const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const requiredRoles = this.reflector.getAllAndOverride<string[]>(
+      ROLES_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
     // إذا لم تكن هناك أدوار مطلوبة، السماح بالوصول
     if (!requiredRoles || requiredRoles.length === 0) {

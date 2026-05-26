@@ -16,17 +16,17 @@ export class UpdateProductVariantDto {
 
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'السعر يجب أن يكون رقم' })
-  @Transform(({ value }) => value ? parseFloat(value) : undefined)
+  @Transform(({ value }) => (value ? parseFloat(value) : undefined))
   price?: number;
 
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'سعر التكلفة يجب أن يكون رقم' })
-  @Transform(({ value }) => value ? parseFloat(value) : undefined)
+  @Transform(({ value }) => (value ? parseFloat(value) : undefined))
   costPrice?: number;
 
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 3 }, { message: 'الوزن يجب أن يكون رقم' })
-  @Transform(({ value }) => value ? parseFloat(value) : undefined)
+  @Transform(({ value }) => (value ? parseFloat(value) : undefined))
   weight?: number;
 
   @IsOptional()

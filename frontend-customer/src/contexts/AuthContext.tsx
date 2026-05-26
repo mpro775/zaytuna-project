@@ -71,6 +71,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
   }, [user, setUser, setLoading]);
 
+  useEffect(() => {
+    const handleSessionExpired = () => {
+      setUser(null);
+    };
+
+    window.addEventListener('zaytuna:session-expired', handleSessionExpired);
+    return () => window.removeEventListener('zaytuna:session-expired', handleSessionExpired);
+  }, [setUser]);
+
   // Login function - delegates to store
   const login = async (credentials: LoginCredentials): Promise<void> => {
     await storeLogin(credentials);

@@ -95,7 +95,12 @@ export class AccessControlService {
       }
 
       // التحقق من قواعد الوصول
-      const hasAccess = await this.checkAccessRules(fileId, userId, action, context);
+      const hasAccess = await this.checkAccessRules(
+        fileId,
+        userId,
+        action,
+        context,
+      );
 
       // تسجيل محاولة الوصول
       await this.logAccessAttempt(fileId, userId, action, hasAccess, context);
@@ -291,7 +296,11 @@ export class AccessControlService {
   /**
    * إزالة قاعدة وصول
    */
-  async removeAccessRule(fileId: string, ruleId: string, userId: string): Promise<void> {
+  async removeAccessRule(
+    fileId: string,
+    ruleId: string,
+    userId: string,
+  ): Promise<void> {
     try {
       await this.prisma.fileAccess.delete({
         where: { id: ruleId },
@@ -331,7 +340,7 @@ export class AccessControlService {
         },
       });
 
-      return rules.map(rule => ({
+      return rules.map((rule) => ({
         fileId: rule.fileId,
         accessCount: 0,
         ...(rule.metadata as Omit<FileAccessRule, 'fileId' | 'accessCount'>),
@@ -354,11 +363,17 @@ export class AccessControlService {
     } = {},
   ): Promise<string> {
     try {
-      const token = await this.createAccessToken(fileId, userId, [
-        { action: 'read', granted: true },
-      ], options);
+      const token = await this.createAccessToken(
+        fileId,
+        userId,
+        [{ action: 'read', granted: true }],
+        options,
+      );
 
-      const baseUrl = this.configService.get<string>('APP_URL', 'http://localhost:3000');
+      const baseUrl = this.configService.get<string>(
+        'APP_URL',
+        'http://localhost:3000',
+      );
       return `${baseUrl}/api/storage/files/${fileId}/download?token=${token.token}`;
     } catch (error) {
       this.logger.error(`فشل في إنشاء الرابط العام: ${fileId}`, error);
@@ -422,14 +437,17 @@ export class AccessControlService {
       });
 
       const totalAccess = accesses.length;
-      const uniqueUsers = new Set(accesses.map(a => a.accessedBy)).size;
+      const uniqueUsers = new Set(accesses.map((a) => a.accessedBy)).size;
 
-      const accessByType = accesses.reduce((acc, access) => {
-        acc[access.accessType] = (acc[access.accessType] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      const accessByType = accesses.reduce(
+        (acc, access) => {
+          acc[access.accessType] = (acc[access.accessType] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
 
-      const recentAccess = accesses.slice(0, 10).map(access => ({
+      const recentAccess = accesses.slice(0, 10).map((access) => ({
         accessedBy: access.accessedBy || 'unknown',
         accessType: access.accessType,
         accessedAt: access.accessedAt,
@@ -469,7 +487,7 @@ export class AccessControlService {
         await this.prisma.fileAccess.deleteMany({
           where: {
             id: {
-              in: expiredTokens.map(t => t.id),
+              in: expiredTokens.map((t) => t.id),
             },
           },
         });

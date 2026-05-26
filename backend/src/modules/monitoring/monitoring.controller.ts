@@ -165,7 +165,9 @@ export class MonitoringController {
     const success = await this.sentry.testSentry();
     return {
       success,
-      message: success ? 'تم إرسال رسالة اختبار إلى Sentry' : 'فشل في إرسال رسالة الاختبار',
+      message: success
+        ? 'تم إرسال رسالة اختبار إلى Sentry'
+        : 'فشل في إرسال رسالة الاختبار',
     };
   }
 
@@ -194,7 +196,10 @@ export class MonitoringController {
    */
   @Get('logs/export')
   @Permissions('monitoring.logs')
-  async exportLogs(@Query() query: any, @Query('format') format: string = 'json') {
+  async exportLogs(
+    @Query() query: any,
+    @Query('format') format: string = 'json',
+  ) {
     const data = await this.logging.exportLogs(query, format as 'json' | 'csv');
 
     return {
@@ -258,7 +263,10 @@ export class MonitoringController {
    */
   @Post('dashboards')
   @Permissions('monitoring.dashboards')
-  async createDashboard(@Body() dashboard: any, @Query('userId') userId?: string) {
+  async createDashboard(
+    @Body() dashboard: any,
+    @Query('userId') userId?: string,
+  ) {
     return this.dashboard.createDashboard(dashboard, userId || 'system');
   }
 
@@ -272,7 +280,11 @@ export class MonitoringController {
     @Body() updates: any,
     @Query('userId') userId?: string,
   ) {
-    return this.dashboard.updateDashboard(dashboardId, updates, userId || 'system');
+    return this.dashboard.updateDashboard(
+      dashboardId,
+      updates,
+      userId || 'system',
+    );
   }
 
   /**
@@ -284,7 +296,10 @@ export class MonitoringController {
     @Param('dashboardId') dashboardId: string,
     @Query('userId') userId?: string,
   ) {
-    const success = await this.dashboard.deleteDashboard(dashboardId, userId || 'system');
+    const success = await this.dashboard.deleteDashboard(
+      dashboardId,
+      userId || 'system',
+    );
     return {
       success,
       message: success ? 'تم حذف لوحة التحكم بنجاح' : 'فشل في حذف لوحة التحكم',
@@ -352,12 +367,11 @@ export class MonitoringController {
 
       // اختبار Sentry
       results.sentry = await this.sentry.testSentry();
-
     } catch (error) {
       // في حالة فشل أي اختبار، سيبقى false
     }
 
-    const allPassed = Object.values(results).every(result => result);
+    const allPassed = Object.values(results).every((result) => result);
 
     return {
       success: allPassed,

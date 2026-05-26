@@ -1,4 +1,14 @@
-import { Controller, Delete, Get, Param, Post, Query, UploadedFile, UseInterceptors, Body } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+  UploadedFile,
+  UseInterceptors,
+  Body,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Permissions } from '../../common/decorators/permissions.decorator';
 import { StorageService } from './storage.service';
@@ -10,14 +20,30 @@ export class StorageController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   @Permissions('storage.upload')
-  upload(@UploadedFile() file: any, @Body() body: any, @Query('userId') userId?: string) {
+  upload(
+    @UploadedFile() file: any,
+    @Body() body: any,
+    @Query('userId') userId?: string,
+  ) {
     return this.storageService.recordUpload(file, body, userId);
+  }
+
+  @Get('files')
+  @Permissions('storage.read')
+  list(@Query() query: any) {
+    return this.storageService.listFiles(query);
   }
 
   @Get('files/:id')
   @Permissions('storage.read')
   get(@Param('id') id: string) {
     return this.storageService.getFile(id);
+  }
+
+  @Get('files/:id/url')
+  @Permissions('storage.read')
+  getUrl(@Param('id') id: string) {
+    return this.storageService.getFileUrl(id);
   }
 
   @Delete('files/:id')

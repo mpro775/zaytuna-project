@@ -33,7 +33,10 @@ import { LocalAuthGuard } from '../../common/guards/local-auth.guard';
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('jwt.secret') || 'fallback-secret',
         signOptions: {
-          expiresIn: parseInt(configService.get<string>('jwt.accessTokenTtl', '900'), 10), // 15 minutes
+          expiresIn: parseInt(
+            configService.get<string>('jwt.accessTokenTtl', '900'),
+            10,
+          ), // 15 minutes
         },
       }),
       inject: [ConfigService],

@@ -107,9 +107,14 @@ export class SalesService {
   /**
    * إنشاء فاتورة مبيعات جديدة
    */
-  async create(createSalesInvoiceDto: CreateSalesInvoiceDto, userId: string): Promise<SalesInvoiceWithDetails> {
+  async create(
+    createSalesInvoiceDto: CreateSalesInvoiceDto,
+    userId: string,
+  ): Promise<SalesInvoiceWithDetails> {
     try {
-      this.logger.log(`إنشاء فاتورة مبيعات جديدة: ${createSalesInvoiceDto.invoiceNumber || 'بدون رقم'}`);
+      this.logger.log(
+        `إنشاء فاتورة مبيعات جديدة: ${createSalesInvoiceDto.invoiceNumber || 'بدون رقم'}`,
+      );
 
       // التحقق من وجود الفرع
       const branch = await this.prisma.branch.findUnique({
@@ -169,9 +174,13 @@ export class SalesService {
             orderBy: { createdAt: 'desc' },
           });
 
-          const sequence = lastInvoice ? parseInt(lastInvoice.invoiceNumber.split('-')[1] || '0') + 1 : 1;
+          const sequence = lastInvoice
+            ? parseInt(lastInvoice.invoiceNumber.split('-')[1] || '0') + 1
+            : 1;
           invoiceNumber = `${branch.code}-INV-${sequence.toString().padStart(6, '0')}`;
         }
+
+        const targetStatus = createSalesInvoiceDto.status || 'draft';
 
         // حساب المجاميع
         let subtotal = 0;
@@ -198,19 +207,24 @@ export class SalesService {
 
           if (!stockItem) {
             throw new BadRequestException(
-              `المنتج ${line.productVariantId} غير متوفر في المخزن المحدد`
+              `المنتج ${line.productVariantId} غير متوفر في المخزن المحدد`,
             );
           }
 
-          if (Number(stockItem.quantity) < line.quantity) {
+          if (
+            targetStatus === 'confirmed' &&
+            Number(stockItem.quantity) < line.quantity
+          ) {
             throw new BadRequestException(
-              `الكمية المتاحة من ${stockItem.productVariant.name} غير كافية (${stockItem.quantity} متوفر)`
+              `الكمية المتاحة من ${stockItem.productVariant.name} غير كافية (${stockItem.quantity} متوفر)`,
             );
           }
 
           // استخدام السعر من المنتج أو المتغير
-          const unitPrice = line.unitPrice || Number(stockItem.productVariant.price) ||
-                           Number(stockItem.productVariant.product.basePrice);
+          const unitPrice =
+            line.unitPrice ||
+            Number(stockItem.productVariant.price) ||
+            Number(stockItem.productVariant.product.basePrice);
 
           const lineSubtotal = unitPrice * line.quantity;
           const lineDiscount = line.discountAmount || 0;
@@ -243,12 +257,12 @@ export class SalesService {
             totalAmount,
             currencyId: createSalesInvoiceDto.currencyId,
             taxId: createSalesInvoiceDto.taxId,
-            status: createSalesInvoiceDto.status || 'draft',
+            status: targetStatus,
             paymentStatus: 'pending',
             notes: createSalesInvoiceDto.notes,
             dueDate: createSalesInvoiceDto.dueDate,
             lines: {
-              create: createSalesInvoiceDto.lines.map(line => ({
+              create: createSalesInvoiceDto.lines.map((line) => ({
                 productVariantId: line.productVariantId,
                 warehouseId: createSalesInvoiceDto.warehouseId,
                 quantity: line.quantity,
@@ -334,26 +348,46 @@ export class SalesService {
           },
         });
 
-        // تحديث المخزون
-        for (const line of createSalesInvoiceDto.lines) {
-          await this.inventoryService.adjustStock(
-            createSalesInvoiceDto.warehouseId,
-            line.productVariantId,
-            {
+        // Draft invoices do not affect inventory. Confirmed invoices deduct stock
+        // inside the same transaction as the invoice.
+        if (targetStatus === 'confirmed') {
+          for (const line of createSalesInvoiceDto.lines) {
+            await this.applyStockMovementTx(tx, {
+              warehouseId: createSalesInvoiceDto.warehouseId,
+              productVariantId: line.productVariantId,
               quantity: -line.quantity,
               movementType: 'sale',
               referenceType: 'sales_invoice',
               referenceId: salesInvoice.id,
-              reason: `مبيعات - فاتورة رقم ${invoiceNumber}`,
+              reason: `Sales invoice ${invoiceNumber}`,
+              performedBy: userId,
+            });
+          }
+
+          await tx.notification.create({
+            data: {
+              title: 'Sale created',
+              message: `Sales invoice ${invoiceNumber} was confirmed`,
+              type: 'in_app',
+              recipientId: userId,
+              recipientType: 'user',
+              status: 'sent',
+              sentAt: new Date(),
+              module: 'sales',
+              event: 'SALE_CREATED',
+              referenceId: salesInvoice.id,
+              referenceType: 'sales_invoice',
+              sentBy: userId,
+              branchId: createSalesInvoiceDto.branchId,
             },
-            userId,
-          );
+          });
         }
 
         // تحديث الكاش
         await this.invalidateSalesCache();
 
-        const salesInvoiceWithDetails = this.buildSalesInvoiceWithDetails(salesInvoice);
+        const salesInvoiceWithDetails =
+          this.buildSalesInvoiceWithDetails(salesInvoice);
 
         this.logger.log(`تم إنشاء فاتورة المبيعات بنجاح: ${invoiceNumber}`);
         return salesInvoiceWithDetails;
@@ -378,7 +412,8 @@ export class SalesService {
       const cacheKey = `sales_invoices:${branchId || 'all'}:${customerId || 'all'}:${status || 'all'}:${paymentStatus || 'all'}`;
 
       // محاولة الحصول من الكاش أولاً
-      const cachedInvoices = await this.cacheService.get<SalesInvoiceWithDetails[]>(cacheKey);
+      const cachedInvoices =
+        await this.cacheService.get<SalesInvoiceWithDetails[]>(cacheKey);
       if (cachedInvoices) {
         return cachedInvoices;
       }
@@ -480,12 +515,14 @@ export class SalesService {
         take: limit,
       });
 
-      const salesInvoicesWithDetails = salesInvoices.map(invoice =>
-        this.buildSalesInvoiceWithDetails(invoice)
+      const salesInvoicesWithDetails = salesInvoices.map((invoice) =>
+        this.buildSalesInvoiceWithDetails(invoice),
       );
 
       // حفظ في الكاش لمدة 10 دقائق
-      await this.cacheService.set(cacheKey, salesInvoicesWithDetails, { ttl: 600 });
+      await this.cacheService.set(cacheKey, salesInvoicesWithDetails, {
+        ttl: 600,
+      });
 
       return salesInvoicesWithDetails;
     } catch (error) {
@@ -500,7 +537,8 @@ export class SalesService {
   async findOne(id: string): Promise<SalesInvoiceWithDetails> {
     try {
       const cacheKey = `${this.salesInvoiceCacheKey}:${id}`;
-      const cachedInvoice = await this.cacheService.get<SalesInvoiceWithDetails>(cacheKey);
+      const cachedInvoice =
+        await this.cacheService.get<SalesInvoiceWithDetails>(cacheKey);
 
       if (cachedInvoice) {
         return cachedInvoice;
@@ -587,10 +625,13 @@ export class SalesService {
         throw new NotFoundException('فاتورة المبيعات غير موجودة');
       }
 
-      const salesInvoiceWithDetails = this.buildSalesInvoiceWithDetails(salesInvoice);
+      const salesInvoiceWithDetails =
+        this.buildSalesInvoiceWithDetails(salesInvoice);
 
       // حفظ في الكاش لمدة 30 دقيقة
-      await this.cacheService.set(cacheKey, salesInvoiceWithDetails, { ttl: 1800 });
+      await this.cacheService.set(cacheKey, salesInvoiceWithDetails, {
+        ttl: 1800,
+      });
 
       return salesInvoiceWithDetails;
     } catch (error) {
@@ -602,7 +643,10 @@ export class SalesService {
   /**
    * تحديث فاتورة مبيعات
    */
-  async update(id: string, updateSalesInvoiceDto: UpdateSalesInvoiceDto): Promise<SalesInvoiceWithDetails> {
+  async update(
+    id: string,
+    updateSalesInvoiceDto: UpdateSalesInvoiceDto,
+  ): Promise<SalesInvoiceWithDetails> {
     try {
       this.logger.log(`تحديث فاتورة المبيعات: ${id}`);
 
@@ -619,7 +663,9 @@ export class SalesService {
       }
 
       // لا يمكن تحديث الفواتير المؤكدة أو الملغاة
-      if (['confirmed', 'cancelled', 'refunded'].includes(existingInvoice.status)) {
+      if (
+        ['confirmed', 'cancelled', 'refunded'].includes(existingInvoice.status)
+      ) {
         throw new BadRequestException('لا يمكن تحديث فاتورة مؤكدة أو ملغاة');
       }
 
@@ -710,7 +756,8 @@ export class SalesService {
       // تحديث الكاش
       await this.invalidateSalesCache();
 
-      const salesInvoiceWithDetails = this.buildSalesInvoiceWithDetails(salesInvoice);
+      const salesInvoiceWithDetails =
+        this.buildSalesInvoiceWithDetails(salesInvoice);
 
       this.logger.log(`تم تحديث فاتورة المبيعات بنجاح`);
       return salesInvoiceWithDetails;
@@ -723,7 +770,11 @@ export class SalesService {
   /**
    * إضافة دفعة لفاتورة
    */
-  async addPayment(salesInvoiceId: string, createPaymentDto: CreatePaymentDto, userId: string): Promise<SalesInvoiceWithDetails> {
+  async addPayment(
+    salesInvoiceId: string,
+    createPaymentDto: CreatePaymentDto,
+    userId: string,
+  ): Promise<SalesInvoiceWithDetails> {
     try {
       this.logger.log(`إضافة دفعة للفاتورة: ${salesInvoiceId}`);
 
@@ -742,20 +793,23 @@ export class SalesService {
 
       // التحقق من العملة
       if (createPaymentDto.currencyId !== salesInvoice.currencyId) {
-        throw new BadRequestException('عملة الدفعة يجب أن تتطابق مع عملة الفاتورة');
+        throw new BadRequestException(
+          'عملة الدفعة يجب أن تتطابق مع عملة الفاتورة',
+        );
       }
 
       // حساب إجمالي المدفوعات الحالية
       const currentPaymentsTotal = salesInvoice.payments.reduce(
         (sum, payment) => sum + Number(payment.amount),
-        0
+        0,
       );
 
-      const remainingAmount = Number(salesInvoice.totalAmount) - currentPaymentsTotal;
+      const remainingAmount =
+        Number(salesInvoice.totalAmount) - currentPaymentsTotal;
 
       if (createPaymentDto.amount > remainingAmount) {
         throw new BadRequestException(
-          `مبلغ الدفعة يتجاوز المبلغ المستحق (${remainingAmount})`
+          `مبلغ الدفعة يتجاوز المبلغ المستحق (${remainingAmount})`,
         );
       }
 
@@ -775,7 +829,8 @@ export class SalesService {
         });
 
         // تحديث حالة الدفع
-        const newPaymentsTotal = currentPaymentsTotal + Number(createPaymentDto.amount);
+        const newPaymentsTotal =
+          currentPaymentsTotal + Number(createPaymentDto.amount);
         let paymentStatus = 'partial';
 
         if (newPaymentsTotal === 0) {
@@ -868,7 +923,8 @@ export class SalesService {
         // تحديث الكاش
         await this.invalidateSalesCache();
 
-        const salesInvoiceWithDetails = this.buildSalesInvoiceWithDetails(updatedInvoice);
+        const salesInvoiceWithDetails =
+          this.buildSalesInvoiceWithDetails(updatedInvoice);
 
         this.logger.log(`تم إضافة الدفعة بنجاح للفاتورة: ${salesInvoiceId}`);
         return salesInvoiceWithDetails;
@@ -882,7 +938,11 @@ export class SalesService {
   /**
    * إلغاء فاتورة مبيعات
    */
-  async cancel(id: string, reason: string, userId: string): Promise<SalesInvoiceWithDetails> {
+  async cancel(
+    id: string,
+    reason: string,
+    userId: string,
+  ): Promise<SalesInvoiceWithDetails> {
     try {
       this.logger.log(`إلغاء فاتورة المبيعات: ${id}`);
 
@@ -992,26 +1052,26 @@ export class SalesService {
           },
         });
 
-        // إعادة المخزون
-        for (const line of salesInvoice.lines) {
-          await this.inventoryService.adjustStock(
-            salesInvoice.warehouseId,
-            line.productVariantId,
-            {
+        if (salesInvoice.status === 'confirmed') {
+          for (const line of salesInvoice.lines) {
+            await this.applyStockMovementTx(tx, {
+              warehouseId: salesInvoice.warehouseId,
+              productVariantId: line.productVariantId,
               quantity: Number(line.quantity),
               movementType: 'adjustment',
               referenceType: 'sales_cancelled',
               referenceId: salesInvoice.id,
-              reason: `إلغاء مبيعات - فاتورة رقم ${salesInvoice.invoiceNumber}`,
-            },
-            userId,
-          );
+              reason: `Cancel sales invoice ${salesInvoice.invoiceNumber}`,
+              performedBy: userId,
+            });
+          }
         }
 
         // تحديث الكاش
         await this.invalidateSalesCache();
 
-        const salesInvoiceWithDetails = this.buildSalesInvoiceWithDetails(updatedInvoice);
+        const salesInvoiceWithDetails =
+          this.buildSalesInvoiceWithDetails(updatedInvoice);
 
         this.logger.log(`تم إلغاء فاتورة المبيعات بنجاح: ${id}`);
         return salesInvoiceWithDetails;
@@ -1081,9 +1141,10 @@ export class SalesService {
         totalDiscount: Number(totalDiscount._sum.discountAmount || 0),
         pendingPayments,
         paidInvoices,
-        averageInvoiceValue: confirmedInvoices > 0
-          ? Number(totalRevenue._sum.totalAmount || 0) / confirmedInvoices
-          : 0,
+        averageInvoiceValue:
+          confirmedInvoices > 0
+            ? Number(totalRevenue._sum.totalAmount || 0) / confirmedInvoices
+            : 0,
       };
     } catch (error) {
       this.logger.error('فشل في الحصول على إحصائيات المبيعات', error);
@@ -1094,7 +1155,9 @@ export class SalesService {
   /**
    * بناء كائن فاتورة المبيعات مع التفاصيل
    */
-  private buildSalesInvoiceWithDetails(salesInvoice: any): SalesInvoiceWithDetails {
+  private buildSalesInvoiceWithDetails(
+    salesInvoice: any,
+  ): SalesInvoiceWithDetails {
     return {
       id: salesInvoice.id,
       invoiceNumber: salesInvoice.invoiceNumber,
@@ -1142,6 +1205,99 @@ export class SalesService {
     };
   }
 
+  private async applyStockMovementTx(
+    tx: any,
+    data: {
+      warehouseId: string;
+      productVariantId: string;
+      quantity: number;
+      movementType: string;
+      referenceType: string;
+      referenceId: string;
+      reason: string;
+      performedBy: string;
+    },
+  ) {
+    const current = await tx.stockItem.findUnique({
+      where: {
+        warehouseId_productVariantId: {
+          warehouseId: data.warehouseId,
+          productVariantId: data.productVariantId,
+        },
+      },
+    });
+    if (!current) throw new BadRequestException('Stock item not found');
+
+    const newQuantity = Number(current.quantity) + data.quantity;
+    if (newQuantity < 0) throw new BadRequestException('Insufficient stock');
+
+    await tx.stockItem.update({
+      where: {
+        warehouseId_productVariantId: {
+          warehouseId: data.warehouseId,
+          productVariantId: data.productVariantId,
+        },
+      },
+      data: { quantity: newQuantity },
+    });
+
+    await tx.stockMovement.create({
+      data,
+    });
+  }
+
+  async confirm(id: string, userId: string): Promise<SalesInvoiceWithDetails> {
+    const invoice = await this.prisma.salesInvoice.findUnique({
+      where: { id },
+      include: { lines: true },
+    });
+    if (!invoice) throw new NotFoundException('Sales invoice not found');
+    if (invoice.status === 'confirmed') return this.findOne(id);
+    if (invoice.status !== 'draft')
+      throw new BadRequestException('Only draft invoices can be confirmed');
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.salesInvoice.update({
+        where: { id },
+        data: { status: 'confirmed' },
+      });
+
+      for (const line of invoice.lines) {
+        await this.applyStockMovementTx(tx, {
+          warehouseId: invoice.warehouseId,
+          productVariantId: line.productVariantId,
+          quantity: -Number(line.quantity),
+          movementType: 'sale',
+          referenceType: 'sales_invoice',
+          referenceId: invoice.id,
+          reason: `Confirm sales invoice ${invoice.invoiceNumber}`,
+          performedBy: userId,
+        });
+      }
+
+      await tx.notification.create({
+        data: {
+          title: 'Sale confirmed',
+          message: `Sales invoice ${invoice.invoiceNumber} was confirmed`,
+          type: 'in_app',
+          recipientId: userId,
+          recipientType: 'user',
+          status: 'sent',
+          sentAt: new Date(),
+          module: 'sales',
+          event: 'SALE_CREATED',
+          referenceId: invoice.id,
+          referenceType: 'sales_invoice',
+          sentBy: userId,
+          branchId: invoice.branchId,
+        },
+      });
+    });
+
+    await this.invalidateSalesCache();
+    return this.findOne(id);
+  }
+
   /**
    * إبطال كاش المبيعات
    */
@@ -1155,7 +1311,9 @@ export class SalesService {
     }
 
     // إبطال كاش الفواتير الفردية
-    const invoiceKeys = await this.cacheService.getKeys(`${this.salesInvoiceCacheKey}:*`);
+    const invoiceKeys = await this.cacheService.getKeys(
+      `${this.salesInvoiceCacheKey}:*`,
+    );
     for (const key of invoiceKeys) {
       await this.cacheService.delete(key);
     }

@@ -6,7 +6,15 @@ import { PerformanceController } from './performance.controller';
 
 @Module({
   controllers: [PerformanceController],
-  providers: [QueryOptimizationService, CacheOptimizationService, LoadTestingService],
-  exports: [QueryOptimizationService, CacheOptimizationService, LoadTestingService],
+  providers: [
+    QueryOptimizationService,
+    CacheOptimizationService,
+    LoadTestingService,
+  ],
+  exports: [
+    QueryOptimizationService,
+    CacheOptimizationService,
+    LoadTestingService,
+  ],
 })
 export class PerformanceModule {}

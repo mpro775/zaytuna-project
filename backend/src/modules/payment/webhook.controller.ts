@@ -36,7 +36,8 @@ export class WebhookController {
       await this.paymentService.processWebhook({
         gateway: 'stripe',
         eventType: payload.type,
-        transactionId: payload.data?.object?.id || payload.data?.object?.payment_intent,
+        transactionId:
+          payload.data?.object?.id || payload.data?.object?.payment_intent,
         data: payload,
         signature,
       });
@@ -66,7 +67,9 @@ export class WebhookController {
       await this.paymentService.processWebhook({
         gateway: 'paypal',
         eventType: payload.event_type,
-        transactionId: payload.resource?.id || payload.resource?.purchase_units?.[0]?.reference_id,
+        transactionId:
+          payload.resource?.id ||
+          payload.resource?.purchase_units?.[0]?.reference_id,
         data: payload,
         signature,
       });
@@ -124,7 +127,8 @@ export class WebhookController {
 
       switch (gateway) {
         case 'stripe':
-          transactionId = payload.data?.object?.id || payload.data?.object?.payment_intent;
+          transactionId =
+            payload.data?.object?.id || payload.data?.object?.payment_intent;
           eventType = payload.type;
           break;
         case 'paypal':
@@ -145,7 +149,10 @@ export class WebhookController {
         eventType,
         transactionId,
         data: payload,
-        signature: headers['signature'] || headers['stripe-signature'] || headers['x-tap-signature'],
+        signature:
+          headers['signature'] ||
+          headers['stripe-signature'] ||
+          headers['x-tap-signature'],
       });
 
       return { received: true };
@@ -160,10 +167,7 @@ export class WebhookController {
    */
   @Post('test/:gateway')
   @HttpCode(HttpStatus.OK)
-  async testWebhook(
-    @Body() payload: any,
-    @Param('gateway') gateway: string,
-  ) {
+  async testWebhook(@Body() payload: any, @Param('gateway') gateway: string) {
     try {
       this.logger.log(`Test webhook received for ${gateway}`);
 
@@ -172,7 +176,8 @@ export class WebhookController {
         await this.paymentService.processWebhook({
           gateway: gateway as any,
           eventType: payload.event || payload.type || 'test',
-          transactionId: payload.transactionId || payload.id || 'test_transaction',
+          transactionId:
+            payload.transactionId || payload.id || 'test_transaction',
           data: payload,
         });
       }
@@ -196,7 +201,9 @@ export class WebhookController {
   @HttpCode(HttpStatus.OK)
   async healthCheck(@Param('gateway') gateway: string) {
     try {
-      const isAvailable = this.adapterFactory.isGatewayAvailable(gateway as any);
+      const isAvailable = this.adapterFactory.isGatewayAvailable(
+        gateway as any,
+      );
 
       return {
         gateway,

@@ -1,5 +1,12 @@
 import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
-import { IsNotEmpty, IsString, IsEmail, IsOptional, MinLength, IsPhoneNumber } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsEmail,
+  IsOptional,
+  MinLength,
+  IsPhoneNumber,
+} from 'class-validator';
 
 export class RegisterDto {
   @IsNotEmpty({ message: 'اسم المستخدم مطلوب' })

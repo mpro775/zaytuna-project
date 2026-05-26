@@ -1,5 +1,13 @@
 import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
-import { IsNotEmpty, IsString, IsOptional, IsNumber, IsBoolean, Min, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsBoolean,
+  Min,
+  MaxLength,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreateProductDto {
@@ -27,7 +35,10 @@ export class CreateProductDto {
   categoryId: string;
 
   @IsNotEmpty({ message: 'السعر الأساسي مطلوب' })
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'السعر الأساسي يجب أن يكون رقم' })
+  @IsNumber(
+    { maxDecimalPlaces: 2 },
+    { message: 'السعر الأساسي يجب أن يكون رقم' },
+  )
   @Min(0, { message: 'السعر الأساسي يجب أن يكون أكبر من أو يساوي صفر' })
   @Transform(({ value }) => parseFloat(value))
   basePrice: number;
@@ -35,7 +46,7 @@ export class CreateProductDto {
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'سعر التكلفة يجب أن يكون رقم' })
   @Min(0, { message: 'سعر التكلفة يجب أن يكون أكبر من أو يساوي صفر' })
-  @Transform(({ value }) => value ? parseFloat(value) : undefined)
+  @Transform(({ value }) => (value ? parseFloat(value) : undefined))
   costPrice?: number;
 
   @IsOptional()
@@ -49,7 +60,7 @@ export class CreateProductDto {
   @IsOptional()
   @IsNumber({}, { message: 'نقطة إعادة الطلب يجب أن تكون رقم' })
   @Min(0, { message: 'نقطة إعادة الطلب يجب أن تكون أكبر من أو تساوي صفر' })
-  @Transform(({ value }) => value ? parseInt(value) : undefined)
+  @Transform(({ value }) => (value ? parseInt(value) : undefined))
   reorderPoint?: number;
 
   @IsOptional()

@@ -78,7 +78,9 @@ export class RoleService {
         id: role.id,
         name: role.name,
         description: role.description || undefined,
-        permissions: Array.isArray(role.permissions) ? (role.permissions as string[]) : [],
+        permissions: Array.isArray(role.permissions)
+          ? (role.permissions as string[])
+          : [],
         userCount: role._count.users,
         isSystemRole: role.isSystemRole,
         createdAt: role.createdAt,
@@ -99,7 +101,9 @@ export class RoleService {
   async findAll(): Promise<RoleWithPermissions[]> {
     try {
       // محاولة الحصول من الكاش أولاً
-      const cachedRoles = await this.cacheService.get<RoleWithPermissions[]>(this.rolesCacheKey);
+      const cachedRoles = await this.cacheService.get<RoleWithPermissions[]>(
+        this.rolesCacheKey,
+      );
       if (cachedRoles) {
         return cachedRoles;
       }
@@ -113,11 +117,13 @@ export class RoleService {
         orderBy: { name: 'asc' },
       });
 
-      const rolesWithPermissions: RoleWithPermissions[] = roles.map(role => ({
+      const rolesWithPermissions: RoleWithPermissions[] = roles.map((role) => ({
         id: role.id,
         name: role.name,
         description: role.description || undefined,
-        permissions: Array.isArray(role.permissions) ? (role.permissions as string[]) : [],
+        permissions: Array.isArray(role.permissions)
+          ? (role.permissions as string[])
+          : [],
         userCount: role._count.users,
         isSystemRole: role.isSystemRole,
         createdAt: role.createdAt,
@@ -125,7 +131,9 @@ export class RoleService {
       }));
 
       // حفظ في الكاش لمدة 10 دقائق
-      await this.cacheService.set(this.rolesCacheKey, rolesWithPermissions, { ttl: 600 });
+      await this.cacheService.set(this.rolesCacheKey, rolesWithPermissions, {
+        ttl: 600,
+      });
 
       return rolesWithPermissions;
     } catch (error) {
@@ -156,7 +164,9 @@ export class RoleService {
         id: role.id,
         name: role.name,
         description: role.description || undefined,
-        permissions: Array.isArray(role.permissions) ? (role.permissions as string[]) : [],
+        permissions: Array.isArray(role.permissions)
+          ? (role.permissions as string[])
+          : [],
         userCount: role._count.users,
         isSystemRole: role.isSystemRole,
         createdAt: role.createdAt,
@@ -171,7 +181,10 @@ export class RoleService {
   /**
    * تحديث دور
    */
-  async update(id: string, updateRoleDto: UpdateRoleDto): Promise<RoleWithPermissions> {
+  async update(
+    id: string,
+    updateRoleDto: UpdateRoleDto,
+  ): Promise<RoleWithPermissions> {
     try {
       this.logger.log(`تحديث الدور: ${id}`);
 
@@ -228,7 +241,9 @@ export class RoleService {
         id: role.id,
         name: role.name,
         description: role.description || undefined,
-        permissions: Array.isArray(role.permissions) ? (role.permissions as string[]) : [],
+        permissions: Array.isArray(role.permissions)
+          ? (role.permissions as string[])
+          : [],
         userCount: role._count.users,
         isSystemRole: role.isSystemRole,
         createdAt: role.createdAt,
@@ -293,9 +308,13 @@ export class RoleService {
   /**
    * تعيين دور لمستخدم
    */
-  async assignRoleToUser(assignRoleDto: AssignRoleDto): Promise<{ message: string }> {
+  async assignRoleToUser(
+    assignRoleDto: AssignRoleDto,
+  ): Promise<{ message: string }> {
     try {
-      this.logger.log(`تعيين دور ${assignRoleDto.roleId} للمستخدم ${assignRoleDto.userId}`);
+      this.logger.log(
+        `تعيين دور ${assignRoleDto.roleId} للمستخدم ${assignRoleDto.userId}`,
+      );
 
       // التحقق من وجود المستخدم
       const user = await this.prisma.user.findUnique({
@@ -326,7 +345,9 @@ export class RoleService {
       // تحديث الكاش
       await this.invalidateUserRolesCache(assignRoleDto.userId);
 
-      this.logger.log(`تم تعيين الدور ${role.name} للمستخدم ${user.username} بنجاح`);
+      this.logger.log(
+        `تم تعيين الدور ${role.name} للمستخدم ${user.username} بنجاح`,
+      );
       return { message: 'تم تعيين الدور للمستخدم بنجاح' };
     } catch (error) {
       this.logger.error(`فشل في تعيين الدور للمستخدم`, error);
@@ -340,7 +361,8 @@ export class RoleService {
   async getUserRole(userId: string): Promise<RoleWithPermissions | null> {
     try {
       const cacheKey = `${this.userRolesCacheKey}:${userId}`;
-      const cachedRole = await this.cacheService.get<RoleWithPermissions>(cacheKey);
+      const cachedRole =
+        await this.cacheService.get<RoleWithPermissions>(cacheKey);
 
       if (cachedRole) {
         return cachedRole;
@@ -367,7 +389,9 @@ export class RoleService {
         id: user.role.id,
         name: user.role.name,
         description: user.role.description || undefined,
-        permissions: Array.isArray(user.role.permissions) ? (user.role.permissions as string[]) : [],
+        permissions: Array.isArray(user.role.permissions)
+          ? (user.role.permissions as string[])
+          : [],
         userCount: user.role._count.users,
         isSystemRole: user.role.isSystemRole,
         createdAt: user.role.createdAt,
@@ -404,7 +428,10 @@ export class RoleService {
 
       return users;
     } catch (error) {
-      this.logger.error(`فشل في الحصول على المستخدمين بالدور: ${roleId}`, error);
+      this.logger.error(
+        `فشل في الحصول على المستخدمين بالدور: ${roleId}`,
+        error,
+      );
       throw error;
     }
   }

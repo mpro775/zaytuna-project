@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts';
 import { Loading } from '@/components/ui';
-import { canAccessPath } from '@/utils/roleAccess';
+import { canAccessPath, canAccessPathByPermissions } from '@/utils/roleAccess';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -33,8 +33,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // التحقق من صلاحية الدور للوصول للمسار
-  if (requiresAuth && isAuthenticated && user?.role) {
-    if (!canAccessPath(pathname, user.role as string)) {
+  if (requiresAuth && isAuthenticated && user) {
+    const roleName = user.role || user.roleId;
+    if (!canAccessPathByPermissions(pathname, user.permissions) || !canAccessPath(pathname, roleName)) {
       return <Navigate to="/dashboard" replace />;
     }
   }

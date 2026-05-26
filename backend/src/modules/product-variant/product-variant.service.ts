@@ -45,7 +45,9 @@ export class ProductVariantService {
   /**
    * إنشاء متغير منتج جديد
    */
-  async create(createVariantDto: CreateProductVariantDto): Promise<ProductVariantWithDetails> {
+  async create(
+    createVariantDto: CreateProductVariantDto,
+  ): Promise<ProductVariantWithDetails> {
     try {
       this.logger.log(`إنشاء متغير منتج جديد: ${createVariantDto.name}`);
 
@@ -117,8 +119,8 @@ export class ProductVariantService {
         price: variant.price ? Number(variant.price) : undefined,
         costPrice: variant.costPrice ? Number(variant.costPrice) : undefined,
         weight: variant.weight ? Number(variant.weight) : undefined,
-        dimensions: variant.dimensions as Record<string, any> || undefined,
-        attributes: variant.attributes as Record<string, any> || undefined,
+        dimensions: (variant.dimensions as Record<string, any>) || undefined,
+        attributes: (variant.attributes as Record<string, any>) || undefined,
         imageUrl: variant.imageUrl || undefined,
         isActive: variant.isActive,
         product: variant.product,
@@ -129,7 +131,10 @@ export class ProductVariantService {
       this.logger.log(`تم إنشاء متغير المنتج بنجاح: ${variant.name}`);
       return variantWithDetails;
     } catch (error) {
-      this.logger.error(`فشل في إنشاء متغير المنتج: ${createVariantDto.name}`, error);
+      this.logger.error(
+        `فشل في إنشاء متغير المنتج: ${createVariantDto.name}`,
+        error,
+      );
       throw error;
     }
   }
@@ -139,10 +144,13 @@ export class ProductVariantService {
    */
   async findAll(productId?: string): Promise<ProductVariantWithDetails[]> {
     try {
-      const cacheKey = productId ? `${this.variantsCacheKey}:product:${productId}` : this.variantsCacheKey;
+      const cacheKey = productId
+        ? `${this.variantsCacheKey}:product:${productId}`
+        : this.variantsCacheKey;
 
       // محاولة الحصول من الكاش أولاً
-      const cachedVariants = await this.cacheService.get<ProductVariantWithDetails[]>(cacheKey);
+      const cachedVariants =
+        await this.cacheService.get<ProductVariantWithDetails[]>(cacheKey);
       if (cachedVariants) {
         return cachedVariants;
       }
@@ -166,23 +174,25 @@ export class ProductVariantService {
         orderBy: { name: 'asc' },
       });
 
-      const variantsWithDetails: ProductVariantWithDetails[] = variants.map(variant => ({
-        id: variant.id,
-        productId: variant.productId,
-        name: variant.name,
-        sku: variant.sku || undefined,
-        barcode: variant.barcode || undefined,
-        price: variant.price ? Number(variant.price) : undefined,
-        costPrice: variant.costPrice ? Number(variant.costPrice) : undefined,
-        weight: variant.weight ? Number(variant.weight) : undefined,
-        dimensions: variant.dimensions as Record<string, any> || undefined,
-        attributes: variant.attributes as Record<string, any> || undefined,
-        imageUrl: variant.imageUrl || undefined,
-        isActive: variant.isActive,
-        product: variant.product,
-        createdAt: variant.createdAt,
-        updatedAt: variant.updatedAt,
-      }));
+      const variantsWithDetails: ProductVariantWithDetails[] = variants.map(
+        (variant) => ({
+          id: variant.id,
+          productId: variant.productId,
+          name: variant.name,
+          sku: variant.sku || undefined,
+          barcode: variant.barcode || undefined,
+          price: variant.price ? Number(variant.price) : undefined,
+          costPrice: variant.costPrice ? Number(variant.costPrice) : undefined,
+          weight: variant.weight ? Number(variant.weight) : undefined,
+          dimensions: (variant.dimensions as Record<string, any>) || undefined,
+          attributes: (variant.attributes as Record<string, any>) || undefined,
+          imageUrl: variant.imageUrl || undefined,
+          isActive: variant.isActive,
+          product: variant.product,
+          createdAt: variant.createdAt,
+          updatedAt: variant.updatedAt,
+        }),
+      );
 
       // حفظ في الكاش لمدة 10 دقائق
       await this.cacheService.set(cacheKey, variantsWithDetails, { ttl: 600 });
@@ -200,7 +210,8 @@ export class ProductVariantService {
   async findOne(id: string): Promise<ProductVariantWithDetails> {
     try {
       const cacheKey = `${this.variantCacheKey}:${id}`;
-      const cachedVariant = await this.cacheService.get<ProductVariantWithDetails>(cacheKey);
+      const cachedVariant =
+        await this.cacheService.get<ProductVariantWithDetails>(cacheKey);
 
       if (cachedVariant) {
         return cachedVariant;
@@ -231,8 +242,8 @@ export class ProductVariantService {
         price: variant.price ? Number(variant.price) : undefined,
         costPrice: variant.costPrice ? Number(variant.costPrice) : undefined,
         weight: variant.weight ? Number(variant.weight) : undefined,
-        dimensions: variant.dimensions as Record<string, any> || undefined,
-        attributes: variant.attributes as Record<string, any> || undefined,
+        dimensions: (variant.dimensions as Record<string, any>) || undefined,
+        attributes: (variant.attributes as Record<string, any>) || undefined,
         imageUrl: variant.imageUrl || undefined,
         isActive: variant.isActive,
         product: variant.product,
@@ -253,7 +264,10 @@ export class ProductVariantService {
   /**
    * تحديث متغير منتج
    */
-  async update(id: string, updateVariantDto: UpdateProductVariantDto): Promise<ProductVariantWithDetails> {
+  async update(
+    id: string,
+    updateVariantDto: UpdateProductVariantDto,
+  ): Promise<ProductVariantWithDetails> {
     try {
       this.logger.log(`تحديث متغير المنتج: ${id}`);
 
@@ -267,7 +281,10 @@ export class ProductVariantService {
       }
 
       // التحقق من عدم تكرار SKU
-      if (updateVariantDto.sku && updateVariantDto.sku !== existingVariant.sku) {
+      if (
+        updateVariantDto.sku &&
+        updateVariantDto.sku !== existingVariant.sku
+      ) {
         const variantWithSameSku = await this.prisma.productVariant.findUnique({
           where: { sku: updateVariantDto.sku },
         });
@@ -278,10 +295,14 @@ export class ProductVariantService {
       }
 
       // التحقق من عدم تكرار الباركود
-      if (updateVariantDto.barcode && updateVariantDto.barcode !== existingVariant.barcode) {
-        const variantWithSameBarcode = await this.prisma.productVariant.findUnique({
-          where: { barcode: updateVariantDto.barcode },
-        });
+      if (
+        updateVariantDto.barcode &&
+        updateVariantDto.barcode !== existingVariant.barcode
+      ) {
+        const variantWithSameBarcode =
+          await this.prisma.productVariant.findUnique({
+            where: { barcode: updateVariantDto.barcode },
+          });
 
         if (variantWithSameBarcode) {
           throw new ConflictException('الباركود موجود بالفعل');
@@ -326,8 +347,8 @@ export class ProductVariantService {
         price: variant.price ? Number(variant.price) : undefined,
         costPrice: variant.costPrice ? Number(variant.costPrice) : undefined,
         weight: variant.weight ? Number(variant.weight) : undefined,
-        dimensions: variant.dimensions as Record<string, any> || undefined,
-        attributes: variant.attributes as Record<string, any> || undefined,
+        dimensions: (variant.dimensions as Record<string, any>) || undefined,
+        attributes: (variant.attributes as Record<string, any>) || undefined,
         imageUrl: variant.imageUrl || undefined,
         isActive: variant.isActive,
         product: variant.product,
@@ -379,14 +400,13 @@ export class ProductVariantService {
   /**
    * الحصول على متغيرات منتج حسب الباركود أو SKU
    */
-  async findByBarcodeOrSku(identifier: string): Promise<ProductVariantWithDetails | null> {
+  async findByBarcodeOrSku(
+    identifier: string,
+  ): Promise<ProductVariantWithDetails | null> {
     try {
       const variant = await this.prisma.productVariant.findFirst({
         where: {
-          OR: [
-            { barcode: identifier },
-            { sku: identifier },
-          ],
+          OR: [{ barcode: identifier }, { sku: identifier }],
           isActive: true,
         },
         include: {
@@ -412,8 +432,8 @@ export class ProductVariantService {
         price: variant.price ? Number(variant.price) : undefined,
         costPrice: variant.costPrice ? Number(variant.costPrice) : undefined,
         weight: variant.weight ? Number(variant.weight) : undefined,
-        dimensions: variant.dimensions as Record<string, any> || undefined,
-        attributes: variant.attributes as Record<string, any> || undefined,
+        dimensions: (variant.dimensions as Record<string, any>) || undefined,
+        attributes: (variant.attributes as Record<string, any>) || undefined,
         imageUrl: variant.imageUrl || undefined,
         isActive: variant.isActive,
         product: variant.product,
@@ -432,12 +452,16 @@ export class ProductVariantService {
   private async invalidateVariantsCache(): Promise<void> {
     await this.cacheService.delete(this.variantsCacheKey);
     // إبطال جميع الكاشات المتعلقة بالمنتجات
-    const variantKeys = await this.cacheService.getKeys(`${this.variantsCacheKey}:*`);
+    const variantKeys = await this.cacheService.getKeys(
+      `${this.variantsCacheKey}:*`,
+    );
     for (const key of variantKeys) {
       await this.cacheService.delete(key);
     }
     // إبطال كاش المتغيرات الفردية
-    const individualKeys = await this.cacheService.getKeys(`${this.variantCacheKey}:*`);
+    const individualKeys = await this.cacheService.getKeys(
+      `${this.variantCacheKey}:*`,
+    );
     for (const key of individualKeys) {
       await this.cacheService.delete(key);
     }

@@ -45,7 +45,8 @@ export class PurchasingController {
     @Query('isActive') isActive?: string,
     @Query('limit') limit?: number,
   ) {
-    const active = isActive === 'true' ? true : isActive === 'false' ? false : undefined;
+    const active =
+      isActive === 'true' ? true : isActive === 'false' ? false : undefined;
     return this.purchasingService.findAllSuppliers(
       search,
       active,
@@ -68,7 +69,10 @@ export class PurchasingController {
   @Patch('suppliers/:id')
   @Permissions('purchasing.suppliers.update')
   @HttpCode(HttpStatus.OK)
-  updateSupplier(@Param('id') id: string, @Body() updateSupplierDto: UpdateSupplierDto) {
+  updateSupplier(
+    @Param('id') id: string,
+    @Body() updateSupplierDto: UpdateSupplierDto,
+  ) {
     return this.purchasingService.updateSupplier(id, updateSupplierDto);
   }
 
@@ -90,8 +94,14 @@ export class PurchasingController {
   @Post('orders')
   @Permissions('purchasing.orders.create')
   @HttpCode(HttpStatus.CREATED)
-  createPurchaseOrder(@Body() createPurchaseOrderDto: CreatePurchaseOrderDto, @Req() req: any) {
-    return this.purchasingService.createPurchaseOrder(createPurchaseOrderDto, req.user.id);
+  createPurchaseOrder(
+    @Body() createPurchaseOrderDto: CreatePurchaseOrderDto,
+    @Req() req: any,
+  ) {
+    return this.purchasingService.createPurchaseOrder(
+      createPurchaseOrderDto,
+      req.user.id,
+    );
   }
 
   /**
@@ -122,7 +132,11 @@ export class PurchasingController {
     @Body('status') status: string,
     @Req() req: any,
   ) {
-    return this.purchasingService.updatePurchaseOrderStatus(id, status, req.user.id);
+    return this.purchasingService.updatePurchaseOrderStatus(
+      id,
+      status,
+      req.user.id,
+    );
   }
 
   // ========== PURCHASE INVOICES ENDPOINTS ==========
@@ -133,8 +147,14 @@ export class PurchasingController {
   @Post('invoices')
   @Permissions('purchasing.invoices.create')
   @HttpCode(HttpStatus.CREATED)
-  createPurchaseInvoice(@Body() createPurchaseInvoiceDto: CreatePurchaseInvoiceDto, @Req() req: any) {
-    return this.purchasingService.createPurchaseInvoice(createPurchaseInvoiceDto, req.user.id);
+  createPurchaseInvoice(
+    @Body() createPurchaseInvoiceDto: CreatePurchaseInvoiceDto,
+    @Req() req: any,
+  ) {
+    return this.purchasingService.createPurchaseInvoice(
+      createPurchaseInvoiceDto,
+      req.user.id,
+    );
   }
 
   /**
@@ -148,7 +168,11 @@ export class PurchasingController {
     @Body() createPurchasePaymentDto: CreatePurchasePaymentDto,
     @Req() req: any,
   ) {
-    return this.purchasingService.createPurchasePayment(id, createPurchasePaymentDto, req.user.id);
+    return this.purchasingService.createPurchasePayment(
+      id,
+      createPurchasePaymentDto,
+      req.user.id,
+    );
   }
 
   // ========== REPORTING ENDPOINTS ==========

@@ -1,5 +1,11 @@
 import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
-import { IsNotEmpty, IsNumber, IsString, IsOptional, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  IsOptional,
+  MaxLength,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreatePaymentDto {

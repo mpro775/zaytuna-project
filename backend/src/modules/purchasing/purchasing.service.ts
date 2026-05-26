@@ -170,7 +170,9 @@ export class PurchasingService {
   /**
    * إنشاء مورد جديد
    */
-  async createSupplier(createSupplierDto: CreateSupplierDto): Promise<SupplierWithDetails> {
+  async createSupplier(
+    createSupplierDto: CreateSupplierDto,
+  ): Promise<SupplierWithDetails> {
     try {
       this.logger.log(`إنشاء مورد جديد: ${createSupplierDto.name}`);
 
@@ -221,7 +223,8 @@ export class PurchasingService {
     try {
       const cacheKey = `suppliers:${search || 'all'}:${isActive ?? 'all'}`;
 
-      const cachedSuppliers = await this.cacheService.get<SupplierWithDetails[]>(cacheKey);
+      const cachedSuppliers =
+        await this.cacheService.get<SupplierWithDetails[]>(cacheKey);
       if (cachedSuppliers) {
         return cachedSuppliers;
       }
@@ -248,7 +251,7 @@ export class PurchasingService {
       });
 
       const suppliersWithDetails = await Promise.all(
-        suppliers.map(supplier => this.buildSupplierWithDetails(supplier))
+        suppliers.map((supplier) => this.buildSupplierWithDetails(supplier)),
       );
 
       await this.cacheService.set(cacheKey, suppliersWithDetails, { ttl: 600 });
@@ -266,7 +269,8 @@ export class PurchasingService {
   async findOneSupplier(id: string): Promise<SupplierWithDetails> {
     try {
       const cacheKey = `${this.supplierCacheKey}:${id}`;
-      const cachedSupplier = await this.cacheService.get<SupplierWithDetails>(cacheKey);
+      const cachedSupplier =
+        await this.cacheService.get<SupplierWithDetails>(cacheKey);
 
       if (cachedSupplier) {
         return cachedSupplier;
@@ -294,7 +298,10 @@ export class PurchasingService {
   /**
    * تحديث مورد
    */
-  async updateSupplier(id: string, updateSupplierDto: UpdateSupplierDto): Promise<SupplierWithDetails> {
+  async updateSupplier(
+    id: string,
+    updateSupplierDto: UpdateSupplierDto,
+  ): Promise<SupplierWithDetails> {
     try {
       this.logger.log(`تحديث المورد: ${id}`);
 
@@ -307,7 +314,10 @@ export class PurchasingService {
       }
 
       // التحقق من عدم تكرار البريد الإلكتروني
-      if (updateSupplierDto.email && updateSupplierDto.email !== existingSupplier.email) {
+      if (
+        updateSupplierDto.email &&
+        updateSupplierDto.email !== existingSupplier.email
+      ) {
         const existingEmail = await this.prisma.supplier.findFirst({
           where: { email: updateSupplierDto.email },
         });
@@ -363,8 +373,13 @@ export class PurchasingService {
       }
 
       // التحقق من عدم وجود أوامر أو فواتير مرتبطة
-      if (supplier.purchaseOrders.length > 0 || supplier.purchaseInvoices.length > 0) {
-        throw new BadRequestException('لا يمكن حذف مورد مرتبط بأوامر أو فواتير شراء');
+      if (
+        supplier.purchaseOrders.length > 0 ||
+        supplier.purchaseInvoices.length > 0
+      ) {
+        throw new BadRequestException(
+          'لا يمكن حذف مورد مرتبط بأوامر أو فواتير شراء',
+        );
       }
 
       await this.prisma.supplier.delete({
@@ -385,7 +400,10 @@ export class PurchasingService {
   /**
    * إنشاء أمر شراء جديد
    */
-  async createPurchaseOrder(createPurchaseOrderDto: CreatePurchaseOrderDto, userId: string): Promise<PurchaseOrderWithDetails> {
+  async createPurchaseOrder(
+    createPurchaseOrderDto: CreatePurchaseOrderDto,
+    userId: string,
+  ): Promise<PurchaseOrderWithDetails> {
     try {
       this.logger.log(`إنشاء أمر شراء جديد`);
 
@@ -412,7 +430,9 @@ export class PurchasingService {
       }
 
       // التحقق من وجود المنتجات
-      const productIds = createPurchaseOrderDto.lines.map(line => line.productId);
+      const productIds = createPurchaseOrderDto.lines.map(
+        (line) => line.productId,
+      );
       const products = await this.prisma.product.findMany({
         where: { id: { in: productIds } },
       });
@@ -428,7 +448,9 @@ export class PurchasingService {
           orderBy: { createdAt: 'desc' },
         });
 
-        const sequence = lastOrder ? parseInt(lastOrder.orderNumber.split('-')[2] || '0') + 1 : 1;
+        const sequence = lastOrder
+          ? parseInt(lastOrder.orderNumber.split('-')[2] || '0') + 1
+          : 1;
         const orderNumber = `${supplier.name.substring(0, 3).toUpperCase()}-PO-${sequence.toString().padStart(4, '0')}`;
 
         const purchaseOrder = await tx.purchaseOrder.create({
@@ -437,11 +459,13 @@ export class PurchasingService {
             supplierId: createPurchaseOrderDto.supplierId,
             warehouseId: createPurchaseOrderDto.warehouseId,
             requestedBy: userId,
-            expectedDate: createPurchaseOrderDto.expectedDate ? new Date(createPurchaseOrderDto.expectedDate) : undefined,
+            expectedDate: createPurchaseOrderDto.expectedDate
+              ? new Date(createPurchaseOrderDto.expectedDate)
+              : undefined,
             notes: createPurchaseOrderDto.notes,
             status: 'draft',
             lines: {
-              create: createPurchaseOrderDto.lines.map(line => ({
+              create: createPurchaseOrderDto.lines.map((line) => ({
                 productId: line.productId,
                 quantity: line.quantity,
                 unitCost: line.unitCost,
@@ -490,7 +514,8 @@ export class PurchasingService {
 
         await this.invalidatePurchaseOrdersCache();
 
-        const purchaseOrderWithDetails = this.buildPurchaseOrderWithDetails(purchaseOrder);
+        const purchaseOrderWithDetails =
+          this.buildPurchaseOrderWithDetails(purchaseOrder);
 
         this.logger.log(`تم إنشاء أمر الشراء بنجاح: ${orderNumber}`);
         return purchaseOrderWithDetails;
@@ -512,7 +537,8 @@ export class PurchasingService {
     try {
       const cacheKey = `purchaseOrders:${supplierId || 'all'}:${status || 'all'}`;
 
-      const cachedOrders = await this.cacheService.get<PurchaseOrderWithDetails[]>(cacheKey);
+      const cachedOrders =
+        await this.cacheService.get<PurchaseOrderWithDetails[]>(cacheKey);
       if (cachedOrders) {
         return cachedOrders;
       }
@@ -571,8 +597,8 @@ export class PurchasingService {
         take: limit,
       });
 
-      const ordersWithDetails = purchaseOrders.map(order =>
-        this.buildPurchaseOrderWithDetails(order)
+      const ordersWithDetails = purchaseOrders.map((order) =>
+        this.buildPurchaseOrderWithDetails(order),
       );
 
       await this.cacheService.set(cacheKey, ordersWithDetails, { ttl: 600 });
@@ -587,7 +613,11 @@ export class PurchasingService {
   /**
    * تحديث حالة أمر الشراء
    */
-  async updatePurchaseOrderStatus(id: string, status: string, userId: string): Promise<PurchaseOrderWithDetails> {
+  async updatePurchaseOrderStatus(
+    id: string,
+    status: string,
+    userId: string,
+  ): Promise<PurchaseOrderWithDetails> {
     try {
       this.logger.log(`تحديث حالة أمر الشراء: ${id} إلى ${status}`);
 
@@ -599,7 +629,13 @@ export class PurchasingService {
         throw new NotFoundException('أمر الشراء غير موجود');
       }
 
-      const validStatuses = ['draft', 'approved', 'ordered', 'received', 'cancelled'];
+      const validStatuses = [
+        'draft',
+        'approved',
+        'ordered',
+        'received',
+        'cancelled',
+      ];
       if (!validStatuses.includes(status)) {
         throw new BadRequestException('حالة غير صالحة');
       }
@@ -649,7 +685,8 @@ export class PurchasingService {
 
       await this.invalidatePurchaseOrdersCache();
 
-      const purchaseOrderWithDetails = this.buildPurchaseOrderWithDetails(purchaseOrder);
+      const purchaseOrderWithDetails =
+        this.buildPurchaseOrderWithDetails(purchaseOrder);
 
       this.logger.log(`تم تحديث حالة أمر الشراء بنجاح`);
       return purchaseOrderWithDetails;
@@ -664,9 +701,14 @@ export class PurchasingService {
   /**
    * إنشاء فاتورة شراء جديدة
    */
-  async createPurchaseInvoice(createPurchaseInvoiceDto: CreatePurchaseInvoiceDto, userId: string): Promise<PurchaseInvoiceWithDetails> {
+  async createPurchaseInvoice(
+    createPurchaseInvoiceDto: CreatePurchaseInvoiceDto,
+    userId: string,
+  ): Promise<PurchaseInvoiceWithDetails> {
     try {
-      this.logger.log(`إنشاء فاتورة شراء جديدة: ${createPurchaseInvoiceDto.invoiceNumber || 'بدون رقم'}`);
+      this.logger.log(
+        `إنشاء فاتورة شراء جديدة: ${createPurchaseInvoiceDto.invoiceNumber || 'بدون رقم'}`,
+      );
 
       // التحقق من وجود المورد
       const supplier = await this.prisma.supplier.findUnique({
@@ -760,17 +802,19 @@ export class PurchasingService {
             totalAmount,
             currencyId: createPurchaseInvoiceDto.currencyId,
             invoiceDate: new Date(createPurchaseInvoiceDto.invoiceDate),
-            dueDate: createPurchaseInvoiceDto.dueDate ? new Date(createPurchaseInvoiceDto.dueDate) : undefined,
+            dueDate: createPurchaseInvoiceDto.dueDate
+              ? new Date(createPurchaseInvoiceDto.dueDate)
+              : undefined,
             status: createPurchaseInvoiceDto.status || 'draft',
             paymentStatus: 'pending',
             notes: createPurchaseInvoiceDto.notes,
             lines: {
-              create: createPurchaseInvoiceDto.lines.map(line => ({
+              create: createPurchaseInvoiceDto.lines.map((line) => ({
                 productVariant: {
-                  connect: { id: line.productVariantId }
+                  connect: { id: line.productVariantId },
                 },
                 warehouse: {
-                  connect: { id: createPurchaseInvoiceDto.warehouseId }
+                  connect: { id: createPurchaseInvoiceDto.warehouseId },
                 },
                 quantity: line.quantity,
                 unitCost: line.unitCost,
@@ -873,7 +917,8 @@ export class PurchasingService {
 
         await this.invalidatePurchaseInvoicesCache();
 
-        const purchaseInvoiceWithDetails = this.buildPurchaseInvoiceWithDetails(purchaseInvoice);
+        const purchaseInvoiceWithDetails =
+          this.buildPurchaseInvoiceWithDetails(purchaseInvoice);
 
         this.logger.log(`تم إنشاء فاتورة الشراء بنجاح: ${invoiceNumber}`);
         return purchaseInvoiceWithDetails;
@@ -887,7 +932,11 @@ export class PurchasingService {
   /**
    * إنشاء دفعة لفاتورة شراء
    */
-  async createPurchasePayment(invoiceId: string, createPurchasePaymentDto: CreatePurchasePaymentDto, userId: string): Promise<any> {
+  async createPurchasePayment(
+    invoiceId: string,
+    createPurchasePaymentDto: CreatePurchasePaymentDto,
+    userId: string,
+  ): Promise<any> {
     try {
       this.logger.log(`إنشاء دفعة لفاتورة الشراء: ${invoiceId}`);
 
@@ -903,14 +952,15 @@ export class PurchasingService {
       // حساب إجمالي المدفوعات الحالية
       const currentPaymentsTotal = purchaseInvoice.payments.reduce(
         (sum, payment) => sum + Number(payment.amount),
-        0
+        0,
       );
 
-      const remainingAmount = Number(purchaseInvoice.totalAmount) - currentPaymentsTotal;
+      const remainingAmount =
+        Number(purchaseInvoice.totalAmount) - currentPaymentsTotal;
 
       if (createPurchasePaymentDto.amount > remainingAmount) {
         throw new BadRequestException(
-          `مبلغ الدفعة يتجاوز المبلغ المتبقي (${remainingAmount})`
+          `مبلغ الدفعة يتجاوز المبلغ المتبقي (${remainingAmount})`,
         );
       }
 
@@ -929,7 +979,8 @@ export class PurchasingService {
         });
 
         // تحديث حالة الدفع
-        const newPaymentsTotal = currentPaymentsTotal + Number(createPurchasePaymentDto.amount);
+        const newPaymentsTotal =
+          currentPaymentsTotal + Number(createPurchasePaymentDto.amount);
         let paymentStatus = 'partial';
 
         if (newPaymentsTotal >= Number(purchaseInvoice.totalAmount)) {
@@ -1014,7 +1065,9 @@ export class PurchasingService {
         financial: {
           totalPurchased: Number(totalPurchased._sum.totalAmount || 0),
           totalPaid: Number(totalPaid._sum.amount || 0),
-          outstanding: Number(totalPurchased._sum.totalAmount || 0) - Number(totalPaid._sum.amount || 0),
+          outstanding:
+            Number(totalPurchased._sum.totalAmount || 0) -
+            Number(totalPaid._sum.amount || 0),
         },
       };
     } catch (error) {
@@ -1028,15 +1081,20 @@ export class PurchasingService {
   /**
    * بناء كائن المورد مع التفاصيل
    */
-  private async buildSupplierWithDetails(supplier: any): Promise<SupplierWithDetails> {
-    const [purchaseOrdersCount, purchaseInvoicesCount, totalPurchased] = await Promise.all([
-      this.prisma.purchaseOrder.count({ where: { supplierId: supplier.id } }),
-      this.prisma.purchaseInvoice.count({ where: { supplierId: supplier.id } }),
-      this.prisma.purchaseInvoice.aggregate({
-        where: { supplierId: supplier.id },
-        _sum: { totalAmount: true },
-      }),
-    ]);
+  private async buildSupplierWithDetails(
+    supplier: any,
+  ): Promise<SupplierWithDetails> {
+    const [purchaseOrdersCount, purchaseInvoicesCount, totalPurchased] =
+      await Promise.all([
+        this.prisma.purchaseOrder.count({ where: { supplierId: supplier.id } }),
+        this.prisma.purchaseInvoice.count({
+          where: { supplierId: supplier.id },
+        }),
+        this.prisma.purchaseInvoice.aggregate({
+          where: { supplierId: supplier.id },
+          _sum: { totalAmount: true },
+        }),
+      ]);
 
     return {
       id: supplier.id,
@@ -1059,7 +1117,9 @@ export class PurchasingService {
   /**
    * بناء كائن أمر الشراء مع التفاصيل
    */
-  private buildPurchaseOrderWithDetails(purchaseOrder: any): PurchaseOrderWithDetails {
+  private buildPurchaseOrderWithDetails(
+    purchaseOrder: any,
+  ): PurchaseOrderWithDetails {
     return {
       id: purchaseOrder.id,
       orderNumber: purchaseOrder.orderNumber,
@@ -1089,7 +1149,9 @@ export class PurchasingService {
   /**
    * بناء كائن فاتورة الشراء مع التفاصيل
    */
-  private buildPurchaseInvoiceWithDetails(purchaseInvoice: any): PurchaseInvoiceWithDetails {
+  private buildPurchaseInvoiceWithDetails(
+    purchaseInvoice: any,
+  ): PurchaseInvoiceWithDetails {
     return {
       id: purchaseInvoice.id,
       invoiceNumber: purchaseInvoice.invoiceNumber,
@@ -1141,7 +1203,9 @@ export class PurchasingService {
   private async invalidateSuppliersCache(): Promise<void> {
     await this.cacheService.delete(this.suppliersCacheKey);
 
-    const supplierKeys = await this.cacheService.getKeys(`${this.supplierCacheKey}:*`);
+    const supplierKeys = await this.cacheService.getKeys(
+      `${this.supplierCacheKey}:*`,
+    );
     for (const key of supplierKeys) {
       await this.cacheService.delete(key);
     }
@@ -1153,7 +1217,9 @@ export class PurchasingService {
   private async invalidatePurchaseOrdersCache(): Promise<void> {
     await this.cacheService.delete(this.purchaseOrdersCacheKey);
 
-    const orderKeys = await this.cacheService.getKeys(`${this.purchaseOrderCacheKey}:*`);
+    const orderKeys = await this.cacheService.getKeys(
+      `${this.purchaseOrderCacheKey}:*`,
+    );
     for (const key of orderKeys) {
       await this.cacheService.delete(key);
     }
@@ -1165,7 +1231,9 @@ export class PurchasingService {
   private async invalidatePurchaseInvoicesCache(): Promise<void> {
     await this.cacheService.delete(this.purchaseInvoicesCacheKey);
 
-    const invoiceKeys = await this.cacheService.getKeys(`${this.purchaseInvoiceCacheKey}:*`);
+    const invoiceKeys = await this.cacheService.getKeys(
+      `${this.purchaseInvoiceCacheKey}:*`,
+    );
     for (const key of invoiceKeys) {
       await this.cacheService.delete(key);
     }

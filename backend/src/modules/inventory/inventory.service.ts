@@ -78,9 +78,13 @@ export class InventoryService {
   /**
    * إنشاء عنصر مخزون جديد
    */
-  async createStockItem(createStockItemDto: CreateStockItemDto): Promise<StockItemWithDetails> {
+  async createStockItem(
+    createStockItemDto: CreateStockItemDto,
+  ): Promise<StockItemWithDetails> {
     try {
-      this.logger.log(`إنشاء عنصر مخزون جديد: ${createStockItemDto.warehouseId} - ${createStockItemDto.productVariantId}`);
+      this.logger.log(
+        `إنشاء عنصر مخزون جديد: ${createStockItemDto.warehouseId} - ${createStockItemDto.productVariantId}`,
+      );
 
       // التحقق من وجود المخزن
       const warehouse = await this.prisma.warehouse.findUnique({
@@ -111,7 +115,9 @@ export class InventoryService {
       });
 
       if (existingStockItem) {
-        throw new BadRequestException('عنصر المخزون موجود بالفعل في هذا المخزن');
+        throw new BadRequestException(
+          'عنصر المخزون موجود بالفعل في هذا المخزن',
+        );
       }
 
       // إنشاء عنصر المخزون
@@ -179,16 +185,20 @@ export class InventoryService {
   /**
    * الحصول على عناصر المخزون
    */
-  async findAllStockItems(warehouseId?: string, lowStockOnly?: boolean): Promise<StockItemWithDetails[]> {
+  async findAllStockItems(
+    warehouseId?: string,
+    lowStockOnly?: boolean,
+  ): Promise<StockItemWithDetails[]> {
     try {
       const cacheKey = warehouseId
         ? `stock_items:warehouse:${warehouseId}`
         : lowStockOnly
-        ? 'stock_items:low_stock'
-        : this.stockItemsCacheKey;
+          ? 'stock_items:low_stock'
+          : this.stockItemsCacheKey;
 
       // محاولة الحصول من الكاش أولاً
-      const cachedItems = await this.cacheService.get<StockItemWithDetails[]>(cacheKey);
+      const cachedItems =
+        await this.cacheService.get<StockItemWithDetails[]>(cacheKey);
       if (cachedItems) {
         return cachedItems;
       }
@@ -230,15 +240,21 @@ export class InventoryService {
         ],
       });
 
-      let stockItemsWithDetails = stockItems.map(item => this.buildStockItemWithDetails(item));
+      let stockItemsWithDetails = stockItems.map((item) =>
+        this.buildStockItemWithDetails(item),
+      );
 
       // فلترة العناصر ذات المخزون المنخفض إذا طُلب ذلك
       if (lowStockOnly) {
-        stockItemsWithDetails = stockItemsWithDetails.filter(item => item.isLowStock);
+        stockItemsWithDetails = stockItemsWithDetails.filter(
+          (item) => item.isLowStock,
+        );
       }
 
       // حفظ في الكاش لمدة 5 دقائق
-      await this.cacheService.set(cacheKey, stockItemsWithDetails, { ttl: 300 });
+      await this.cacheService.set(cacheKey, stockItemsWithDetails, {
+        ttl: 300,
+      });
 
       return stockItemsWithDetails;
     } catch (error) {
@@ -253,7 +269,8 @@ export class InventoryService {
   async findStockItemById(id: string): Promise<StockItemWithDetails> {
     try {
       const cacheKey = `${this.stockItemsCacheKey}:${id}`;
-      const cachedItem = await this.cacheService.get<StockItemWithDetails>(cacheKey);
+      const cachedItem =
+        await this.cacheService.get<StockItemWithDetails>(cacheKey);
 
       if (cachedItem) {
         return cachedItem;
@@ -348,7 +365,10 @@ export class InventoryService {
 
       return this.buildStockItemWithDetails(stockItem);
     } catch (error) {
-      this.logger.error(`فشل في الحصول على عنصر المخزون: ${warehouseId} - ${productVariantId}`, error);
+      this.logger.error(
+        `فشل في الحصول على عنصر المخزون: ${warehouseId} - ${productVariantId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -356,7 +376,10 @@ export class InventoryService {
   /**
    * تحديث عنصر مخزون
    */
-  async updateStockItem(id: string, updateStockItemDto: UpdateStockItemDto): Promise<StockItemWithDetails> {
+  async updateStockItem(
+    id: string,
+    updateStockItemDto: UpdateStockItemDto,
+  ): Promise<StockItemWithDetails> {
     try {
       this.logger.log(`تحديث عنصر المخزون: ${id}`);
 
@@ -424,7 +447,9 @@ export class InventoryService {
     performedBy?: string,
   ): Promise<StockItemWithDetails> {
     try {
-      this.logger.log(`تعديل المخزون: ${warehouseId} - ${productVariantId} - ${adjustStockDto.quantity}`);
+      this.logger.log(
+        `تعديل المخزون: ${warehouseId} - ${productVariantId} - ${adjustStockDto.quantity}`,
+      );
 
       return await this.prisma.$transaction(async (tx) => {
         // الحصول على عنصر المخزون الحالي
@@ -441,7 +466,8 @@ export class InventoryService {
           throw new NotFoundException('عنصر المخزون غير موجود');
         }
 
-        const newQuantity = Number(currentStockItem.quantity) + adjustStockDto.quantity;
+        const newQuantity =
+          Number(currentStockItem.quantity) + adjustStockDto.quantity;
 
         if (newQuantity < 0) {
           throw new BadRequestException('الكمية الجديدة لا يمكن أن تكون سالبة');
@@ -500,13 +526,17 @@ export class InventoryService {
         // تحديث الكاش
         await this.invalidateStockCache();
 
-        const stockItemWithDetails = this.buildStockItemWithDetails(updatedStockItem);
+        const stockItemWithDetails =
+          this.buildStockItemWithDetails(updatedStockItem);
 
         this.logger.log(`تم تعديل المخزون بنجاح`);
         return stockItemWithDetails;
       });
     } catch (error) {
-      this.logger.error(`فشل في تعديل المخزون: ${warehouseId} - ${productVariantId}`, error);
+      this.logger.error(
+        `فشل في تعديل المخزون: ${warehouseId} - ${productVariantId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -557,7 +587,7 @@ export class InventoryService {
         take: limit,
       });
 
-      return movements.map(movement => ({
+      return movements.map((movement) => ({
         id: movement.id,
         warehouseId: movement.warehouseId,
         productVariantId: movement.productVariantId,
@@ -611,13 +641,10 @@ export class InventoryService {
             },
           },
         },
-        orderBy: [
-          { quantity: 'asc' },
-          { warehouse: { name: 'asc' } },
-        ],
+        orderBy: [{ quantity: 'asc' }, { warehouse: { name: 'asc' } }],
       });
 
-      return lowStockItems.map(item => this.buildStockItemWithDetails(item));
+      return lowStockItems.map((item) => this.buildStockItemWithDetails(item));
     } catch (error) {
       this.logger.error('فشل في الحصول على تنبيهات المخزون المنخفض', error);
       throw error;
@@ -648,14 +675,14 @@ export class InventoryService {
       });
 
       const totalItems = stockItems.length;
-      const lowStockItems = stockItems.filter(item =>
-        Number(item.quantity) <= Number(item.minStock)
+      const lowStockItems = stockItems.filter(
+        (item) => Number(item.quantity) <= Number(item.minStock),
       ).length;
-      const outOfStockItems = stockItems.filter(item =>
-        Number(item.quantity) === 0
+      const outOfStockItems = stockItems.filter(
+        (item) => Number(item.quantity) === 0,
       ).length;
-      const overStockItems = stockItems.filter(item =>
-        Number(item.quantity) >= Number(item.maxStock)
+      const overStockItems = stockItems.filter(
+        (item) => Number(item.quantity) >= Number(item.maxStock),
       ).length;
 
       // حساب القيمة الإجمالية

@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { Permissions } from '../../common/decorators/permissions.decorator';
 import { CurrencyService } from './currency.service';
 
@@ -62,8 +71,16 @@ export class CurrencyController {
 
   @Get('exchange-rates/latest')
   @Permissions('exchange-rates.read')
-  latest(@Query('from') from: string, @Query('to') to: string) {
-    return this.currencyService.latest(from, to);
+  latest(
+    @Query('from') from: string,
+    @Query('to') to: string,
+    @Query('fromCurrencyId') fromCurrencyId: string,
+    @Query('toCurrencyId') toCurrencyId: string,
+  ) {
+    return this.currencyService.latest(
+      fromCurrencyId ?? from,
+      toCurrencyId ?? to,
+    );
   }
 
   @Post('exchange-rates/convert')

@@ -177,12 +177,22 @@ export class CacheOptimizationService {
 
     // تخزين كل إعدادات النظام مع TTL طويل
     await this.cacheManager.set('system:branches', settings.branches, 86400000); // 24 hours
-    await this.cacheManager.set('system:warehouses', settings.warehouses, 86400000);
-    await this.cacheManager.set('system:categories', settings.categories, 86400000);
+    await this.cacheManager.set(
+      'system:warehouses',
+      settings.warehouses,
+      86400000,
+    );
+    await this.cacheManager.set(
+      'system:categories',
+      settings.categories,
+      86400000,
+    );
     await this.cacheManager.set('system:taxRates', settings.taxRates, 86400000);
 
     const duration = Date.now() - startTime;
-    this.logger.log(`System settings cache optimization completed in ${duration}ms`);
+    this.logger.log(
+      `System settings cache optimization completed in ${duration}ms`,
+    );
 
     return {
       optimized: true,
@@ -238,7 +248,9 @@ export class CacheOptimizationService {
     await this.cacheManager.set('reports:low-stock', lowStockItems, 1800000); // 30 minutes
 
     const duration = Date.now() - startTime;
-    this.logger.log(`Daily reports cache optimization completed in ${duration}ms`);
+    this.logger.log(
+      `Daily reports cache optimization completed in ${duration}ms`,
+    );
 
     return {
       optimized: true,
@@ -278,17 +290,22 @@ export class CacheOptimizationService {
   async getCacheStats(): Promise<CacheStats> {
     // محاولة الحصول على إحصائيات من Redis إذا كان متاحاً
     try {
-      const info = await (this.cacheManager as any).store?.getClient?.()?.info?.();
+      const info = await (this.cacheManager as any).store
+        ?.getClient?.()
+        ?.info?.();
       if (info) {
-        const usedMemory = parseInt(info.match(/used_memory:(\d+)/)?.[1] || '0');
+        const usedMemory = parseInt(
+          info.match(/used_memory:(\d+)/)?.[1] || '0',
+        );
         const totalKeys = parseInt(info.match(/db0:keys=(\d+)/)?.[1] || '0');
 
         return {
           hits: this.cacheStats.hits,
           misses: this.cacheStats.misses,
-          hitRate: this.cacheStats.totalRequests > 0
-            ? (this.cacheStats.hits / this.cacheStats.totalRequests) * 100
-            : 0,
+          hitRate:
+            this.cacheStats.totalRequests > 0
+              ? (this.cacheStats.hits / this.cacheStats.totalRequests) * 100
+              : 0,
           totalRequests: this.cacheStats.totalRequests,
           cacheSize: totalKeys,
           memoryUsage: usedMemory,
@@ -302,9 +319,10 @@ export class CacheOptimizationService {
     return {
       hits: this.cacheStats.hits,
       misses: this.cacheStats.misses,
-      hitRate: this.cacheStats.totalRequests > 0
-        ? (this.cacheStats.hits / this.cacheStats.totalRequests) * 100
-        : 0,
+      hitRate:
+        this.cacheStats.totalRequests > 0
+          ? (this.cacheStats.hits / this.cacheStats.totalRequests) * 100
+          : 0,
       totalRequests: this.cacheStats.totalRequests,
       cacheSize: 0, // غير متاح في memory cache
       memoryUsage: 0, // غير متاح في memory cache
@@ -342,7 +360,9 @@ export class CacheOptimizationService {
 
       // تحسين كاش إعدادات النظام
       const settingsResult = await this.optimizeSystemSettingsCache();
-      improvements.push(`تم تحسين كاش ${settingsResult.cachedSettings} إعدادات نظام`);
+      improvements.push(
+        `تم تحسين كاش ${settingsResult.cachedSettings} إعدادات نظام`,
+      );
 
       // تحسين كاش التقارير
       const reportsResult = await this.optimizeDailyReportsCache();
@@ -366,13 +386,15 @@ export class CacheOptimizationService {
         improvements,
         recommendations,
       };
-
     } catch (error) {
       this.logger.error('Cache optimization failed', error);
       return {
         optimized: false,
         improvements: [],
-        recommendations: ['فحص أخطاء تحسين الكاش', 'التأكد من اتصال قاعدة البيانات'],
+        recommendations: [
+          'فحص أخطاء تحسين الكاش',
+          'التأكد من اتصال قاعدة البيانات',
+        ],
       };
     }
   }

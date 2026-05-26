@@ -33,69 +33,69 @@ export class NotificationPreferencesService {
   // التفضيلات الافتراضية للأحداث المختلفة
   private readonly defaultPreferences: DefaultPreferences = {
     // أحداث المبيعات
-    'sale_created': {
-      'email': { enabled: true, frequency: 'immediate', priority: 'high' },
-      'sms': { enabled: false, frequency: 'immediate', priority: 'high' },
-      'whatsapp': { enabled: false, frequency: 'immediate', priority: 'high' },
-      'push': { enabled: true, frequency: 'immediate', priority: 'high' },
-      'in_app': { enabled: true, frequency: 'immediate', priority: 'high' },
+    sale_created: {
+      email: { enabled: true, frequency: 'immediate', priority: 'high' },
+      sms: { enabled: false, frequency: 'immediate', priority: 'high' },
+      whatsapp: { enabled: false, frequency: 'immediate', priority: 'high' },
+      push: { enabled: true, frequency: 'immediate', priority: 'high' },
+      in_app: { enabled: true, frequency: 'immediate', priority: 'high' },
     },
-    'payment_received': {
-      'email': { enabled: true, frequency: 'immediate', priority: 'high' },
-      'sms': { enabled: true, frequency: 'immediate', priority: 'high' },
-      'whatsapp': { enabled: false, frequency: 'immediate', priority: 'high' },
-      'push': { enabled: true, frequency: 'immediate', priority: 'high' },
-      'in_app': { enabled: true, frequency: 'immediate', priority: 'high' },
+    payment_received: {
+      email: { enabled: true, frequency: 'immediate', priority: 'high' },
+      sms: { enabled: true, frequency: 'immediate', priority: 'high' },
+      whatsapp: { enabled: false, frequency: 'immediate', priority: 'high' },
+      push: { enabled: true, frequency: 'immediate', priority: 'high' },
+      in_app: { enabled: true, frequency: 'immediate', priority: 'high' },
     },
 
     // أحداث المخزون
-    'stock_low': {
-      'email': { enabled: true, frequency: 'immediate', priority: 'urgent' },
-      'sms': { enabled: false, frequency: 'immediate', priority: 'urgent' },
-      'whatsapp': { enabled: false, frequency: 'immediate', priority: 'urgent' },
-      'push': { enabled: true, frequency: 'immediate', priority: 'urgent' },
-      'in_app': { enabled: true, frequency: 'immediate', priority: 'urgent' },
+    stock_low: {
+      email: { enabled: true, frequency: 'immediate', priority: 'urgent' },
+      sms: { enabled: false, frequency: 'immediate', priority: 'urgent' },
+      whatsapp: { enabled: false, frequency: 'immediate', priority: 'urgent' },
+      push: { enabled: true, frequency: 'immediate', priority: 'urgent' },
+      in_app: { enabled: true, frequency: 'immediate', priority: 'urgent' },
     },
-    'stock_out': {
-      'email': { enabled: true, frequency: 'immediate', priority: 'urgent' },
-      'sms': { enabled: true, frequency: 'immediate', priority: 'urgent' },
-      'whatsapp': { enabled: false, frequency: 'immediate', priority: 'urgent' },
-      'push': { enabled: true, frequency: 'immediate', priority: 'urgent' },
-      'in_app': { enabled: true, frequency: 'immediate', priority: 'urgent' },
+    stock_out: {
+      email: { enabled: true, frequency: 'immediate', priority: 'urgent' },
+      sms: { enabled: true, frequency: 'immediate', priority: 'urgent' },
+      whatsapp: { enabled: false, frequency: 'immediate', priority: 'urgent' },
+      push: { enabled: true, frequency: 'immediate', priority: 'urgent' },
+      in_app: { enabled: true, frequency: 'immediate', priority: 'urgent' },
     },
 
     // أحداث العملاء
-    'customer_birthday': {
-      'email': { enabled: true, frequency: 'daily', priority: 'normal' },
-      'sms': { enabled: false, frequency: 'daily', priority: 'normal' },
-      'whatsapp': { enabled: true, frequency: 'daily', priority: 'normal' },
-      'push': { enabled: false, frequency: 'daily', priority: 'normal' },
-      'in_app': { enabled: true, frequency: 'daily', priority: 'normal' },
+    customer_birthday: {
+      email: { enabled: true, frequency: 'daily', priority: 'normal' },
+      sms: { enabled: false, frequency: 'daily', priority: 'normal' },
+      whatsapp: { enabled: true, frequency: 'daily', priority: 'normal' },
+      push: { enabled: false, frequency: 'daily', priority: 'normal' },
+      in_app: { enabled: true, frequency: 'daily', priority: 'normal' },
     },
-    'loyalty_tier_upgraded': {
-      'email': { enabled: true, frequency: 'immediate', priority: 'high' },
-      'sms': { enabled: false, frequency: 'immediate', priority: 'high' },
-      'whatsapp': { enabled: true, frequency: 'immediate', priority: 'high' },
-      'push': { enabled: true, frequency: 'immediate', priority: 'high' },
-      'in_app': { enabled: true, frequency: 'immediate', priority: 'high' },
+    loyalty_tier_upgraded: {
+      email: { enabled: true, frequency: 'immediate', priority: 'high' },
+      sms: { enabled: false, frequency: 'immediate', priority: 'high' },
+      whatsapp: { enabled: true, frequency: 'immediate', priority: 'high' },
+      push: { enabled: true, frequency: 'immediate', priority: 'high' },
+      in_app: { enabled: true, frequency: 'immediate', priority: 'high' },
     },
 
     // أحداث المحاسبة
-    'period_closed': {
-      'email': { enabled: true, frequency: 'weekly', priority: 'normal' },
-      'sms': { enabled: false, frequency: 'weekly', priority: 'normal' },
-      'whatsapp': { enabled: false, frequency: 'weekly', priority: 'normal' },
-      'push': { enabled: false, frequency: 'weekly', priority: 'normal' },
-      'in_app': { enabled: true, frequency: 'weekly', priority: 'normal' },
+    period_closed: {
+      email: { enabled: true, frequency: 'weekly', priority: 'normal' },
+      sms: { enabled: false, frequency: 'weekly', priority: 'normal' },
+      whatsapp: { enabled: false, frequency: 'weekly', priority: 'normal' },
+      push: { enabled: false, frequency: 'weekly', priority: 'normal' },
+      in_app: { enabled: true, frequency: 'weekly', priority: 'normal' },
     },
 
     // أحداث النظام
-    'user_login_failed': {
-      'email': { enabled: true, frequency: 'immediate', priority: 'urgent' },
-      'sms': { enabled: false, frequency: 'immediate', priority: 'urgent' },
-      'whatsapp': { enabled: false, frequency: 'immediate', priority: 'urgent' },
-      'push': { enabled: false, frequency: 'immediate', priority: 'urgent' },
-      'in_app': { enabled: true, frequency: 'immediate', priority: 'urgent' },
+    user_login_failed: {
+      email: { enabled: true, frequency: 'immediate', priority: 'urgent' },
+      sms: { enabled: false, frequency: 'immediate', priority: 'urgent' },
+      whatsapp: { enabled: false, frequency: 'immediate', priority: 'urgent' },
+      push: { enabled: false, frequency: 'immediate', priority: 'urgent' },
+      in_app: { enabled: true, frequency: 'immediate', priority: 'urgent' },
     },
   };
 
@@ -120,7 +120,7 @@ export class NotificationPreferencesService {
       }
 
       // تحويل البيانات من قاعدة البيانات
-      return preferences.map(pref => ({
+      return preferences.map((pref) => ({
         notificationType: pref.notificationType as any,
         event: pref.event,
         enabled: pref.enabled,
@@ -221,7 +221,10 @@ export class NotificationPreferencesService {
 
       this.logger.log(`تم إعادة تعيين تفضيلات المستخدم بنجاح: ${userId}`);
     } catch (error) {
-      this.logger.error(`فشل في إعادة تعيين تفضيلات المستخدم: ${userId}`, error);
+      this.logger.error(
+        `فشل في إعادة تعيين تفضيلات المستخدم: ${userId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -274,7 +277,12 @@ export class NotificationPreferencesService {
 
         // فحص ساعات الهدوء
         if (preference.quietHoursStart && preference.quietHoursEnd) {
-          if (this.isInQuietHours(preference.quietHoursStart, preference.quietHoursEnd)) {
+          if (
+            this.isInQuietHours(
+              preference.quietHoursStart,
+              preference.quietHoursEnd,
+            )
+          ) {
             return false;
           }
         }
@@ -285,9 +293,11 @@ export class NotificationPreferencesService {
       // إذا لم يكن هناك تفضيل مخصص، استخدم الافتراضي
       const defaultPref = this.defaultPreferences[event]?.[notificationType];
       return defaultPref?.enabled || false;
-
     } catch (error) {
-      this.logger.error(`فشل في التحقق من إمكانية إرسال الإشعار: ${userId}`, error);
+      this.logger.error(
+        `فشل في التحقق من إمكانية إرسال الإشعار: ${userId}`,
+        error,
+      );
       // في حالة الخطأ، لا نرسل الإشعار
       return false;
     }
@@ -308,31 +318,32 @@ export class NotificationPreferencesService {
     quietHoursUsage: number;
   }> {
     try {
-      const [
-        totalUsers,
-        customPreferences,
-        allPreferences,
-      ] = await Promise.all([
-        this.prisma.user.count(),
-        this.prisma.notificationPreference.findMany(),
-        this.prisma.notificationPreference.findMany({
-          select: {
-            notificationType: true,
-            event: true,
-            enabled: true,
-            quietHoursStart: true,
-          },
-        }),
-      ]);
+      const [totalUsers, customPreferences, allPreferences] = await Promise.all(
+        [
+          this.prisma.user.count(),
+          this.prisma.notificationPreference.findMany(),
+          this.prisma.notificationPreference.findMany({
+            select: {
+              notificationType: true,
+              event: true,
+              enabled: true,
+              quietHoursStart: true,
+            },
+          }),
+        ],
+      );
 
       const usersWithCustomPreferences = new Set(
-        customPreferences.map(p => p.userId)
+        customPreferences.map((p) => p.userId),
       ).size;
 
       // حساب التفضيلات الأكثر شيوعاً
-      const preferenceStats: Record<string, { enabled: number; disabled: number }> = {};
+      const preferenceStats: Record<
+        string,
+        { enabled: number; disabled: number }
+      > = {};
 
-      allPreferences.forEach(pref => {
+      allPreferences.forEach((pref) => {
         const key = `${pref.notificationType}:${pref.event}`;
         if (!preferenceStats[key]) {
           preferenceStats[key] = { enabled: 0, disabled: 0 };
@@ -355,11 +366,18 @@ export class NotificationPreferencesService {
             disabledCount: stats.disabled,
           };
         })
-        .sort((a, b) => (b.enabledCount + b.disabledCount) - (a.enabledCount + a.disabledCount))
+        .sort(
+          (a, b) =>
+            b.enabledCount +
+            b.disabledCount -
+            (a.enabledCount + a.disabledCount),
+        )
         .slice(0, 10);
 
       // حساب استخدام ساعات الهدوء
-      const quietHoursUsage = allPreferences.filter(pref => pref.quietHoursStart).length;
+      const quietHoursUsage = allPreferences.filter(
+        (pref) => pref.quietHoursStart,
+      ).length;
 
       return {
         totalUsers,
@@ -406,11 +424,18 @@ export class NotificationPreferencesService {
     importedBy?: string,
   ): Promise<void> {
     try {
-      if (!preferencesData.preferences || !Array.isArray(preferencesData.preferences)) {
+      if (
+        !preferencesData.preferences ||
+        !Array.isArray(preferencesData.preferences)
+      ) {
         throw new Error('بيانات التفضيلات غير صحيحة');
       }
 
-      await this.updateUserPreferences(userId, preferencesData.preferences, importedBy);
+      await this.updateUserPreferences(
+        userId,
+        preferencesData.preferences,
+        importedBy,
+      );
 
       // تسجيل في سجل التدقيق
       await this.auditService.log({
@@ -457,9 +482,14 @@ export class NotificationPreferencesService {
         });
       }
 
-      this.logger.log(`تم إنشاء التفضيلات الافتراضية بنجاح للمستخدم: ${userId}`);
+      this.logger.log(
+        `تم إنشاء التفضيلات الافتراضية بنجاح للمستخدم: ${userId}`,
+      );
     } catch (error) {
-      this.logger.error(`فشل في إنشاء التفضيلات الافتراضية للمستخدم: ${userId}`, error);
+      this.logger.error(
+        `فشل في إنشاء التفضيلات الافتراضية للمستخدم: ${userId}`,
+        error,
+      );
       // لا نرمي خطأ هنا لأن إنشاء المستخدم يجب أن ينجح حتى لو فشلت التفضيلات
     }
   }
@@ -529,5 +559,4 @@ export class NotificationPreferencesService {
     const [hours, minutes] = time.split(':').map(Number);
     return hours * 60 + minutes;
   }
-
 }

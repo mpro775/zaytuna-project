@@ -78,7 +78,13 @@ export class LoggingInterceptor implements NestInterceptor {
     const sanitized = { ...body };
 
     // إزالة الحقول الحساسة
-    const sensitiveFields = ['password', 'passwordHash', 'token', 'refreshToken', 'secret'];
+    const sensitiveFields = [
+      'password',
+      'passwordHash',
+      'token',
+      'refreshToken',
+      'secret',
+    ];
     sensitiveFields.forEach((field) => {
       if (field in sanitized) {
         sanitized[field] = '[REDACTED]';

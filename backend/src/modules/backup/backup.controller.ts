@@ -10,8 +10,17 @@ import {
   HttpStatus,
   HttpCode,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { BackupService, BackupMetadataResponse, RestoreOptions } from './backup.service';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+import {
+  BackupService,
+  BackupMetadataResponse,
+  RestoreOptions,
+} from './backup.service';
 import { CreateBackupDto } from './dto/create-backup.dto';
 import { RestoreBackupDto } from './dto/restore-backup.dto';
 import { PermissionGuard } from '../../common/guards/permission.guard';
@@ -33,7 +42,9 @@ export class BackupController {
     type: Object,
   })
   @ApiResponse({ status: 403, description: 'غير مصرح لك بهذا الإجراء' })
-  async createManualBackup(@Body() dto: CreateBackupDto): Promise<BackupMetadataResponse> {
+  async createManualBackup(
+    @Body() dto: CreateBackupDto,
+  ): Promise<BackupMetadataResponse> {
     return this.backupService.createManualBackup();
   }
 
@@ -89,6 +100,12 @@ export class BackupController {
     return this.backupService.getBackupList();
   }
 
+  @Get('history')
+  @Permissions('backup:read')
+  async getBackupHistory(): Promise<BackupMetadataResponse[]> {
+    return this.backupService.getBackupList();
+  }
+
   @Get('stats')
   @Permissions('backup:read')
   @ApiOperation({ summary: 'الحصول على إحصائيات النسخ الاحتياطي' })
@@ -120,10 +137,12 @@ export class BackupController {
     type: Object,
   })
   @ApiResponse({ status: 404, description: 'النسخة الاحتياطية غير موجودة' })
-  async getBackup(@Param('backupId') backupId: string): Promise<BackupMetadataResponse | null> {
+  async getBackup(
+    @Param('backupId') backupId: string,
+  ): Promise<BackupMetadataResponse | null> {
     // هذه الطريقة تحتاج إلى إضافتها للخدمة
     const backups = await this.backupService.getBackupList();
-    return backups.find(backup => backup.id === backupId) || null;
+    return backups.find((backup) => backup.id === backupId) || null;
   }
 
   @Delete(':backupId')
@@ -146,7 +165,9 @@ export class BackupController {
     description: 'تم إنشاء النسخة الاحتياطية التلقائية بنجاح',
     type: Object,
   })
-  async createAutomaticBackup(@Param('reason') reason: string): Promise<BackupMetadataResponse> {
+  async createAutomaticBackup(
+    @Param('reason') reason: string,
+  ): Promise<BackupMetadataResponse> {
     return this.backupService.createAutomaticBackup(reason);
   }
 }

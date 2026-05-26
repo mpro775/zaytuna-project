@@ -106,9 +106,14 @@ export class ReturnsService {
   /**
    * إنشاء مرتجع جديد
    */
-  async create(createReturnDto: CreateReturnDto, userId: string): Promise<ReturnWithDetails> {
+  async create(
+    createReturnDto: CreateReturnDto,
+    userId: string,
+  ): Promise<ReturnWithDetails> {
     try {
-      this.logger.log(`إنشاء مرتجع جديد: ${createReturnDto.returnNumber || 'بدون رقم'}`);
+      this.logger.log(
+        `إنشاء مرتجع جديد: ${createReturnDto.returnNumber || 'بدون رقم'}`,
+      );
 
       // التحقق من وجود فاتورة المبيعات
       const salesInvoice = await this.prisma.salesInvoice.findUnique({
@@ -131,7 +136,9 @@ export class ReturnsService {
 
       // التحقق من وجود المخزن
       if (createReturnDto.warehouseId !== salesInvoice.warehouseId) {
-        throw new BadRequestException('مخزن المرتجع يجب أن يكون نفس مخزن فاتورة المبيعات');
+        throw new BadRequestException(
+          'مخزن المرتجع يجب أن يكون نفس مخزن فاتورة المبيعات',
+        );
       }
 
       // التحقق من عدم تكرار رقم المرتجع
@@ -151,26 +158,26 @@ export class ReturnsService {
       for (const line of createReturnDto.lines) {
         // التحقق من أن البند موجود في فاتورة المبيعات
         const salesLine = salesInvoice.lines.find(
-          sl => sl.productVariantId === line.productVariantId
+          (sl) => sl.productVariantId === line.productVariantId,
         );
 
         if (!salesLine) {
           throw new BadRequestException(
-            `المنتج ${line.productVariantId} غير موجود في فاتورة المبيعات`
+            `المنتج ${line.productVariantId} غير موجود في فاتورة المبيعات`,
           );
         }
 
         // التحقق من الكمية
         if (line.quantity > Number(salesLine.quantity)) {
           throw new BadRequestException(
-            `كمية المرتجع (${line.quantity}) أكبر من كمية المبيعات (${salesLine.quantity}) للمنتج ${line.productVariantId}`
+            `كمية المرتجع (${line.quantity}) أكبر من كمية المبيعات (${salesLine.quantity}) للمنتج ${line.productVariantId}`,
           );
         }
 
         // التحقق من عدم تكرار المنتج في المرتجع
         if (returnItems.has(line.productVariantId)) {
           throw new BadRequestException(
-            `المنتج ${line.productVariantId} موجود أكثر من مرة في المرتجع`
+            `المنتج ${line.productVariantId} موجود أكثر من مرة في المرتجع`,
           );
         }
 
@@ -189,7 +196,9 @@ export class ReturnsService {
             orderBy: { createdAt: 'desc' },
           });
 
-          const sequence = lastReturn ? parseInt(lastReturn.returnNumber.split('-')[2] || '0') + 1 : 1;
+          const sequence = lastReturn
+            ? parseInt(lastReturn.returnNumber.split('-')[2] || '0') + 1
+            : 1;
           returnNumber = `${salesInvoice.invoiceNumber}-RTN-${sequence.toString().padStart(3, '0')}`;
         }
 
@@ -235,7 +244,7 @@ export class ReturnsService {
             refundStatus: 'pending',
             notes: createReturnDto.notes,
             lines: {
-              create: createReturnDto.lines.map(line => ({
+              create: createReturnDto.lines.map((line) => ({
                 productVariantId: line.productVariantId,
                 warehouseId: createReturnDto.warehouseId,
                 quantity: line.quantity,
@@ -364,7 +373,8 @@ export class ReturnsService {
     try {
       const cacheKey = `returns:${salesInvoiceId || 'all'}:${customerId || 'all'}:${status || 'all'}:${refundStatus || 'all'}`;
 
-      const cachedReturns = await this.cacheService.get<ReturnWithDetails[]>(cacheKey);
+      const cachedReturns =
+        await this.cacheService.get<ReturnWithDetails[]>(cacheKey);
       if (cachedReturns) {
         return cachedReturns;
       }
@@ -465,8 +475,8 @@ export class ReturnsService {
         take: limit,
       });
 
-      const returnsWithDetails = returns.map(returnDoc =>
-        this.buildReturnWithDetails(returnDoc)
+      const returnsWithDetails = returns.map((returnDoc) =>
+        this.buildReturnWithDetails(returnDoc),
       );
 
       await this.cacheService.set(cacheKey, returnsWithDetails, { ttl: 600 });
@@ -484,7 +494,8 @@ export class ReturnsService {
   async findOne(id: string): Promise<ReturnWithDetails> {
     try {
       const cacheKey = `${this.returnCacheKey}:${id}`;
-      const cachedReturn = await this.cacheService.get<ReturnWithDetails>(cacheKey);
+      const cachedReturn =
+        await this.cacheService.get<ReturnWithDetails>(cacheKey);
 
       if (cachedReturn) {
         return cachedReturn;
@@ -584,7 +595,10 @@ export class ReturnsService {
   /**
    * تحديث مرتجع
    */
-  async update(id: string, updateReturnDto: UpdateReturnDto): Promise<ReturnWithDetails> {
+  async update(
+    id: string,
+    updateReturnDto: UpdateReturnDto,
+  ): Promise<ReturnWithDetails> {
     try {
       this.logger.log(`تحديث المرتجع: ${id}`);
 
@@ -697,7 +711,11 @@ export class ReturnsService {
   /**
    * إنشاء إشعار دائن
    */
-  async createCreditNote(returnId: string, createCreditNoteDto: CreateCreditNoteDto, userId: string): Promise<any> {
+  async createCreditNote(
+    returnId: string,
+    createCreditNoteDto: CreateCreditNoteDto,
+    userId: string,
+  ): Promise<any> {
     try {
       this.logger.log(`إنشاء إشعار دائن للمرتجع: ${returnId}`);
 
@@ -713,20 +731,23 @@ export class ReturnsService {
       }
 
       if (returnDoc.status !== 'confirmed') {
-        throw new BadRequestException('لا يمكن إنشاء إشعار دائن إلا لمرتجع مؤكد');
+        throw new BadRequestException(
+          'لا يمكن إنشاء إشعار دائن إلا لمرتجع مؤكد',
+        );
       }
 
       // حساب إجمالي الإشعارات الدائنة الحالية
       const currentCreditTotal = returnDoc.creditNotes.reduce(
         (sum, note) => sum + Number(note.amount),
-        0
+        0,
       );
 
-      const remainingAmount = Number(returnDoc.totalAmount) - currentCreditTotal;
+      const remainingAmount =
+        Number(returnDoc.totalAmount) - currentCreditTotal;
 
       if (createCreditNoteDto.amount > remainingAmount) {
         throw new BadRequestException(
-          `مبلغ الإشعار الدائن يتجاوز المبلغ المتبقي (${remainingAmount})`
+          `مبلغ الإشعار الدائن يتجاوز المبلغ المتبقي (${remainingAmount})`,
         );
       }
 
@@ -757,7 +778,8 @@ export class ReturnsService {
         });
 
         // تحديث حالة استرداد المرتجع
-        const newCreditTotal = currentCreditTotal + Number(createCreditNoteDto.amount);
+        const newCreditTotal =
+          currentCreditTotal + Number(createCreditNoteDto.amount);
         let refundStatus = 'partial';
 
         if (newCreditTotal >= Number(returnDoc.totalAmount)) {
@@ -783,7 +805,11 @@ export class ReturnsService {
   /**
    * إلغاء مرتجع
    */
-  async cancel(id: string, reason: string, userId: string): Promise<ReturnWithDetails> {
+  async cancel(
+    id: string,
+    reason: string,
+    userId: string,
+  ): Promise<ReturnWithDetails> {
     try {
       this.logger.log(`إلغاء المرتجع: ${id}`);
 
@@ -964,9 +990,10 @@ export class ReturnsService {
         totalCreditNotes,
         refundedReturns: totalRefunded,
         pendingRefunds,
-        averageReturnValue: confirmedReturns > 0
-          ? Number(totalReturnValue._sum.totalAmount || 0) / confirmedReturns
-          : 0,
+        averageReturnValue:
+          confirmedReturns > 0
+            ? Number(totalReturnValue._sum.totalAmount || 0) / confirmedReturns
+            : 0,
       };
     } catch (error) {
       this.logger.error('فشل في الحصول على إحصائيات المرتجعات', error);
@@ -1035,7 +1062,9 @@ export class ReturnsService {
       await this.cacheService.delete(key);
     }
 
-    const returnKeys = await this.cacheService.getKeys(`${this.returnCacheKey}:*`);
+    const returnKeys = await this.cacheService.getKeys(
+      `${this.returnCacheKey}:*`,
+    );
     for (const key of returnKeys) {
       await this.cacheService.delete(key);
     }

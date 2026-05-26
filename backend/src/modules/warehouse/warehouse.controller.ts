@@ -72,7 +72,10 @@ export class WarehouseController {
   @Patch(':id')
   @Permissions('branches.manage')
   @HttpCode(HttpStatus.OK)
-  update(@Param('id') id: string, @Body() updateWarehouseDto: UpdateWarehouseDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateWarehouseDto: UpdateWarehouseDto,
+  ) {
     return this.warehouseService.update(id, updateWarehouseDto);
   }
 

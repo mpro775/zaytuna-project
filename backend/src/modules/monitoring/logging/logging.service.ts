@@ -47,7 +47,7 @@ export class LoggingService implements LoggerService {
   constructor(private readonly configService: ConfigService) {
     this.logFilePath = path.join(
       this.configService.get<string>('LOG_DIR', './logs'),
-      `app-${new Date().toISOString().split('T')[0]}.log`
+      `app-${new Date().toISOString().split('T')[0]}.log`,
     );
     this.ensureLogDirectory();
   }
@@ -140,7 +140,6 @@ export class LoggingService implements LoggerService {
       if (this.shouldLogToConsole(level)) {
         this.logToConsole(entry);
       }
-
     } catch (error) {
       console.error('فشل في كتابة السجل:', error);
     }
@@ -260,11 +259,7 @@ export class LoggingService implements LoggerService {
   /**
    * تسجيل نشاط الأعمال
    */
-  logBusinessEvent(
-    event: string,
-    data: Record<string, any>,
-    userId?: string,
-  ) {
+  logBusinessEvent(event: string, data: Record<string, any>, userId?: string) {
     this.logWithMetadata('log', `Business Event: ${event}`, {
       userId,
       context: 'BUSINESS',
@@ -313,7 +308,8 @@ export class LoggingService implements LoggerService {
     this.logBuffer = [];
 
     try {
-      const logLines = logsToWrite.map(entry => JSON.stringify(entry)).join('\n') + '\n';
+      const logLines =
+        logsToWrite.map((entry) => JSON.stringify(entry)).join('\n') + '\n';
       await fs.appendFile(this.logFilePath, logLines);
     } catch (error) {
       this.logger.error('فشل في كتابة السجلات إلى الملف:', error);
@@ -361,7 +357,11 @@ export class LoggingService implements LoggerService {
    * التحقق من إمكانية تسجيل المستوى
    */
   private shouldLogToConsole(level: LogLevel): boolean {
-    const logLevels = this.configService.get<string[]>('LOG_LEVELS', ['log', 'error', 'warn']);
+    const logLevels = this.configService.get<string[]>('LOG_LEVELS', [
+      'log',
+      'error',
+      'warn',
+    ]);
     return logLevels.includes(level);
   }
 
@@ -369,7 +369,11 @@ export class LoggingService implements LoggerService {
    * التحقق من تفعيل debug
    */
   private isDebugEnabled(): boolean {
-    const logLevels = this.configService.get<string[]>('LOG_LEVELS', ['log', 'error', 'warn']);
+    const logLevels = this.configService.get<string[]>('LOG_LEVELS', [
+      'log',
+      'error',
+      'warn',
+    ]);
     return logLevels.includes('debug');
   }
 
@@ -377,7 +381,11 @@ export class LoggingService implements LoggerService {
    * التحقق من تفعيل verbose
    */
   private isVerboseEnabled(): boolean {
-    const logLevels = this.configService.get<string[]>('LOG_LEVELS', ['log', 'error', 'warn']);
+    const logLevels = this.configService.get<string[]>('LOG_LEVELS', [
+      'log',
+      'error',
+      'warn',
+    ]);
     return logLevels.includes('verbose');
   }
 
@@ -394,56 +402,62 @@ export class LoggingService implements LoggerService {
       const logContent = await fs.readFile(this.logFilePath, 'utf-8');
       const allLogs: LogEntry[] = logContent
         .split('\n')
-        .filter(line => line.trim())
-        .map(line => {
+        .filter((line) => line.trim())
+        .map((line) => {
           try {
             return JSON.parse(line);
           } catch (error) {
             return null;
           }
         })
-        .filter(log => log !== null);
+        .filter((log) => log !== null);
 
       // تطبيق الفلاتر
       let filteredLogs = allLogs;
 
       if (query.level) {
-        filteredLogs = filteredLogs.filter(log => log.level === query.level);
+        filteredLogs = filteredLogs.filter((log) => log.level === query.level);
       }
 
       if (query.context) {
-        filteredLogs = filteredLogs.filter(log =>
-          log.context?.toLowerCase().includes(query.context!.toLowerCase())
+        filteredLogs = filteredLogs.filter((log) =>
+          log.context?.toLowerCase().includes(query.context!.toLowerCase()),
         );
       }
 
       if (query.userId) {
-        filteredLogs = filteredLogs.filter(log => log.userId === query.userId);
+        filteredLogs = filteredLogs.filter(
+          (log) => log.userId === query.userId,
+        );
       }
 
       if (query.startDate) {
-        filteredLogs = filteredLogs.filter(log =>
-          new Date(log.timestamp) >= query.startDate!
+        filteredLogs = filteredLogs.filter(
+          (log) => new Date(log.timestamp) >= query.startDate!,
         );
       }
 
       if (query.endDate) {
-        filteredLogs = filteredLogs.filter(log =>
-          new Date(log.timestamp) <= query.endDate!
+        filteredLogs = filteredLogs.filter(
+          (log) => new Date(log.timestamp) <= query.endDate!,
         );
       }
 
       if (query.search) {
         const searchLower = query.search.toLowerCase();
-        filteredLogs = filteredLogs.filter(log =>
-          log.message.toLowerCase().includes(searchLower) ||
-          log.context?.toLowerCase().includes(searchLower) ||
-          log.error?.message.toLowerCase().includes(searchLower)
+        filteredLogs = filteredLogs.filter(
+          (log) =>
+            log.message.toLowerCase().includes(searchLower) ||
+            log.context?.toLowerCase().includes(searchLower) ||
+            log.error?.message.toLowerCase().includes(searchLower),
         );
       }
 
       // ترتيب تنازلي حسب التاريخ
-      filteredLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      filteredLogs.sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+      );
 
       const total = filteredLogs.length;
       const limit = query.limit || 100;
@@ -472,7 +486,7 @@ export class LoggingService implements LoggerService {
     try {
       const logDir = path.dirname(this.logFilePath);
       const files = await fs.readdir(logDir);
-      const logFiles = files.filter(file => file.endsWith('.log'));
+      const logFiles = files.filter((file) => file.endsWith('.log'));
 
       let deletedCount = 0;
       const cutoffDate = new Date();
@@ -511,15 +525,15 @@ export class LoggingService implements LoggerService {
       const logContent = await fs.readFile(this.logFilePath, 'utf-8');
       const logs: LogEntry[] = logContent
         .split('\n')
-        .filter(line => line.trim())
-        .map(line => {
+        .filter((line) => line.trim())
+        .map((line) => {
           try {
             return JSON.parse(line);
           } catch (error) {
             return null;
           }
         })
-        .filter(log => log !== null);
+        .filter((log) => log !== null);
 
       const logsByLevel: Record<string, number> = {};
       const logsByContext: Record<string, number> = {};
@@ -571,21 +585,28 @@ export class LoggingService implements LoggerService {
   /**
    * تصدير السجلات
    */
-  async exportLogs(query: LogQuery, format: 'json' | 'csv' = 'json'): Promise<string> {
+  async exportLogs(
+    query: LogQuery,
+    format: 'json' | 'csv' = 'json',
+  ): Promise<string> {
     try {
       const { logs } = await this.queryLogs({ ...query, limit: 10000 });
 
       if (format === 'csv') {
         const csvHeader = 'timestamp,level,context,userId,message,error\n';
-        const csvRows = logs.map(log => {
-          const timestamp = log.timestamp.toISOString();
-          const level = log.level;
-          const context = log.context || '';
-          const userId = log.userId || '';
-          const message = `"${log.message.replace(/"/g, '""')}"`;
-          const error = log.error ? `"${log.error.message.replace(/"/g, '""')}"` : '';
-          return `${timestamp},${level},${context},${userId},${message},${error}`;
-        }).join('\n');
+        const csvRows = logs
+          .map((log) => {
+            const timestamp = log.timestamp.toISOString();
+            const level = log.level;
+            const context = log.context || '';
+            const userId = log.userId || '';
+            const message = `"${log.message.replace(/"/g, '""')}"`;
+            const error = log.error
+              ? `"${log.error.message.replace(/"/g, '""')}"`
+              : '';
+            return `${timestamp},${level},${context},${userId},${message},${error}`;
+          })
+          .join('\n');
 
         return csvHeader + csvRows;
       } else {
@@ -612,7 +633,11 @@ export class LoggingService implements LoggerService {
       logFilePath: this.logFilePath,
       bufferSize: this.logBuffer.length,
       isWriting: this.isWriting,
-      logLevels: this.configService.get<string[]>('LOG_LEVELS', ['log', 'error', 'warn']),
+      logLevels: this.configService.get<string[]>('LOG_LEVELS', [
+        'log',
+        'error',
+        'warn',
+      ]),
     };
   }
 }

@@ -100,7 +100,6 @@ export class PrometheusService implements OnModuleInit {
       */
 
       this.logger.log('[MOCK] تم تهيئة مقاييس Prometheus بنجاح');
-
     } catch (error) {
       this.logger.error('فشل في تهيئة مقاييس Prometheus:', error);
     }
@@ -109,13 +108,20 @@ export class PrometheusService implements OnModuleInit {
   /**
    * تسجيل مدة طلب HTTP
    */
-  recordHttpRequest(method: string, route: string, statusCode: number, duration: number) {
+  recordHttpRequest(
+    method: string,
+    route: string,
+    statusCode: number,
+    duration: number,
+  ) {
     try {
       // TODO: Uncomment when Prometheus packages are installed
       // this.httpRequestDuration.labels(method, route, statusCode.toString()).observe(duration);
       // this.httpRequestsTotal.labels(method, route, statusCode.toString()).inc();
 
-      this.logger.debug(`[METRIC] HTTP ${method} ${route} ${statusCode} took ${duration}ms`);
+      this.logger.debug(
+        `[METRIC] HTTP ${method} ${route} ${statusCode} took ${duration}ms`,
+      );
     } catch (error) {
       this.logger.error('فشل في تسجيل مقياس HTTP:', error);
     }
@@ -180,7 +186,11 @@ export class PrometheusService implements OnModuleInit {
   /**
    * إنشاء مقياس أعمال مخصص
    */
-  createBusinessMetric(name: string, type: 'counter' | 'gauge' | 'histogram', options: any = {}) {
+  createBusinessMetric(
+    name: string,
+    type: 'counter' | 'gauge' | 'histogram',
+    options: any = {},
+  ) {
     try {
       const metricName = `business_${name}`;
 
@@ -231,7 +241,11 @@ export class PrometheusService implements OnModuleInit {
   /**
    * تحديث مقياس أعمال
    */
-  updateBusinessMetric(name: string, value: number, labels: Record<string, string> = {}) {
+  updateBusinessMetric(
+    name: string,
+    value: number,
+    labels: Record<string, string> = {},
+  ) {
     try {
       const metric = this.businessMetrics.get(name);
       if (!metric) {

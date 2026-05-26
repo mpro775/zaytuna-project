@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  Inject,
-  forwardRef,
-} from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { PrismaService } from '../../shared/database/prisma.service';
 import { CacheService } from '../../shared/cache/cache.service';
 import { AuditService } from '../audit/audit.service';
@@ -63,11 +58,14 @@ export interface PaymentStats {
   failedTransactions: number;
   pendingTransactions: number;
   refundedAmount: number;
-  gatewayStats: Record<string, {
-    transactions: number;
-    amount: number;
-    successRate: number;
-  }>;
+  gatewayStats: Record<
+    string,
+    {
+      transactions: number;
+      amount: number;
+      successRate: number;
+    }
+  >;
   dailyStats: Array<{
     date: string;
     transactions: number;
@@ -112,19 +110,31 @@ export class PaymentService {
     userAgent?: string,
   ): Promise<PaymentResponse> {
     try {
-      this.logger.log(`معالجة دفعة جديدة: ${request.invoiceId} - ${request.amount} ${request.currency}`);
+      this.logger.log(
+        `معالجة دفعة جديدة: ${request.invoiceId} - ${request.amount} ${request.currency}`,
+      );
 
       // التحقق من صحة البيانات
       await this.validatePaymentRequest(request);
 
       // إنشاء معاملة في قاعدة البيانات
-      const transaction = await this.createPaymentTransaction(request, userId, ipAddress, userAgent);
+      const transaction = await this.createPaymentTransaction(
+        request,
+        userId,
+        ipAddress,
+        userAgent,
+      );
 
       // معالجة الدفع حسب البوابة
       const result = await this.processGatewayPayment(transaction, request);
 
       // تحديث حالة المعاملة
-      await this.updateTransactionStatus(transaction.id, result.status, result.gatewayTransactionId, result.gatewayResponse);
+      await this.updateTransactionStatus(
+        transaction.id,
+        result.status,
+        result.gatewayTransactionId,
+        result.gatewayResponse,
+      );
 
       // تسجيل في سجل التدقيق
       await this.auditService.log({
@@ -161,31 +171,42 @@ export class PaymentService {
     userId: string,
   ): Promise<RefundResponse> {
     try {
-      this.logger.log(`معالجة استرداد: ${refundRequest.transactionId} - ${refundRequest.amount}`);
+      this.logger.log(
+        `معالجة استرداد: ${refundRequest.transactionId} - ${refundRequest.amount}`,
+      );
 
       // العثور على المعاملة الأصلية
-      const originalTransaction = await this.prisma.paymentTransaction.findUnique({
-        where: { transactionId: refundRequest.transactionId },
-      });
+      const originalTransaction =
+        await this.prisma.paymentTransaction.findUnique({
+          where: { transactionId: refundRequest.transactionId },
+        });
 
       if (!originalTransaction) {
         throw new Error(`المعاملة غير موجودة: ${refundRequest.transactionId}`);
       }
 
       if (originalTransaction.status !== 'completed') {
-        throw new Error(`لا يمكن استرداد معاملة في حالة: ${originalTransaction.status}`);
+        throw new Error(
+          `لا يمكن استرداد معاملة في حالة: ${originalTransaction.status}`,
+        );
       }
 
       // التحقق من مبلغ الاسترداد
       const totalRefunded = originalTransaction.refundAmount;
-      const remainingAmount = Number(originalTransaction.amount) - Number(totalRefunded);
+      const remainingAmount =
+        Number(originalTransaction.amount) - Number(totalRefunded);
 
       if (refundRequest.amount > remainingAmount) {
-        throw new Error(`مبلغ الاسترداد أكبر من المبلغ المتبقي: ${remainingAmount}`);
+        throw new Error(
+          `مبلغ الاسترداد أكبر من المبلغ المتبقي: ${remainingAmount}`,
+        );
       }
 
       // معالجة الاسترداد حسب البوابة
-      const refundResult = await this.processGatewayRefund(originalTransaction, refundRequest);
+      const refundResult = await this.processGatewayRefund(
+        originalTransaction,
+        refundRequest,
+      );
 
       // تحديث المعاملة بالاسترداد
       await this.prisma.paymentTransaction.update({
@@ -195,7 +216,10 @@ export class PaymentService {
           refundReason: refundRequest.reason,
           refundMetadata: refundRequest.metadata as any,
           refundedAt: new Date(),
-          status: refundRequest.amount >= Number(originalTransaction.amount) ? 'refunded' : 'partially_refunded',
+          status:
+            refundRequest.amount >= Number(originalTransaction.amount)
+              ? 'refunded'
+              : 'partially_refunded',
         },
       });
 
@@ -210,14 +234,19 @@ export class PaymentService {
           originalTransactionId: refundRequest.transactionId,
         },
         oldValues: { refundAmount: totalRefunded },
-        newValues: { refundAmount: Number(totalRefunded) + refundRequest.amount },
+        newValues: {
+          refundAmount: Number(totalRefunded) + refundRequest.amount,
+        },
         module: 'payment',
         category: 'financial',
       });
 
       return refundResult;
     } catch (error) {
-      this.logger.error(`فشل في معالجة الاسترداد: ${refundRequest.transactionId}`, error);
+      this.logger.error(
+        `فشل في معالجة الاسترداد: ${refundRequest.transactionId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -227,7 +256,9 @@ export class PaymentService {
    */
   async processWebhook(webhookData: WebhookData): Promise<void> {
     try {
-      this.logger.log(`معالجة webhook من ${webhookData.gateway}: ${webhookData.eventType}`);
+      this.logger.log(
+        `معالجة webhook من ${webhookData.gateway}: ${webhookData.eventType}`,
+      );
 
       // التحقق من صحة الـ webhook
       await this.validateWebhookSignature(webhookData);
@@ -241,7 +272,9 @@ export class PaymentService {
       });
 
       if (!transaction) {
-        this.logger.warn(`معاملة غير موجودة لـ webhook: ${webhookData.transactionId}`);
+        this.logger.warn(
+          `معاملة غير موجودة لـ webhook: ${webhookData.transactionId}`,
+        );
         return;
       }
 
@@ -266,7 +299,10 @@ export class PaymentService {
 
       this.logger.log(`تم معالجة webhook بنجاح: ${webhookData.transactionId}`);
     } catch (error) {
-      this.logger.error(`فشل في معالجة webhook: ${webhookData.transactionId}`, error);
+      this.logger.error(
+        `فشل في معالجة webhook: ${webhookData.transactionId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -309,10 +345,18 @@ export class PaymentService {
       const stats: PaymentStats = {
         totalTransactions: transactions.length,
         totalAmount: transactions.reduce((sum, t) => sum + Number(t.amount), 0),
-        successfulTransactions: transactions.filter(t => t.status === 'completed').length,
-        failedTransactions: transactions.filter(t => t.status === 'failed').length,
-        pendingTransactions: transactions.filter(t => ['pending', 'processing'].includes(t.status)).length,
-        refundedAmount: transactions.reduce((sum, t) => sum + Number(t.refundAmount), 0),
+        successfulTransactions: transactions.filter(
+          (t) => t.status === 'completed',
+        ).length,
+        failedTransactions: transactions.filter((t) => t.status === 'failed')
+          .length,
+        pendingTransactions: transactions.filter((t) =>
+          ['pending', 'processing'].includes(t.status),
+        ).length,
+        refundedAmount: transactions.reduce(
+          (sum, t) => sum + Number(t.refundAmount),
+          0,
+        ),
         gatewayStats: this.calculateGatewayStats(transactions),
         dailyStats: this.calculateDailyStats(transactions),
       };
@@ -335,7 +379,9 @@ export class PaymentService {
     endDate: Date,
   ): Promise<ReconciliationResult> {
     try {
-      this.logger.log(`بدء تسوية المعاملات لـ ${gateway} من ${startDate.toISOString()} إلى ${endDate.toISOString()}`);
+      this.logger.log(
+        `بدء تسوية المعاملات لـ ${gateway} من ${startDate.toISOString()} إلى ${endDate.toISOString()}`,
+      );
 
       // جلب معاملات النظام
       const systemTransactions = await this.prisma.paymentTransaction.findMany({
@@ -356,10 +402,17 @@ export class PaymentService {
       });
 
       // جلب معاملات البوابة (محاكاة - في الواقع يتم من API البوابة)
-      const gatewayTransactions = await this.fetchGatewayTransactions(gateway, startDate, endDate);
+      const gatewayTransactions = await this.fetchGatewayTransactions(
+        gateway,
+        startDate,
+        endDate,
+      );
 
       // مقارنة المعاملات
-      const result = this.compareTransactions(systemTransactions, gatewayTransactions);
+      const result = this.compareTransactions(
+        systemTransactions,
+        gatewayTransactions,
+      );
 
       // تسجيل نتائج التسوية
       await this.auditService.log({
@@ -472,7 +525,10 @@ export class PaymentService {
           throw new Error(`البوابة غير مدعومة: ${request.gateway}`);
       }
     } catch (error) {
-      this.logger.error(`فشل في معالجة الدفع للبوابة ${request.gateway}`, error);
+      this.logger.error(
+        `فشل في معالجة الدفع للبوابة ${request.gateway}`,
+        error,
+      );
       return {
         transactionId: transaction.transactionId,
         status: 'failed',
@@ -484,7 +540,10 @@ export class PaymentService {
   /**
    * معالجة دفع Stripe
    */
-  private async processStripePayment(transaction: any, request: PaymentRequest): Promise<PaymentResponse> {
+  private async processStripePayment(
+    transaction: any,
+    request: PaymentRequest,
+  ): Promise<PaymentResponse> {
     // محاكاة - في الواقع يتم استخدام Stripe SDK
     const stripeSecretKey = this.configService.get('STRIPE_SECRET_KEY');
 
@@ -509,7 +568,10 @@ export class PaymentService {
   /**
    * معالجة دفع PayPal
    */
-  private async processPayPalPayment(transaction: any, request: PaymentRequest): Promise<PaymentResponse> {
+  private async processPayPalPayment(
+    transaction: any,
+    request: PaymentRequest,
+  ): Promise<PaymentResponse> {
     // محاكاة - في الواقع يتم استخدام PayPal SDK
     const paypalClientId = this.configService.get('PAYPAL_CLIENT_ID');
 
@@ -534,7 +596,10 @@ export class PaymentService {
   /**
    * معالجة دفع Tap
    */
-  private async processTapPayment(transaction: any, request: PaymentRequest): Promise<PaymentResponse> {
+  private async processTapPayment(
+    transaction: any,
+    request: PaymentRequest,
+  ): Promise<PaymentResponse> {
     // محاكاة - في الواقع يتم استخدام Tap SDK
     const tapApiKey = this.configService.get('TAP_API_KEY');
 
@@ -559,7 +624,10 @@ export class PaymentService {
   /**
    * معالجة دفع محلي (نقدي أو تحويل بنكي)
    */
-  private async processLocalPayment(transaction: any, request: PaymentRequest): Promise<PaymentResponse> {
+  private async processLocalPayment(
+    transaction: any,
+    request: PaymentRequest,
+  ): Promise<PaymentResponse> {
     // للمدفوعات النقدية أو التحويلات البنكية
     return {
       transactionId: transaction.transactionId,
@@ -597,7 +665,10 @@ export class PaymentService {
   /**
    * استرداد Stripe
    */
-  private async processStripeRefund(transaction: any, refundRequest: RefundRequest): Promise<RefundResponse> {
+  private async processStripeRefund(
+    transaction: any,
+    refundRequest: RefundRequest,
+  ): Promise<RefundResponse> {
     // محاكاة استرداد Stripe
     return {
       refundId: `refund_stripe_${Date.now()}`,
@@ -610,7 +681,10 @@ export class PaymentService {
   /**
    * استرداد PayPal
    */
-  private async processPayPalRefund(transaction: any, refundRequest: RefundRequest): Promise<RefundResponse> {
+  private async processPayPalRefund(
+    transaction: any,
+    refundRequest: RefundRequest,
+  ): Promise<RefundResponse> {
     // محاكاة استرداد PayPal
     return {
       refundId: `refund_paypal_${Date.now()}`,
@@ -623,7 +697,10 @@ export class PaymentService {
   /**
    * استرداد Tap
    */
-  private async processTapRefund(transaction: any, refundRequest: RefundRequest): Promise<RefundResponse> {
+  private async processTapRefund(
+    transaction: any,
+    refundRequest: RefundRequest,
+  ): Promise<RefundResponse> {
     // محاكاة استرداد Tap
     return {
       refundId: `refund_tap_${Date.now()}`,
@@ -636,7 +713,10 @@ export class PaymentService {
   /**
    * استرداد محلي
    */
-  private async processLocalRefund(transaction: any, refundRequest: RefundRequest): Promise<RefundResponse> {
+  private async processLocalRefund(
+    transaction: any,
+    refundRequest: RefundRequest,
+  ): Promise<RefundResponse> {
     // للاستردادات النقدية
     return {
       refundId: `refund_local_${Date.now()}`,
@@ -649,7 +729,9 @@ export class PaymentService {
   /**
    * التحقق من توقيع Webhook
    */
-  private async validateWebhookSignature(webhookData: WebhookData): Promise<void> {
+  private async validateWebhookSignature(
+    webhookData: WebhookData,
+  ): Promise<void> {
     // محاكاة التحقق من التوقيع
     // في الواقع يتم التحقق من HMAC أو توقيع رقمي
     if (!webhookData.signature) {
@@ -660,9 +742,12 @@ export class PaymentService {
   /**
    * تحديث معاملة من Webhook
    */
-  private async updateTransactionFromWebhook(transactionId: string, webhookData: WebhookData): Promise<void> {
+  private async updateTransactionFromWebhook(
+    transactionId: string,
+    webhookData: WebhookData,
+  ): Promise<void> {
     const updateData: any = {
-      gatewayResponse: webhookData.data as any,
+      gatewayResponse: webhookData.data,
     };
 
     // تحديث الحالة حسب نوع الحدث
@@ -689,13 +774,16 @@ export class PaymentService {
   /**
    * معالجة نجاح الدفع
    */
-  private async handlePaymentSuccess(transactionId: string, data: any): Promise<void> {
+  private async handlePaymentSuccess(
+    transactionId: string,
+    data: any,
+  ): Promise<void> {
     await this.prisma.paymentTransaction.update({
       where: { id: transactionId },
       data: {
         status: 'completed',
         completedAt: new Date(),
-        gatewayResponse: data as any,
+        gatewayResponse: data,
       },
     });
 
@@ -705,12 +793,15 @@ export class PaymentService {
   /**
    * معالجة فشل الدفع
    */
-  private async handlePaymentFailure(transactionId: string, data: any): Promise<void> {
+  private async handlePaymentFailure(
+    transactionId: string,
+    data: any,
+  ): Promise<void> {
     await this.prisma.paymentTransaction.update({
       where: { id: transactionId },
       data: {
         status: 'failed',
-        gatewayResponse: data as any,
+        gatewayResponse: data,
       },
     });
 
@@ -720,7 +811,10 @@ export class PaymentService {
   /**
    * معالجة نجاح الاسترداد
    */
-  private async handleRefundSuccess(transactionId: string, data: any): Promise<void> {
+  private async handleRefundSuccess(
+    transactionId: string,
+    data: any,
+  ): Promise<void> {
     // الاسترداد يتم معالجته في processRefund
     this.logger.log(`تم تأكيد نجاح الاسترداد: ${transactionId}`);
   }
@@ -728,7 +822,10 @@ export class PaymentService {
   /**
    * معالجة إنشاء نزاع
    */
-  private async handleDisputeCreated(transactionId: string, data: any): Promise<void> {
+  private async handleDisputeCreated(
+    transactionId: string,
+    data: any,
+  ): Promise<void> {
     // تسجيل النزاع في سجل التدقيق
     await this.auditService.log({
       action: 'PAYMENT_DISPUTE',
@@ -758,7 +855,7 @@ export class PaymentService {
     }
 
     if (gatewayResponse) {
-      updateData.gatewayResponse = gatewayResponse as any;
+      updateData.gatewayResponse = gatewayResponse;
     }
 
     if (status === 'completed') {
@@ -786,7 +883,7 @@ export class PaymentService {
   private calculateGatewayStats(transactions: any[]): Record<string, any> {
     const gatewayStats: Record<string, any> = {};
 
-    transactions.forEach(transaction => {
+    transactions.forEach((transaction) => {
       const gateway = transaction.gateway;
       if (!gatewayStats[gateway]) {
         gatewayStats[gateway] = {
@@ -801,12 +898,17 @@ export class PaymentService {
     });
 
     // حساب معدل النجاح
-    Object.keys(gatewayStats).forEach(gateway => {
-      const gatewayTransactions = transactions.filter(t => t.gateway === gateway);
-      const successful = gatewayTransactions.filter(t => t.status === 'completed').length;
-      gatewayStats[gateway].successRate = gatewayTransactions.length > 0
-        ? (successful / gatewayTransactions.length) * 100
-        : 0;
+    Object.keys(gatewayStats).forEach((gateway) => {
+      const gatewayTransactions = transactions.filter(
+        (t) => t.gateway === gateway,
+      );
+      const successful = gatewayTransactions.filter(
+        (t) => t.status === 'completed',
+      ).length;
+      gatewayStats[gateway].successRate =
+        gatewayTransactions.length > 0
+          ? (successful / gatewayTransactions.length) * 100
+          : 0;
     });
 
     return gatewayStats;
@@ -818,7 +920,7 @@ export class PaymentService {
   private calculateDailyStats(transactions: any[]): Array<any> {
     const dailyStats: Record<string, any> = {};
 
-    transactions.forEach(transaction => {
+    transactions.forEach((transaction) => {
       const date = transaction.createdAt.toISOString().split('T')[0];
       if (!dailyStats[date]) {
         dailyStats[date] = {
@@ -832,7 +934,9 @@ export class PaymentService {
       dailyStats[date].amount += Number(transaction.amount);
     });
 
-    return Object.values(dailyStats).sort((a: any, b: any) => b.date.localeCompare(a.date));
+    return Object.values(dailyStats).sort((a: any, b: any) =>
+      b.date.localeCompare(a.date),
+    );
   }
 
   /**
@@ -848,12 +952,12 @@ export class PaymentService {
     return [
       {
         transactionId: `gateway_${gateway}_1`,
-        amount: 100.00,
+        amount: 100.0,
         status: 'completed',
       },
       {
         transactionId: `gateway_${gateway}_2`,
-        amount: 200.00,
+        amount: 200.0,
         status: 'completed',
       },
     ];
@@ -874,8 +978,10 @@ export class PaymentService {
     let gatewayTotal = 0;
 
     // مقارنة المعاملات
-    systemTransactions.forEach(systemTx => {
-      const gatewayTx = gatewayTransactions.find(gt => gt.transactionId === systemTx.transactionId);
+    systemTransactions.forEach((systemTx) => {
+      const gatewayTx = gatewayTransactions.find(
+        (gt) => gt.transactionId === systemTx.transactionId,
+      );
 
       if (gatewayTx) {
         (matched as any).push(systemTx);

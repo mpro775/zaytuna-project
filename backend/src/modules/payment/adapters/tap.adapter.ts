@@ -1,5 +1,10 @@
 import { BasePaymentAdapter, PaymentConfig } from './base-payment.adapter';
-import { PaymentRequest, PaymentResponse, RefundRequest, RefundResponse } from '../payment.service';
+import {
+  PaymentRequest,
+  PaymentResponse,
+  RefundRequest,
+  RefundResponse,
+} from '../payment.service';
 
 export class TapAdapter extends BasePaymentAdapter {
   constructor(config: PaymentConfig) {
@@ -55,7 +60,10 @@ export class TapAdapter extends BasePaymentAdapter {
     }
   }
 
-  async processRefund(transactionId: string, refundRequest: RefundRequest): Promise<RefundResponse> {
+  async processRefund(
+    transactionId: string,
+    refundRequest: RefundRequest,
+  ): Promise<RefundResponse> {
     try {
       const refund = await this.retryWithBackoff(async () => {
         return this.makeRequest('POST', '/v2/refunds', {
@@ -84,7 +92,10 @@ export class TapAdapter extends BasePaymentAdapter {
 
   async checkTransactionStatus(transactionId: string): Promise<string> {
     try {
-      const charge = await this.makeRequest('GET', `/v2/charges/${transactionId}`);
+      const charge = await this.makeRequest(
+        'GET',
+        `/v2/charges/${transactionId}`,
+      );
       return this.normalizeStatus(charge.status, 'tap');
     } catch (error) {
       return 'unknown';

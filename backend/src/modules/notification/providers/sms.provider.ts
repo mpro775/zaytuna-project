@@ -46,7 +46,9 @@ export class SMSProvider {
   async sendSMS(message: SMSMessage): Promise<SMSResult> {
     try {
       const recipients = Array.isArray(message.to) ? message.to : [message.to];
-      this.logger.log(`إرسال SMS إلى ${recipients.length} مستلم: ${recipients.join(', ')}`);
+      this.logger.log(
+        `إرسال SMS إلى ${recipients.length} مستلم: ${recipients.join(', ')}`,
+      );
 
       switch (this.config.provider) {
         case 'twilio':
@@ -92,7 +94,7 @@ export class SMSProvider {
       formData.append('Body', message.message);
 
       if (message.mediaUrl && message.mediaUrl.length > 0) {
-        message.mediaUrl.forEach(url => {
+        message.mediaUrl.forEach((url) => {
           formData.append('MediaUrl', url);
         });
       }
@@ -101,18 +103,23 @@ export class SMSProvider {
         formData.append('StatusCallback', message.statusCallback);
       }
 
-      const auth = Buffer.from(`${this.config.accountSid}:${this.config.authToken}`).toString('base64');
+      const auth = Buffer.from(
+        `${this.config.accountSid}:${this.config.authToken}`,
+      ).toString('base64');
 
       // إرسال إلى كل مستلم على حدة (Twilio لا يدعم إرسال جماعي في نفس الطلب)
       for (const recipient of recipients) {
         try {
           const recipientFormData = new FormData();
-          recipientFormData.append('From', message.from || this.config.phoneNumber);
+          recipientFormData.append(
+            'From',
+            message.from || this.config.phoneNumber,
+          );
           recipientFormData.append('To', recipient);
           recipientFormData.append('Body', message.message);
 
           if (message.mediaUrl && message.mediaUrl.length > 0) {
-            message.mediaUrl.forEach(url => {
+            message.mediaUrl.forEach((url) => {
               recipientFormData.append('MediaUrl', url);
             });
           }
@@ -124,7 +131,7 @@ export class SMSProvider {
           const response = await fetch(twilioUrl, {
             method: 'POST',
             headers: {
-              'Authorization': `Basic ${auth}`,
+              Authorization: `Basic ${auth}`,
             },
             body: recipientFormData,
             signal: AbortSignal.timeout(this.config.timeout),
@@ -132,7 +139,9 @@ export class SMSProvider {
 
           if (!response.ok) {
             const errorData = await response.text();
-            throw new Error(`Twilio API error: ${response.status} - ${errorData}`);
+            throw new Error(
+              `Twilio API error: ${response.status} - ${errorData}`,
+            );
           }
 
           const result = await response.json();
@@ -154,7 +163,7 @@ export class SMSProvider {
       }
 
       // إرجاع نتيجة أول رسالة ناجحة أو آخر خطأ
-      const successfulResult = results.find(r => r.success);
+      const successfulResult = results.find((r) => r.success);
       if (successfulResult) {
         return successfulResult;
       }
@@ -178,7 +187,7 @@ export class SMSProvider {
       const recipients = Array.isArray(message.to) ? message.to : [message.to];
 
       // محاكاة الإرسال
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       return {
         success: true,
@@ -215,7 +224,7 @@ export class SMSProvider {
       const response = await fetch(messageBirdUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `AccessKey ${this.config.apiKey}`,
+          Authorization: `AccessKey ${this.config.apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(messageData),
@@ -224,7 +233,9 @@ export class SMSProvider {
 
       if (!response.ok) {
         const errorData = await response.text();
-        throw new Error(`MessageBird API error: ${response.status} - ${errorData}`);
+        throw new Error(
+          `MessageBird API error: ${response.status} - ${errorData}`,
+        );
       }
 
       const result = await response.json();
@@ -283,7 +294,9 @@ export class SMSProvider {
       // Nexmo يرجع مصفوفة من الرسائل
       const firstMessage = result.messages?.[0];
       if (!firstMessage || firstMessage.status !== '0') {
-        throw new Error(`Nexmo message failed: ${firstMessage?.['error-text'] || 'Unknown error'}`);
+        throw new Error(
+          `Nexmo message failed: ${firstMessage?.['error-text'] || 'Unknown error'}`,
+        );
       }
 
       return {
@@ -309,7 +322,7 @@ export class SMSProvider {
       this.logger.log(`[LOCAL SMS] الرسالة: ${message.message}`);
 
       // محاكاة الإرسال
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       return {
         success: true,
@@ -366,11 +379,17 @@ export class SMSProvider {
    * تحميل إعدادات المزود
    */
   private loadConfig(): SMSConfig {
-    const provider = this.configService.get<string>('SMS_PROVIDER', 'twilio') as SMSConfig['provider'];
+    const provider = this.configService.get<string>(
+      'SMS_PROVIDER',
+      'twilio',
+    ) as SMSConfig['provider'];
 
     const baseConfig = {
       provider,
-      phoneNumber: this.configService.get<string>('SMS_FROM_NUMBER', '+966500000000'),
+      phoneNumber: this.configService.get<string>(
+        'SMS_FROM_NUMBER',
+        '+966500000000',
+      ),
       timeout: 30000, // 30 ثانية
       retryAttempts: 3,
     };
@@ -421,13 +440,25 @@ export class SMSProvider {
     try {
       switch (this.config.provider) {
         case 'twilio':
-          return !!(this.config.accountSid && this.config.authToken && this.config.phoneNumber);
+          return !!(
+            this.config.accountSid &&
+            this.config.authToken &&
+            this.config.phoneNumber
+          );
         case 'aws_sns':
-          return !!(this.config.apiKey && this.config.apiSecret && this.config.phoneNumber);
+          return !!(
+            this.config.apiKey &&
+            this.config.apiSecret &&
+            this.config.phoneNumber
+          );
         case 'messagebird':
           return !!(this.config.apiKey && this.config.phoneNumber);
         case 'nexmo':
-          return !!(this.config.apiKey && this.config.apiSecret && this.config.phoneNumber);
+          return !!(
+            this.config.apiKey &&
+            this.config.apiSecret &&
+            this.config.phoneNumber
+          );
         case 'local':
           return !!this.config.phoneNumber;
         default:

@@ -1,19 +1,27 @@
-import { diskStorage } from 'multer';
+﻿import { diskStorage } from 'multer';
 import * as path from 'path';
 import * as crypto from 'crypto';
 import * as fs from 'fs/promises';
 import { BadRequestException } from '@nestjs/common';
 
 export interface FileValidationOptions {
-  maxSize?: number; // بالبايت
-  allowedTypes?: string[]; // أنواع MIME المسموحة
-  allowedExtensions?: string[]; // الامتدادات المسموحة
+  maxSize?: number; // ط¨ط§ظ„ط¨ط§ظٹطھ
+  allowedTypes?: string[]; // ط£ظ†ظˆط§ط¹ MIME ط§ظ„ظ…ط³ظ…ظˆط­ط©
+  allowedExtensions?: string[]; // ط§ظ„ط§ظ…طھط¯ط§ط¯ط§طھ ط§ظ„ظ…ط³ظ…ظˆط­ط©
 }
 
 export interface FileUploadConfig {
   dest: string;
-  filename?: (req: any, file: any, cb: (error: Error | null, filename: string) => void) => void;
-  fileFilter?: (req: any, file: any, cb: (error: Error | null, acceptFile: boolean) => void) => void;
+  filename?: (
+    req: any,
+    file: any,
+    cb: (error: Error | null, filename: string) => void,
+  ) => void;
+  fileFilter?: (
+    req: any,
+    file: any,
+    cb: (error: Error | null, acceptFile: boolean) => void,
+  ) => void;
   limits?: {
     fileSize?: number;
     files?: number;
@@ -21,13 +29,13 @@ export interface FileUploadConfig {
 }
 
 /**
- * إنشاء إعدادات تخزين Multer
+ * ط¥ظ†ط´ط§ط، ط¥ط¹ط¯ط§ط¯ط§طھ طھط®ط²ظٹظ† Multer
  */
 export function createStorageConfig(uploadDir: string = './uploads/temp') {
   return diskStorage({
     destination: async (req, file, cb) => {
       try {
-        // التأكد من وجود المجلد
+        // ط§ظ„طھط£ظƒط¯ ظ…ظ† ظˆط¬ظˆط¯ ط§ظ„ظ…ط¬ظ„ط¯
         await fs.mkdir(uploadDir, { recursive: true });
         cb(null, uploadDir);
       } catch (error) {
@@ -35,7 +43,7 @@ export function createStorageConfig(uploadDir: string = './uploads/temp') {
       }
     },
     filename: (req, file, cb) => {
-      // إنشاء اسم ملف فريد مع timestamp
+      // ط¥ظ†ط´ط§ط، ط§ط³ظ… ظ…ظ„ظپ ظپط±ظٹط¯ ظ…ط¹ timestamp
       const ext = path.extname(file.originalname);
       const baseName = path.basename(file.originalname, ext);
       const timestamp = Date.now();
@@ -48,27 +56,37 @@ export function createStorageConfig(uploadDir: string = './uploads/temp') {
 }
 
 /**
- * إنشاء مرشح الملفات
+ * ط¥ظ†ط´ط§ط، ظ…ط±ط´ط­ ط§ظ„ظ…ظ„ظپط§طھ
  */
 export function createFileFilter(options: FileValidationOptions = {}) {
-  return (req: any, file: any, cb: (error: Error | null, acceptFile: boolean) => void) => {
+  return (
+    req: any,
+    file: any,
+    cb: (error: Error | null, acceptFile: boolean) => void,
+  ) => {
     try {
-      // التحقق من نوع MIME
+      // ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ظ†ظˆط¹ MIME
       if (options.allowedTypes && options.allowedTypes.length > 0) {
         if (!options.allowedTypes.includes(file.mimetype)) {
-          return cb(new BadRequestException(
-            `نوع الملف غير مسموح: ${file.mimetype}. الأنواع المسموحة: ${options.allowedTypes.join(', ')}`
-          ), false);
+          return cb(
+            new BadRequestException(
+              `ظ†ظˆط¹ ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظ…ط³ظ…ظˆط­: ${file.mimetype}. ط§ظ„ط£ظ†ظˆط§ط¹ ط§ظ„ظ…ط³ظ…ظˆط­ط©: ${options.allowedTypes.join(', ')}`,
+            ),
+            false,
+          );
         }
       }
 
-      // التحقق من الامتداد
+      // ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط§ظ„ط§ظ…طھط¯ط§ط¯
       if (options.allowedExtensions && options.allowedExtensions.length > 0) {
         const ext = path.extname(file.originalname).toLowerCase().substring(1);
         if (!options.allowedExtensions.includes(ext)) {
-          return cb(new BadRequestException(
-            `امتداد الملف غير مسموح: ${ext}. الامتدادات المسموحة: ${options.allowedExtensions.join(', ')}`
-          ), false);
+          return cb(
+            new BadRequestException(
+              `ط§ظ…طھط¯ط§ط¯ ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظ…ط³ظ…ظˆط­: ${ext}. ط§ظ„ط§ظ…طھط¯ط§ط¯ط§طھ ط§ظ„ظ…ط³ظ…ظˆط­ط©: ${options.allowedExtensions.join(', ')}`,
+            ),
+            false,
+          );
         }
       }
 
@@ -80,11 +98,11 @@ export function createFileFilter(options: FileValidationOptions = {}) {
 }
 
 /**
- * إنشاء إعدادات رفع الملفات الكاملة
+ * ط¥ظ†ط´ط§ط، ط¥ط¹ط¯ط§ط¯ط§طھ ط±ظپط¹ ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظƒط§ظ…ظ„ط©
  */
 export function createUploadConfig(
   uploadDir: string = './uploads/temp',
-  validationOptions: FileValidationOptions = {}
+  validationOptions: FileValidationOptions = {},
 ): FileUploadConfig {
   const defaultMaxSize = 10 * 1024 * 1024; // 10MB
 
@@ -93,38 +111,40 @@ export function createUploadConfig(
     fileFilter: createFileFilter(validationOptions),
     limits: {
       fileSize: validationOptions.maxSize || defaultMaxSize,
-      files: 10, // حد أقصى 10 ملفات
+      files: 10, // ط­ط¯ ط£ظ‚طµظ‰ 10 ظ…ظ„ظپط§طھ
     },
   };
 }
 
 /**
- * التحقق من صحة الملف بعد الرفع
+ * ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† طµط­ط© ط§ظ„ظ…ظ„ظپ ط¨ط¹ط¯ ط§ظ„ط±ظپط¹
  */
 export async function validateUploadedFile(
   file: any,
-  options: FileValidationOptions = {}
+  options: FileValidationOptions = {},
 ): Promise<void> {
-  // التحقق من حجم الملف
+  // ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط­ط¬ظ… ط§ظ„ظ…ظ„ظپ
   if (options.maxSize && file.size > options.maxSize) {
     throw new BadRequestException(
-      `حجم الملف كبير جداً. الحد الأقصى: ${formatFileSize(options.maxSize)}, الحجم الحالي: ${formatFileSize(file.size)}`
+      `ط­ط¬ظ… ط§ظ„ظ…ظ„ظپ ظƒط¨ظٹط± ط¬ط¯ط§ظ‹. ط§ظ„ط­ط¯ ط§ظ„ط£ظ‚طµظ‰: ${formatFileSize(options.maxSize)}, ط§ظ„ط­ط¬ظ… ط§ظ„ط­ط§ظ„ظٹ: ${formatFileSize(file.size)}`,
     );
   }
 
-  // التحقق من سلامة الملف (أساسي)
+  // ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط³ظ„ط§ظ…ط© ط§ظ„ظ…ظ„ظپ (ط£ط³ط§ط³ظٹ)
   if (!file.filename || !file.originalname) {
-    throw new BadRequestException('معلومات الملف غير كاملة');
+    throw new BadRequestException(
+      'ظ…ط¹ظ„ظˆظ…ط§طھ ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظƒط§ظ…ظ„ط©',
+    );
   }
 
-  // التحقق من أن الملف ليس فارغاً
+  // ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط£ظ† ط§ظ„ظ…ظ„ظپ ظ„ظٹط³ ظپط§ط±ط؛ط§ظ‹
   if (file.size === 0) {
-    throw new BadRequestException('لا يمكن رفع ملف فارغ');
+    throw new BadRequestException('ظ„ط§ ظٹظ…ظƒظ† ط±ظپط¹ ظ…ظ„ظپ ظپط§ط±ط؛');
   }
 }
 
 /**
- * تنسيق حجم الملف للعرض
+ * طھظ†ط³ظٹظ‚ ط­ط¬ظ… ط§ظ„ظ…ظ„ظپ ظ„ظ„ط¹ط±ط¶
  */
 export function formatFileSize(bytes: number): string {
   if (bytes === 0) return '0 Bytes';
@@ -137,7 +157,7 @@ export function formatFileSize(bytes: number): string {
 }
 
 /**
- * الحصول على معلومات الملف
+ * ط§ظ„ط­طµظˆظ„ ط¹ظ„ظ‰ ظ…ط¹ظ„ظˆظ…ط§طھ ط§ظ„ظ…ظ„ظپ
  */
 export function getFileInfo(file: any) {
   const ext = path.extname(file.originalname).toLowerCase();
@@ -159,7 +179,7 @@ export function getFileInfo(file: any) {
 }
 
 /**
- * التحقق من أن الملف مستند
+ * ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط£ظ† ط§ظ„ظ…ظ„ظپ ظ…ط³طھظ†ط¯
  */
 function isDocumentFile(mimeType: string): boolean {
   const documentTypes = [
@@ -178,7 +198,7 @@ function isDocumentFile(mimeType: string): boolean {
 }
 
 /**
- * التحقق من أن الملف أرشيف
+ * ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط£ظ† ط§ظ„ظ…ظ„ظپ ط£ط±ط´ظٹظپ
  */
 function isArchiveFile(mimeType: string): boolean {
   const archiveTypes = [
@@ -194,19 +214,19 @@ function isArchiveFile(mimeType: string): boolean {
 }
 
 /**
- * إنشاء اسم ملف آمن
+ * ط¥ظ†ط´ط§ط، ط§ط³ظ… ظ…ظ„ظپ ط¢ظ…ظ†
  */
 export function createSafeFilename(originalName: string): string {
-  // إزالة الأحرف الخاصة والمسافات
+  // ط¥ط²ط§ظ„ط© ط§ظ„ط£ط­ط±ظپ ط§ظ„ط®ط§طµط© ظˆط§ظ„ظ…ط³ط§ظپط§طھ
   let safeName = originalName
     .replace(/[^a-zA-Z0-9.\-_]/g, '_')
     .replace(/\s+/g, '_')
     .toLowerCase();
 
-  // التأكد من عدم وجود أحرف خاصة في البداية أو النهاية
+  // ط§ظ„طھط£ظƒط¯ ظ…ظ† ط¹ط¯ظ… ظˆط¬ظˆط¯ ط£ط­ط±ظپ ط®ط§طµط© ظپظٹ ط§ظ„ط¨ط¯ط§ظٹط© ط£ظˆ ط§ظ„ظ†ظ‡ط§ظٹط©
   safeName = safeName.replace(/^[_.-]+|[_.-]+$/g, '');
 
-  // التأكد من وجود امتداد
+  // ط§ظ„طھط£ظƒط¯ ظ…ظ† ظˆط¬ظˆط¯ ط§ظ…طھط¯ط§ط¯
   if (!path.extname(safeName)) {
     safeName += '.bin';
   }
@@ -215,29 +235,36 @@ export function createSafeFilename(originalName: string): string {
 }
 
 /**
- * التحقق من أمان الملف (أساسي)
+ * ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط£ظ…ط§ظ† ط§ظ„ظ…ظ„ظپ (ط£ط³ط§ط³ظٹ)
  */
 export async function basicSecurityCheck(file: any): Promise<void> {
-  // التحقق من أن اسم الملف لا يحتوي على مسارات خطيرة
-  if (file.originalname.includes('..') || file.originalname.includes('/') || file.originalname.includes('\\')) {
-    throw new BadRequestException('اسم الملف غير آمن');
+  // ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط£ظ† ط§ط³ظ… ط§ظ„ظ…ظ„ظپ ظ„ط§ ظٹط­طھظˆظٹ ط¹ظ„ظ‰ ظ…ط³ط§ط±ط§طھ ط®ط·ظٹط±ط©
+  if (
+    file.originalname.includes('..') ||
+    file.originalname.includes('/') ||
+    file.originalname.includes('\\')
+  ) {
+    throw new BadRequestException('ط§ط³ظ… ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ط¢ظ…ظ†');
   }
 
-  // التحقق من حجم اسم الملف
+  // ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط­ط¬ظ… ط§ط³ظ… ط§ظ„ظ…ظ„ظپ
   if (file.originalname.length > 255) {
-    throw new BadRequestException('اسم الملف طويل جداً');
+    throw new BadRequestException('ط§ط³ظ… ط§ظ„ظ…ظ„ظپ ط·ظˆظٹظ„ ط¬ط¯ط§ظ‹');
   }
 
-  // TODO: إضافة المزيد من فحوصات الأمان
-  // - فحص فيروس
-  // - فحص نوع الملف الحقيقي
-  // - فحص metadata
+  // MVP note: ط¥ط¶ط§ظپط© ط§ظ„ظ…ط²ظٹط¯ ظ…ظ† ظپط­ظˆطµط§طھ ط§ظ„ط£ظ…ط§ظ†
+  // - ظپط­طµ ظپظٹط±ظˆط³
+  // - ظپط­طµ ظ†ظˆط¹ ط§ظ„ظ…ظ„ظپ ط§ظ„ط­ظ‚ظٹظ‚ظٹ
+  // - ظپط­طµ metadata
 }
 
 /**
- * تنظيف الملفات المؤقتة القديمة
+ * طھظ†ط¸ظٹظپ ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط¤ظ‚طھط© ط§ظ„ظ‚ط¯ظٹظ…ط©
  */
-export async function cleanupTempFiles(tempDir: string, maxAgeHours: number = 24): Promise<void> {
+export async function cleanupTempFiles(
+  tempDir: string,
+  maxAgeHours: number = 24,
+): Promise<void> {
   try {
     const files = await fs.readdir(tempDir);
     const now = Date.now();
@@ -252,7 +279,10 @@ export async function cleanupTempFiles(tempDir: string, maxAgeHours: number = 24
       }
     }
   } catch (error) {
-    // لا نرمي خطأ في حالة فشل التنظيف
-    console.warn('فشل في تنظيف الملفات المؤقتة:', error);
+    // ظ„ط§ ظ†ط±ظ…ظٹ ط®ط·ط£ ظپظٹ ط­ط§ظ„ط© ظپط´ظ„ ط§ظ„طھظ†ط¸ظٹظپ
+    console.warn(
+      'ظپط´ظ„ ظپظٹ طھظ†ط¸ظٹظپ ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط¤ظ‚طھط©:',
+      error,
+    );
   }
 }

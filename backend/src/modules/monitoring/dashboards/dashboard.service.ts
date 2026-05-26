@@ -316,10 +316,13 @@ export class DashboardService {
   /**
    * الحصول على لوحة تحكم
    */
-  async getDashboard(dashboardId: string, userId?: string): Promise<DashboardData | null> {
+  async getDashboard(
+    dashboardId: string,
+    userId?: string,
+  ): Promise<DashboardData | null> {
     try {
       // البحث في اللوحات الافتراضية
-      let dashboard = this.defaultDashboards.find(d => d.id === dashboardId);
+      let dashboard = this.defaultDashboards.find((d) => d.id === dashboardId);
 
       // إذا لم يتم العثور، البحث في قاعدة البيانات
       if (!dashboard) {
@@ -353,7 +356,10 @@ export class DashboardService {
   /**
    * الحصول على قائمة لوحات التحكم
    */
-  async getDashboards(category?: string, userId?: string): Promise<Dashboard[]> {
+  async getDashboards(
+    category?: string,
+    userId?: string,
+  ): Promise<Dashboard[]> {
     try {
       let dashboards = [...this.defaultDashboards];
 
@@ -362,7 +368,7 @@ export class DashboardService {
 
       // تصفية حسب الفئة
       if (category) {
-        dashboards = dashboards.filter(d => d.category === category);
+        dashboards = dashboards.filter((d) => d.category === category);
       }
 
       // تصفية حسب الصلاحيات
@@ -413,7 +419,9 @@ export class DashboardService {
   ): Promise<Dashboard | null> {
     try {
       // البحث في اللوحات الافتراضية (لا يمكن تحديثها)
-      const defaultDashboard = this.defaultDashboards.find(d => d.id === dashboardId);
+      const defaultDashboard = this.defaultDashboards.find(
+        (d) => d.id === dashboardId,
+      );
       if (defaultDashboard) {
         throw new Error('لا يمكن تحديث لوحات التحكم الافتراضية');
       }
@@ -434,7 +442,9 @@ export class DashboardService {
   async deleteDashboard(dashboardId: string, userId: string): Promise<boolean> {
     try {
       // التحقق من أنها ليست لوحة افتراضية
-      const defaultDashboard = this.defaultDashboards.find(d => d.id === dashboardId);
+      const defaultDashboard = this.defaultDashboards.find(
+        (d) => d.id === dashboardId,
+      );
       if (defaultDashboard) {
         throw new Error('لا يمكن حذف لوحات التحكم الافتراضية');
       }
@@ -452,7 +462,9 @@ export class DashboardService {
   /**
    * جلب بيانات لوحة التحكم
    */
-  private async getDashboardData(dashboard: Dashboard): Promise<Record<string, any>> {
+  private async getDashboardData(
+    dashboard: Dashboard,
+  ): Promise<Record<string, any>> {
     const data: Record<string, any> = {};
 
     for (const widget of dashboard.widgets) {
@@ -502,7 +514,9 @@ export class DashboardService {
     }
 
     // حفظ في الكاش
-    const ttl = widget.config.refreshInterval ? widget.config.refreshInterval / 1000 : 300;
+    const ttl = widget.config.refreshInterval
+      ? widget.config.refreshInterval / 1000
+      : 300;
     await this.cache.set(cacheKey, data, ttl);
 
     return data;
@@ -548,7 +562,10 @@ export class DashboardService {
 
       case 'response_time':
         // استخراج زمن الاستجابة
-        return this.parsePrometheusMetrics(metrics, 'http_request_duration_seconds');
+        return this.parsePrometheusMetrics(
+          metrics,
+          'http_request_duration_seconds',
+        );
 
       default:
         return { raw: metrics };
@@ -659,7 +676,8 @@ export class DashboardService {
       metric: metricName,
       values: data,
       count: data.length,
-      average: data.length > 0 ? data.reduce((a, b) => a + b, 0) / data.length : 0,
+      average:
+        data.length > 0 ? data.reduce((a, b) => a + b, 0) / data.length : 0,
     };
   }
 
@@ -679,14 +697,18 @@ export class DashboardService {
           const value = parseFloat(match[1]);
           totalRequests += value;
 
-          if (line.includes('status_code="5') || line.includes('status_code="4')) {
+          if (
+            line.includes('status_code="5') ||
+            line.includes('status_code="4')
+          ) {
             errorRequests += value;
           }
         }
       }
     }
 
-    const errorRate = totalRequests > 0 ? (errorRequests / totalRequests) * 100 : 0;
+    const errorRate =
+      totalRequests > 0 ? (errorRequests / totalRequests) * 100 : 0;
 
     return {
       totalRequests,
@@ -702,11 +724,17 @@ export class DashboardService {
   getDashboardStats() {
     return {
       totalDashboards: this.defaultDashboards.length,
-      categories: this.defaultDashboards.reduce((acc, dashboard) => {
-        acc[dashboard.category] = (acc[dashboard.category] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>),
-      totalWidgets: this.defaultDashboards.reduce((sum, dashboard) => sum + dashboard.widgets.length, 0),
+      categories: this.defaultDashboards.reduce(
+        (acc, dashboard) => {
+          acc[dashboard.category] = (acc[dashboard.category] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      ),
+      totalWidgets: this.defaultDashboards.reduce(
+        (sum, dashboard) => sum + dashboard.widgets.length,
+        0,
+      ),
     };
   }
 }

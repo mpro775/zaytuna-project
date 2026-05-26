@@ -1,7 +1,11 @@
 import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { AppService } from './app.service';
 import { Cache, InvalidateCache } from './common/decorators/cache.decorator';
-import { Public, Permissions, RequireRead } from './common/decorators/permissions.decorator';
+import {
+  Public,
+  Permissions,
+  RequireRead,
+} from './common/decorators/permissions.decorator';
 import { PaginationQueryDto } from './common/dto/pagination.dto';
 import { HealthCheckResponseDto } from './common/dto/response.dto';
 
@@ -29,7 +33,7 @@ export class AppController {
         version: '1.0.0',
         services: {
           database: true, // يمكن إضافة فحص حقيقي لاحقاً
-          redis: true,    // يمكن إضافة فحص حقيقي لاحقاً
+          redis: true, // يمكن إضافة فحص حقيقي لاحقاً
         },
       },
     };

@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../shared/database/prisma.service';
 import { AuditService } from '../audit/audit.service';
-import { PaymentAdapterFactory, PaymentGateway } from './adapters/payment-adapter.factory';
+import {
+  PaymentAdapterFactory,
+  PaymentGateway,
+} from './adapters/payment-adapter.factory';
 
 export interface ReconciliationPeriod {
   startDate: Date;
@@ -51,7 +54,12 @@ export interface TransactionMatch {
 export interface DiscrepancyRecord {
   systemTransaction?: TransactionRecord;
   gatewayTransaction?: TransactionRecord;
-  discrepancyType: 'amount_mismatch' | 'status_mismatch' | 'missing_in_system' | 'missing_in_gateway' | 'fee_mismatch';
+  discrepancyType:
+    | 'amount_mismatch'
+    | 'status_mismatch'
+    | 'missing_in_system'
+    | 'missing_in_gateway'
+    | 'fee_mismatch';
   amountDifference: number;
   description: string;
   severity: 'low' | 'medium' | 'high' | 'critical';
@@ -93,7 +101,9 @@ export class ReconciliationService {
     const startTime = Date.now();
 
     try {
-      this.logger.log(`بدء تسوية المعاملات لـ ${period.gateway} من ${period.startDate.toISOString()} إلى ${period.endDate.toISOString()}`);
+      this.logger.log(
+        `بدء تسوية المعاملات لـ ${period.gateway} من ${period.startDate.toISOString()} إلى ${period.endDate.toISOString()}`,
+      );
 
       // جلب معاملات النظام
       const systemTransactions = await this.getSystemTransactions(period);
@@ -103,10 +113,19 @@ export class ReconciliationService {
 
       // مطابقة المعاملات
       const { matched, unmatchedSystem, unmatchedGateway, discrepancies } =
-        this.matchTransactions(systemTransactions, gatewayTransactions, options);
+        this.matchTransactions(
+          systemTransactions,
+          gatewayTransactions,
+          options,
+        );
 
       // حساب الملخص
-      const summary = this.calculateSummary(systemTransactions, gatewayTransactions, matched, discrepancies);
+      const summary = this.calculateSummary(
+        systemTransactions,
+        gatewayTransactions,
+        matched,
+        discrepancies,
+      );
 
       const result: ReconciliationResult = {
         period,
@@ -143,7 +162,9 @@ export class ReconciliationService {
         category: 'financial',
       });
 
-      this.logger.log(`تمت التسوية بنجاح: ${matched.length} مطابقة، ${discrepancies.length} اختلاف`);
+      this.logger.log(
+        `تمت التسوية بنجاح: ${matched.length} مطابقة، ${discrepancies.length} اختلاف`,
+      );
 
       return result;
     } catch (error) {
@@ -294,7 +315,9 @@ export class ReconciliationService {
   /**
    * جلب معاملات النظام
    */
-  private async getSystemTransactions(period: ReconciliationPeriod): Promise<TransactionRecord[]> {
+  private async getSystemTransactions(
+    period: ReconciliationPeriod,
+  ): Promise<TransactionRecord[]> {
     const where: any = {
       gateway: period.gateway,
       status: { in: ['completed', 'refunded', 'partially_refunded'] },
@@ -322,7 +345,7 @@ export class ReconciliationService {
       },
     });
 
-    return transactions.map(t => ({
+    return transactions.map((t) => ({
       transactionId: t.transactionId,
       amount: Number(t.amount),
       currency: t.currency,
@@ -336,7 +359,9 @@ export class ReconciliationService {
   /**
    * جلب معاملات البوابة
    */
-  private async getGatewayTransactions(period: ReconciliationPeriod): Promise<TransactionRecord[]> {
+  private async getGatewayTransactions(
+    period: ReconciliationPeriod,
+  ): Promise<TransactionRecord[]> {
     try {
       // في الواقع، هنا يتم استدعاء API البوابة لجلب المعاملات
       // للآن نرجع بيانات وهمية للاختبار
@@ -345,14 +370,14 @@ export class ReconciliationService {
       const mockGatewayTransactions: TransactionRecord[] = [
         {
           transactionId: `gateway_${period.gateway}_1`,
-          amount: 100.00,
+          amount: 100.0,
           currency: 'SAR',
           status: 'completed',
           processedAt: new Date(),
         },
         {
           transactionId: `gateway_${period.gateway}_2`,
-          amount: 250.00,
+          amount: 250.0,
           currency: 'SAR',
           status: 'completed',
           processedAt: new Date(),
@@ -384,7 +409,7 @@ export class ReconciliationService {
       const systemTx = unmatchedSystem[i];
 
       const gatewayIndex = unmatchedGateway.findIndex(
-        gatewayTx => gatewayTx.transactionId === systemTx.transactionId
+        (gatewayTx) => gatewayTx.transactionId === systemTx.transactionId,
       );
 
       if (gatewayIndex !== -1) {
@@ -406,9 +431,15 @@ export class ReconciliationService {
     for (let i = unmatchedSystem.length - 1; i >= 0; i--) {
       const systemTx = unmatchedSystem[i];
 
-      const gatewayIndex = unmatchedGateway.findIndex(gatewayTx => {
-        const amountMatch = Math.abs(gatewayTx.amount - systemTx.amount) <= (options.autoResolveThreshold || 0);
-        const dateMatch = Math.abs(gatewayTx.processedAt.getTime() - systemTx.processedAt.getTime()) <= 24 * 60 * 60 * 1000; // يوم واحد
+      const gatewayIndex = unmatchedGateway.findIndex((gatewayTx) => {
+        const amountMatch =
+          Math.abs(gatewayTx.amount - systemTx.amount) <=
+          (options.autoResolveThreshold || 0);
+        const dateMatch =
+          Math.abs(
+            gatewayTx.processedAt.getTime() - systemTx.processedAt.getTime(),
+          ) <=
+          24 * 60 * 60 * 1000; // يوم واحد
 
         return amountMatch && dateMatch;
       });
@@ -429,7 +460,7 @@ export class ReconciliationService {
     }
 
     // إنشاء سجلات الاختلافات
-    unmatchedSystem.forEach(systemTx => {
+    unmatchedSystem.forEach((systemTx) => {
       discrepancies.push({
         systemTransaction: systemTx,
         discrepancyType: 'missing_in_gateway',
@@ -440,7 +471,7 @@ export class ReconciliationService {
       });
     });
 
-    unmatchedGateway.forEach(gatewayTx => {
+    unmatchedGateway.forEach((gatewayTx) => {
       discrepancies.push({
         gatewayTransaction: gatewayTx,
         discrepancyType: 'missing_in_system',
@@ -468,9 +499,18 @@ export class ReconciliationService {
     matched: TransactionMatch[],
     discrepancies: DiscrepancyRecord[],
   ): ReconciliationResult['summary'] {
-    const totalSystemAmount = systemTransactions.reduce((sum, tx) => sum + tx.amount, 0);
-    const totalGatewayAmount = gatewayTransactions.reduce((sum, tx) => sum + tx.amount, 0);
-    const totalDiscrepancyAmount = discrepancies.reduce((sum, d) => sum + Math.abs(d.amountDifference), 0);
+    const totalSystemAmount = systemTransactions.reduce(
+      (sum, tx) => sum + tx.amount,
+      0,
+    );
+    const totalGatewayAmount = gatewayTransactions.reduce(
+      (sum, tx) => sum + tx.amount,
+      0,
+    );
+    const totalDiscrepancyAmount = discrepancies.reduce(
+      (sum, d) => sum + Math.abs(d.amountDifference),
+      0,
+    );
 
     return {
       totalSystemTransactions: systemTransactions.length,
@@ -488,7 +528,9 @@ export class ReconciliationService {
   /**
    * إنشاء تقرير التسوية
    */
-  private async generateReconciliationReport(result: ReconciliationResult): Promise<void> {
+  private async generateReconciliationReport(
+    result: ReconciliationResult,
+  ): Promise<void> {
     try {
       const report: ReconciliationReport = {
         id: `recon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,

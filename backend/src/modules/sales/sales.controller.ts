@@ -27,7 +27,10 @@ export class SalesController {
   @Post('invoices')
   @Permissions('sales.create')
   @HttpCode(HttpStatus.CREATED)
-  createInvoice(@Body() createSalesInvoiceDto: CreateSalesInvoiceDto, @Req() req: any) {
+  createInvoice(
+    @Body() createSalesInvoiceDto: CreateSalesInvoiceDto,
+    @Req() req: any,
+  ) {
     return this.salesService.create(createSalesInvoiceDto, req.user.id);
   }
 
@@ -67,8 +70,18 @@ export class SalesController {
   @Patch('invoices/:id')
   @Permissions('sales.update')
   @HttpCode(HttpStatus.OK)
-  updateInvoice(@Param('id') id: string, @Body() updateSalesInvoiceDto: UpdateSalesInvoiceDto) {
+  updateInvoice(
+    @Param('id') id: string,
+    @Body() updateSalesInvoiceDto: UpdateSalesInvoiceDto,
+  ) {
     return this.salesService.update(id, updateSalesInvoiceDto);
+  }
+
+  @Post('invoices/:id/confirm')
+  @Permissions('sales.update')
+  @HttpCode(HttpStatus.OK)
+  confirmInvoice(@Param('id') id: string, @Req() req: any) {
+    return this.salesService.confirm(id, req.user.id);
   }
 
   /**

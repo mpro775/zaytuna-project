@@ -95,7 +95,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       this.logger.debug(`تم التحقق من المستخدم: ${user.username}`);
 
       return authenticatedUser;
-
     } catch (error) {
       this.logger.error('فشل في التحقق من JWT:', error);
       if (error instanceof UnauthorizedException) {
@@ -117,7 +116,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         },
       });
     } catch (error) {
-      this.logger.warn(`فشل في تحديث وقت آخر تسجيل دخول للمستخدم ${userId}:`, error);
+      this.logger.warn(
+        `فشل في تحديث وقت آخر تسجيل دخول للمستخدم ${userId}:`,
+        error,
+      );
     }
   }
 }

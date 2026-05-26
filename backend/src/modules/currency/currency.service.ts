@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../shared/database/prisma.service';
 
@@ -14,20 +18,30 @@ export class CurrencyService {
     const code = this.normalizeCode(dto.code);
     if (!dto.name) throw new BadRequestException('Currency name is required');
 
-    if (dto.isBase) await this.clearBaseCurrency();
-    if (dto.isDefault) await this.clearDefaultCurrency();
+    return this.prisma.$transaction(async (tx) => {
+      if (dto.isBase)
+        await tx.currency.updateMany({
+          where: { isBase: true },
+          data: { isBase: false },
+        });
+      if (dto.isDefault)
+        await tx.currency.updateMany({
+          where: { isDefault: true },
+          data: { isDefault: false },
+        });
 
-    return this.prisma.currency.create({
-      data: {
-        code,
-        name: dto.name,
-        symbol: dto.symbol,
-        decimalPlaces: dto.decimalPlaces ?? 2,
-        exchangeRate: dto.exchangeRate ?? 1,
-        isBase: dto.isBase ?? false,
-        isDefault: dto.isDefault ?? false,
-        isActive: dto.isActive ?? true,
-      },
+      return tx.currency.create({
+        data: {
+          code,
+          name: dto.name,
+          symbol: dto.symbol,
+          decimalPlaces: dto.decimalPlaces ?? 2,
+          exchangeRate: dto.exchangeRate ?? 1,
+          isBase: dto.isBase ?? false,
+          isDefault: dto.isDefault ?? false,
+          isActive: dto.isActive ?? true,
+        },
+      });
     });
   }
 
@@ -39,21 +53,32 @@ export class CurrencyService {
 
   async update(id: string, dto: any) {
     await this.get(id);
-    if (dto.isBase) await this.clearBaseCurrency();
-    if (dto.isDefault) await this.clearDefaultCurrency();
+    return this.prisma.$transaction(async (tx) => {
+      if (dto.isBase)
+        await tx.currency.updateMany({
+          where: { isBase: true },
+          data: { isBase: false },
+        });
+      if (dto.isDefault)
+        await tx.currency.updateMany({
+          where: { isDefault: true },
+          data: { isDefault: false },
+        });
 
-    return this.prisma.currency.update({
-      where: { id },
-      data: {
-        ...dto,
-        code: dto.code ? this.normalizeCode(dto.code) : undefined,
-      },
+      return tx.currency.update({
+        where: { id },
+        data: {
+          ...dto,
+          code: dto.code ? this.normalizeCode(dto.code) : undefined,
+        },
+      });
     });
   }
 
   async delete(id: string) {
     const currency = await this.get(id);
-    if (currency.isBase) throw new BadRequestException('Cannot delete base currency');
+    if (currency.isBase)
+      throw new BadRequestException('Cannot delete base currency');
 
     const usage = await Promise.all([
       this.prisma.salesInvoice.count({ where: { currencyId: id } }),
@@ -61,7 +86,9 @@ export class CurrencyService {
       this.prisma.purchaseInvoice.count({ where: { currencyId: id } }),
     ]);
     if (usage.some((count) => count > 0)) {
-      throw new BadRequestException('Cannot delete currency used in financial documents');
+      throw new BadRequestException(
+        'Cannot delete currency used in financial documents',
+      );
     }
 
     await this.prisma.currency.delete({ where: { id } });
@@ -70,14 +97,31 @@ export class CurrencyService {
 
   async setBase(id: string) {
     await this.get(id);
-    await this.clearBaseCurrency();
-    return this.prisma.currency.update({ where: { id }, data: { isBase: true, isDefault: true } });
+    return this.prisma.$transaction(async (tx) => {
+      await tx.currency.updateMany({
+        where: { isBase: true },
+        data: { isBase: false },
+      });
+      await tx.currency.updateMany({
+        where: { isDefault: true },
+        data: { isDefault: false },
+      });
+      return tx.currency.update({
+        where: { id },
+        data: { isBase: true, isDefault: true },
+      });
+    });
   }
 
   async setDefault(id: string) {
     await this.get(id);
-    await this.clearDefaultCurrency();
-    return this.prisma.currency.update({ where: { id }, data: { isDefault: true } });
+    return this.prisma.$transaction(async (tx) => {
+      await tx.currency.updateMany({
+        where: { isDefault: true },
+        data: { isDefault: false },
+      });
+      return tx.currency.update({ where: { id }, data: { isDefault: true } });
+    });
   }
 
   listExchangeRates() {
@@ -89,7 +133,8 @@ export class CurrencyService {
 
   async createExchangeRate(dto: any) {
     const rate = new Prisma.Decimal(dto.rate);
-    if (rate.lte(0)) throw new BadRequestException('Exchange rate must be positive');
+    if (rate.lte(0))
+      throw new BadRequestException('Exchange rate must be positive');
     await this.get(dto.fromCurrencyId);
     await this.get(dto.toCurrencyId);
 
@@ -110,7 +155,12 @@ export class CurrencyService {
     const fromCurrency = await this.findByCodeOrId(from);
     const toCurrency = await this.findByCodeOrId(to);
     if (fromCurrency.id === toCurrency.id) {
-      return { fromCurrency, toCurrency, rate: new Prisma.Decimal(1), effectiveAt: new Date() };
+      return {
+        fromCurrency,
+        toCurrency,
+        rate: new Prisma.Decimal(1),
+        effectiveAt: new Date(),
+      };
     }
 
     const rate = await this.prisma.exchangeRate.findFirst({
@@ -123,12 +173,14 @@ export class CurrencyService {
 
   async convert(dto: any) {
     const amount = new Prisma.Decimal(dto.amount);
-    const fromCurrency = await this.findByCodeOrId(dto.from);
-    const toCurrency = await this.findByCodeOrId(dto.to);
+    const fromCurrency = await this.findByCodeOrId(
+      dto.fromCurrencyId ?? dto.from,
+    );
+    const toCurrency = await this.findByCodeOrId(dto.toCurrencyId ?? dto.to);
     if (fromCurrency.id === toCurrency.id) {
       return { amount, convertedAmount: amount, rate: new Prisma.Decimal(1) };
     }
-    const rate = await this.latest(fromCurrency.id, toCurrency.id) as any;
+    const rate = (await this.latest(fromCurrency.id, toCurrency.id)) as any;
     return {
       amount,
       convertedAmount: amount.mul(rate.rate),
@@ -147,15 +199,22 @@ export class CurrencyService {
   }
 
   private normalizeCode(code: string) {
-    if (!code || typeof code !== 'string') throw new BadRequestException('Currency code is required');
+    if (!code || typeof code !== 'string')
+      throw new BadRequestException('Currency code is required');
     return code.trim().toUpperCase();
   }
 
   private clearBaseCurrency() {
-    return this.prisma.currency.updateMany({ where: { isBase: true }, data: { isBase: false } });
+    return this.prisma.currency.updateMany({
+      where: { isBase: true },
+      data: { isBase: false },
+    });
   }
 
   private clearDefaultCurrency() {
-    return this.prisma.currency.updateMany({ where: { isDefault: true }, data: { isDefault: false } });
+    return this.prisma.currency.updateMany({
+      where: { isDefault: true },
+      data: { isDefault: false },
+    });
   }
 }

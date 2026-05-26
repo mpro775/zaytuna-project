@@ -114,19 +114,23 @@ export class LoadTestingService {
     const testId = `load_test_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     this.logger.log(`Starting load test: ${testId}`);
-    this.logger.log(`Config: ${config.concurrency} concurrent users, ${config.duration}s duration`);
+    this.logger.log(
+      `Config: ${config.concurrency} concurrent users, ${config.duration}s duration`,
+    );
 
-    const results: LoadTestEndpointResult[] = config.endpoints.map(endpoint => ({
-      endpoint: endpoint.url,
-      method: endpoint.method,
-      requests: 0,
-      successful: 0,
-      failed: 0,
-      averageResponseTime: 0,
-      minResponseTime: Infinity,
-      maxResponseTime: 0,
-      errorRate: 0,
-    }));
+    const results: LoadTestEndpointResult[] = config.endpoints.map(
+      (endpoint) => ({
+        endpoint: endpoint.url,
+        method: endpoint.method,
+        requests: 0,
+        successful: 0,
+        failed: 0,
+        averageResponseTime: 0,
+        minResponseTime: Infinity,
+        maxResponseTime: 0,
+        errorRate: 0,
+      }),
+    );
 
     const responseTimes: number[] = [];
     let totalRequests = 0;
@@ -138,7 +142,7 @@ export class LoadTestingService {
     this.activeTests.set(testId, { abort: () => abortController.abort() });
 
     const startTime = Date.now();
-    const endTime = startTime + (config.duration * 1000);
+    const endTime = startTime + config.duration * 1000;
 
     try {
       // مرحلة البدء التدريجي
@@ -148,7 +152,13 @@ export class LoadTestingService {
 
       // مرحلة الاختبار الرئيسية
       const testPromises = Array.from({ length: config.concurrency }, (_, i) =>
-        this.runUserSimulation(i, config, results, responseTimes, abortController.signal)
+        this.runUserSimulation(
+          i,
+          config,
+          results,
+          responseTimes,
+          abortController.signal,
+        ),
       );
 
       await Promise.allSettled(testPromises);
@@ -160,12 +170,14 @@ export class LoadTestingService {
 
       // حساب إحصائيات الأوقات
       responseTimes.sort((a, b) => a - b);
-      const averageResponseTime = responseTimes.length > 0
-        ? responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length
-        : 0;
+      const averageResponseTime =
+        responseTimes.length > 0
+          ? responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length
+          : 0;
 
       const minResponseTime = responseTimes.length > 0 ? responseTimes[0] : 0;
-      const maxResponseTime = responseTimes.length > 0 ? responseTimes[responseTimes.length - 1] : 0;
+      const maxResponseTime =
+        responseTimes.length > 0 ? responseTimes[responseTimes.length - 1] : 0;
 
       const p95Index = Math.floor(responseTimes.length * 0.95);
       const p99Index = Math.floor(responseTimes.length * 0.99);
@@ -175,11 +187,13 @@ export class LoadTestingService {
 
       const actualDuration = (Date.now() - startTime) / 1000;
       const requestsPerSecond = totalRequests / actualDuration;
-      const errorRate = totalRequests > 0 ? (failedRequests / totalRequests) * 100 : 0;
+      const errorRate =
+        totalRequests > 0 ? (failedRequests / totalRequests) * 100 : 0;
 
       // تحديث إحصائيات الـ endpoints
-      results.forEach(result => {
-        result.errorRate = result.requests > 0 ? (result.failed / result.requests) * 100 : 0;
+      results.forEach((result) => {
+        result.errorRate =
+          result.requests > 0 ? (result.failed / result.requests) * 100 : 0;
       });
 
       // توليد التوصيات
@@ -211,10 +225,11 @@ export class LoadTestingService {
       };
 
       this.logger.log(`Load test completed: ${testId}`);
-      this.logger.log(`Results: ${totalRequests} requests, ${requestsPerSecond.toFixed(2)} req/s, ${errorRate.toFixed(2)}% errors`);
+      this.logger.log(
+        `Results: ${totalRequests} requests, ${requestsPerSecond.toFixed(2)} req/s, ${errorRate.toFixed(2)}% errors`,
+      );
 
       return testResult;
-
     } catch (error) {
       this.logger.error(`Load test failed: ${testId}`, error);
       throw error;
@@ -284,7 +299,8 @@ export class LoadTestingService {
     const cacheStats = await this.cacheOptimization.getCacheStats();
 
     // تشغيل تحسين الكاش
-    const optimizationResult = await this.cacheOptimization.performFullCacheOptimization();
+    const optimizationResult =
+      await this.cacheOptimization.performFullCacheOptimization();
 
     const cacheLatency = Date.now() - startTime;
 
@@ -297,8 +313,11 @@ export class LoadTestingService {
 
   // طرق خاصة
 
-  private async rampUpPhase(config: LoadTestConfig, abortSignal: AbortSignal): Promise<void> {
-    const rampUpInterval = config.rampUp * 1000 / config.concurrency;
+  private async rampUpPhase(
+    config: LoadTestConfig,
+    abortSignal: AbortSignal,
+  ): Promise<void> {
+    const rampUpInterval = (config.rampUp * 1000) / config.concurrency;
 
     for (let i = 1; i <= config.concurrency; i++) {
       if (abortSignal.aborted) break;
@@ -309,11 +328,11 @@ export class LoadTestingService {
       }, i * rampUpInterval);
 
       // انتظار قليل لتجنب التحميل المفاجئ
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     // انتظار انتهاء مرحلة البدء التدريجي
-    await new Promise(resolve => setTimeout(resolve, config.rampUp * 1000));
+    await new Promise((resolve) => setTimeout(resolve, config.rampUp * 1000));
   }
 
   private async runUserSimulation(
@@ -321,7 +340,7 @@ export class LoadTestingService {
     config: LoadTestConfig,
     results: LoadTestEndpointResult[],
     responseTimes: number[],
-    abortSignal: AbortSignal
+    abortSignal: AbortSignal,
   ): Promise<void> {
     const startTime = Date.now();
     const testDuration = config.duration * 1000;
@@ -344,12 +363,12 @@ export class LoadTestingService {
         result.requests++;
         result.successful++;
         result.averageResponseTime =
-          (result.averageResponseTime * (result.requests - 1) + responseTime) / result.requests;
+          (result.averageResponseTime * (result.requests - 1) + responseTime) /
+          result.requests;
         result.minResponseTime = Math.min(result.minResponseTime, responseTime);
         result.maxResponseTime = Math.max(result.maxResponseTime, responseTime);
 
         responseTimes.push(responseTime);
-
       } catch (error) {
         result.requests++;
         result.failed++;
@@ -357,12 +376,17 @@ export class LoadTestingService {
 
       // انتظار عشوائي بين الطلبات لمحاكاة سلوك المستخدم الطبيعي
       const waitTime = Math.random() * 1000 + 500; // 500-1500ms
-      await new Promise(resolve => setTimeout(resolve, waitTime));
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
     }
   }
 
-  private selectWeightedEndpoint(endpoints: LoadTestEndpoint[]): LoadTestEndpoint {
-    const totalWeight = endpoints.reduce((sum, endpoint) => sum + endpoint.weight, 0);
+  private selectWeightedEndpoint(
+    endpoints: LoadTestEndpoint[],
+  ): LoadTestEndpoint {
+    const totalWeight = endpoints.reduce(
+      (sum, endpoint) => sum + endpoint.weight,
+      0,
+    );
     let random = Math.random() * totalWeight;
 
     for (const endpoint of endpoints) {
@@ -393,13 +417,12 @@ export class LoadTestingService {
         await this.prisma.customer.findMany({ take: 10 });
       } else {
         // محاكاة استجابة سريعة للطلبات الأخرى
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       }
 
       // محاكاة وقت استجابة إضافي
       const processingTime = Math.random() * 200 + 50; // 50-250ms
-      await new Promise(resolve => setTimeout(resolve, processingTime));
-
+      await new Promise((resolve) => setTimeout(resolve, processingTime));
     } catch (error) {
       throw error;
     }
@@ -415,23 +438,33 @@ export class LoadTestingService {
     const recommendations: string[] = [];
 
     if (stats.averageResponseTime > 1000) {
-      recommendations.push('تحسين متوسط وقت الاستجابة (>1s) - فحص الفهارس وتحسين الاستعلامات');
+      recommendations.push(
+        'تحسين متوسط وقت الاستجابة (>1s) - فحص الفهارس وتحسين الاستعلامات',
+      );
     }
 
     if (stats.p95ResponseTime > 2000) {
-      recommendations.push('تحسين استجابة P95 (>2s) - فحص الاختناقات في النظام');
+      recommendations.push(
+        'تحسين استجابة P95 (>2s) - فحص الاختناقات في النظام',
+      );
     }
 
     if (stats.errorRate > 5) {
-      recommendations.push('تقليل معدل الأخطاء (>5%) - فحص استقرار النظام والمعالجة');
+      recommendations.push(
+        'تقليل معدل الأخطاء (>5%) - فحص استقرار النظام والمعالجة',
+      );
     }
 
     if (stats.requestsPerSecond < 50) {
-      recommendations.push('تحسين معدل الطلبات (<50 req/s) - فحص تحسينات الأداء');
+      recommendations.push(
+        'تحسين معدل الطلبات (<50 req/s) - فحص تحسينات الأداء',
+      );
     }
 
     if (stats.totalRequests < 1000) {
-      recommendations.push('زيادة عدد الطلبات في الاختبار للحصول على نتائج أفضل');
+      recommendations.push(
+        'زيادة عدد الطلبات في الاختبار للحصول على نتائج أفضل',
+      );
     }
 
     recommendations.push('مراجعة استخدام الكاش وتحسين الاستعلامات');
@@ -444,8 +477,9 @@ export class LoadTestingService {
     const startTime = Date.now();
 
     // اختبار إنشاء عدة اتصالات
-    const promises = Array.from({ length: 10 }, () =>
-      this.prisma.$queryRaw`SELECT pg_sleep(0.1)`
+    const promises = Array.from(
+      { length: 10 },
+      () => this.prisma.$queryRaw`SELECT pg_sleep(0.1)`,
     );
 
     await Promise.all(promises);
@@ -467,7 +501,10 @@ export class LoadTestingService {
     const tests = [
       this.prisma.product.count(),
       this.prisma.salesInvoice.findMany({ take: 100 }),
-      this.prisma.stockItem.findMany({ where: { quantity: { gt: 0 } }, take: 50 }),
+      this.prisma.stockItem.findMany({
+        where: { quantity: { gt: 0 } },
+        take: 50,
+      }),
       this.prisma.customer.findMany({ take: 50 }),
     ];
 
@@ -487,8 +524,10 @@ export class LoadTestingService {
     const startTime = Date.now();
 
     // اختبار 50 اتصال متزامن
-    const promises = Array.from({ length: 50 }, (_, i) =>
-      this.prisma.$queryRaw`SELECT ${i} as connection_id, pg_sleep(0.05)`
+    const promises = Array.from(
+      { length: 50 },
+      (_, i) =>
+        this.prisma.$queryRaw`SELECT ${i} as connection_id, pg_sleep(0.05)`,
     );
 
     const results = await Promise.all(promises);

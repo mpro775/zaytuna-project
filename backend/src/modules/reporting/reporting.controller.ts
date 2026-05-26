@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Query,
@@ -17,7 +17,7 @@ export class ReportingController {
   // ========== SALES REPORTS ==========
 
   /**
-   * تقرير المبيعات الشامل
+   * طھظ‚ط±ظٹط± ط§ظ„ظ…ط¨ظٹط¹ط§طھ ط§ظ„ط´ط§ظ…ظ„
    */
   @Get('sales')
   @Permissions('reporting.sales.read')
@@ -31,14 +31,21 @@ export class ReportingController {
     const end = new Date(endDate);
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      throw new Error('تاريخ البداية أو النهاية غير صحيح');
+      throw new Error(
+        'طھط§ط±ظٹط® ط§ظ„ط¨ط¯ط§ظٹط© ط£ظˆ ط§ظ„ظ†ظ‡ط§ظٹط© ط؛ظٹط± طµط­ظٹط­',
+      );
     }
 
-    return this.reportingService.getSalesReport(start, end, branchId, customerId);
+    return this.reportingService.getSalesReport(
+      start,
+      end,
+      branchId,
+      customerId,
+    );
   }
 
   /**
-   * تقرير المبيعات الشهري
+   * طھظ‚ط±ظٹط± ط§ظ„ظ…ط¨ظٹط¹ط§طھ ط§ظ„ط´ظ‡ط±ظٹ
    */
   @Get('sales/monthly')
   @Permissions('reporting.sales.read')
@@ -57,7 +64,7 @@ export class ReportingController {
   }
 
   /**
-   * تقرير المبيعات اليومي
+   * طھظ‚ط±ظٹط± ط§ظ„ظ…ط¨ظٹط¹ط§طھ ط§ظ„ظٹظˆظ…ظٹ
    */
   @Get('sales/daily')
   @Permissions('reporting.sales.read')
@@ -66,8 +73,19 @@ export class ReportingController {
     @Query('branchId') branchId?: string,
   ) {
     const reportDate = date ? new Date(date) : new Date();
-    const startDate = new Date(reportDate.getFullYear(), reportDate.getMonth(), reportDate.getDate());
-    const endDate = new Date(reportDate.getFullYear(), reportDate.getMonth(), reportDate.getDate(), 23, 59, 59);
+    const startDate = new Date(
+      reportDate.getFullYear(),
+      reportDate.getMonth(),
+      reportDate.getDate(),
+    );
+    const endDate = new Date(
+      reportDate.getFullYear(),
+      reportDate.getMonth(),
+      reportDate.getDate(),
+      23,
+      59,
+      59,
+    );
 
     return this.reportingService.getSalesReport(startDate, endDate, branchId);
   }
@@ -75,7 +93,7 @@ export class ReportingController {
   // ========== INVENTORY REPORTS ==========
 
   /**
-   * تقرير المخزون الشامل
+   * طھظ‚ط±ظٹط± ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ط´ط§ظ…ظ„
    */
   @Get('inventory')
   @Permissions('reporting.inventory.read')
@@ -87,22 +105,24 @@ export class ReportingController {
   }
 
   /**
-   * تقرير المخزون المنخفض
+   * طھظ‚ط±ظٹط± ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ظ…ظ†ط®ظپط¶
    */
   @Get('inventory/low-stock')
   @Permissions('reporting.inventory.read')
   getLowStockReport(@Query('warehouseId') warehouseId?: string) {
-    return this.reportingService.getInventoryReport(warehouseId).then(report => ({
-      lowStockAlerts: report.lowStockAlerts,
-      summary: {
-        totalLowStockItems: report.summary.lowStockItems,
-        totalOutOfStockItems: report.summary.outOfStockItems,
-      },
-    }));
+    return this.reportingService
+      .getInventoryReport(warehouseId)
+      .then((report) => ({
+        lowStockAlerts: report.lowStockAlerts,
+        summary: {
+          totalLowStockItems: report.summary.lowStockItems,
+          totalOutOfStockItems: report.summary.outOfStockItems,
+        },
+      }));
   }
 
   /**
-   * تقرير حركات المخزون
+   * طھظ‚ط±ظٹط± ط­ط±ظƒط§طھ ط§ظ„ظ…ط®ط²ظˆظ†
    */
   @Get('inventory/movements')
   @Permissions('reporting.inventory.read')
@@ -111,27 +131,31 @@ export class ReportingController {
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
   ) {
-    // TODO: تنفيذ فلترة حسب التاريخ
-    return this.reportingService.getInventoryReport(warehouseId).then(report => ({
-      stockMovements: report.stockMovements,
-      summary: report.summary,
-    }));
+    // MVP note: طھظ†ظپظٹط° ظپظ„طھط±ط© ط­ط³ط¨ ط§ظ„طھط§ط±ظٹط®
+    return this.reportingService
+      .getInventoryReport(warehouseId)
+      .then((report) => ({
+        stockMovements: report.stockMovements,
+        summary: report.summary,
+      }));
   }
 
   // ========== FINANCIAL REPORTS ==========
 
   /**
-   * الميزانية العمومية
+   * ط§ظ„ظ…ظٹط²ط§ظ†ظٹط© ط§ظ„ط¹ظ…ظˆظ…ظٹط©
    */
   @Get('financial/balance-sheet')
   @Permissions('reporting.financial.read')
   getBalanceSheetReport(@Query('asOfDate') asOfDate?: string) {
     const date = asOfDate ? new Date(asOfDate) : new Date();
-    return this.reportingService.getFinancialReport(date).then(report => report.balanceSheet);
+    return this.reportingService
+      .getFinancialReport(date)
+      .then((report) => report.balanceSheet);
   }
 
   /**
-   * قائمة الدخل
+   * ظ‚ط§ط¦ظ…ط© ط§ظ„ط¯ط®ظ„
    */
   @Get('financial/profit-loss')
   @Permissions('reporting.financial.read')
@@ -143,14 +167,18 @@ export class ReportingController {
     const end = new Date(endDate);
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      throw new Error('تاريخ البداية أو النهاية غير صحيح');
+      throw new Error(
+        'طھط§ط±ظٹط® ط§ظ„ط¨ط¯ط§ظٹط© ط£ظˆ ط§ظ„ظ†ظ‡ط§ظٹط© ط؛ظٹط± طµط­ظٹط­',
+      );
     }
 
-    return this.reportingService.getFinancialReport(end, false).then(report => report.profitLoss);
+    return this.reportingService
+      .getFinancialReport(end, false)
+      .then((report) => report.profitLoss);
   }
 
   /**
-   * التدفق النقدي
+   * ط§ظ„طھط¯ظپظ‚ ط§ظ„ظ†ظ‚ط¯ظٹ
    */
   @Get('financial/cash-flow')
   @Permissions('reporting.financial.read')
@@ -162,14 +190,18 @@ export class ReportingController {
     const end = new Date(endDate);
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      throw new Error('تاريخ البداية أو النهاية غير صحيح');
+      throw new Error(
+        'طھط§ط±ظٹط® ط§ظ„ط¨ط¯ط§ظٹط© ط£ظˆ ط§ظ„ظ†ظ‡ط§ظٹط© ط؛ظٹط± طµط­ظٹط­',
+      );
     }
 
-    return this.reportingService.getFinancialReport(end, true).then(report => report.cashFlow);
+    return this.reportingService
+      .getFinancialReport(end, true)
+      .then((report) => report.cashFlow);
   }
 
   /**
-   * التقرير المالي الشامل
+   * ط§ظ„طھظ‚ط±ظٹط± ط§ظ„ظ…ط§ظ„ظٹ ط§ظ„ط´ط§ظ…ظ„
    */
   @Get('financial/comprehensive')
   @Permissions('reporting.financial.read')
@@ -181,7 +213,7 @@ export class ReportingController {
   // ========== DASHBOARD DATA ==========
 
   /**
-   * بيانات لوحة المؤشرات الرئيسية
+   * ط¨ظٹط§ظ†ط§طھ ظ„ظˆط­ط© ط§ظ„ظ…ط¤ط´ط±ط§طھ ط§ظ„ط±ط¦ظٹط³ظٹط©
    */
   @Get('dashboard/overview')
   @Permissions('reporting.dashboard.read')
@@ -190,7 +222,7 @@ export class ReportingController {
   }
 
   /**
-   * بيانات المبيعات للوحة المؤشرات
+   * ط¨ظٹط§ظ†ط§طھ ط§ظ„ظ…ط¨ظٹط¹ط§طھ ظ„ظ„ظˆط­ط© ط§ظ„ظ…ط¤ط´ط±ط§طھ
    */
   @Get('dashboard/sales')
   @Permissions('reporting.dashboard.read')
@@ -198,10 +230,10 @@ export class ReportingController {
     @Query('period') period: 'daily' | 'weekly' | 'monthly' = 'monthly',
     @Query('branchId') branchId?: string,
   ) {
-    // حساب التواريخ حسب الفترة
+    // ط­ط³ط§ط¨ ط§ظ„طھظˆط§ط±ظٹط® ط­ط³ط¨ ط§ظ„ظپطھط±ط©
     const now = new Date();
     let startDate: Date;
-    let endDate: Date = now;
+    const endDate: Date = now;
 
     switch (period) {
       case 'daily':
@@ -220,22 +252,24 @@ export class ReportingController {
   }
 
   /**
-   * بيانات المخزون للوحة المؤشرات
+   * ط¨ظٹط§ظ†ط§طھ ط§ظ„ظ…ط®ط²ظˆظ† ظ„ظ„ظˆط­ط© ط§ظ„ظ…ط¤ط´ط±ط§طھ
    */
   @Get('dashboard/inventory')
   @Permissions('reporting.dashboard.read')
   getDashboardInventoryData(@Query('warehouseId') warehouseId?: string) {
-    return this.reportingService.getInventoryReport(warehouseId).then(report => ({
-      summary: report.summary,
-      lowStockAlerts: report.lowStockAlerts.slice(0, 5), // أول 5 تنبيهات فقط
-      topMovingProducts: report.topMovingProducts.slice(0, 5), // أول 5 منتجات فقط
-    }));
+    return this.reportingService
+      .getInventoryReport(warehouseId)
+      .then((report) => ({
+        summary: report.summary,
+        lowStockAlerts: report.lowStockAlerts.slice(0, 5), // ط£ظˆظ„ 5 طھظ†ط¨ظٹظ‡ط§طھ ظپظ‚ط·
+        topMovingProducts: report.topMovingProducts.slice(0, 5), // ط£ظˆظ„ 5 ظ…ظ†طھط¬ط§طھ ظپظ‚ط·
+      }));
   }
 
   // ========== EXPORT FUNCTIONALITY ==========
 
   /**
-   * تصدير تقرير المبيعات إلى Excel
+   * طھطµط¯ظٹط± طھظ‚ط±ظٹط± ط§ظ„ظ…ط¨ظٹط¹ط§طھ ط¥ظ„ظ‰ Excel
    */
   @Get('sales/export/excel')
   @Permissions('reporting.export')
@@ -250,25 +284,36 @@ export class ReportingController {
       const end = new Date(endDate);
 
       if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-        throw new Error('تاريخ البداية أو النهاية غير صحيح');
+        throw new Error(
+          'طھط§ط±ظٹط® ط§ظ„ط¨ط¯ط§ظٹط© ط£ظˆ ط§ظ„ظ†ظ‡ط§ظٹط© ط؛ظٹط± طµط­ظٹط­',
+        );
       }
 
       const filters = { startDate: start, endDate: end, branchId };
-      const excelBuffer = await this.reportingService.exportReportToExcel('sales', filters);
+      const excelBuffer = await this.reportingService.exportReportToExcel(
+        'sales',
+        filters,
+      );
 
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', `attachment; filename=sales-report-${startDate}-to-${endDate}.xlsx`);
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=sales-report-${startDate}-to-${endDate}.xlsx`,
+      );
       res.send(excelBuffer);
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        message: 'فشل في تصدير تقرير المبيعات',
+        message: 'ظپط´ظ„ ظپظٹ طھطµط¯ظٹط± طھظ‚ط±ظٹط± ط§ظ„ظ…ط¨ظٹط¹ط§طھ',
         error: error.message,
       });
     }
   }
 
   /**
-   * تصدير تقرير المخزون إلى Excel
+   * طھطµط¯ظٹط± طھظ‚ط±ظٹط± ط§ظ„ظ…ط®ط²ظˆظ† ط¥ظ„ظ‰ Excel
    */
   @Get('inventory/export/excel')
   @Permissions('reporting.export')
@@ -278,21 +323,30 @@ export class ReportingController {
   ) {
     try {
       const filters = { warehouseId };
-      const excelBuffer = await this.reportingService.exportReportToExcel('inventory', filters);
+      const excelBuffer = await this.reportingService.exportReportToExcel(
+        'inventory',
+        filters,
+      );
 
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', `attachment; filename=inventory-report-${new Date().toISOString().split('T')[0]}.xlsx`);
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=inventory-report-${new Date().toISOString().split('T')[0]}.xlsx`,
+      );
       res.send(excelBuffer);
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        message: 'فشل في تصدير تقرير المخزون',
+        message: 'ظپط´ظ„ ظپظٹ طھطµط¯ظٹط± طھظ‚ط±ظٹط± ط§ظ„ظ…ط®ط²ظˆظ†',
         error: error.message,
       });
     }
   }
 
   /**
-   * تصدير تقرير المبيعات إلى PDF
+   * طھطµط¯ظٹط± طھظ‚ط±ظٹط± ط§ظ„ظ…ط¨ظٹط¹ط§طھ ط¥ظ„ظ‰ PDF
    */
   @Get('sales/export/pdf')
   @Permissions('reporting.export')
@@ -307,25 +361,33 @@ export class ReportingController {
       const end = new Date(endDate);
 
       if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-        throw new Error('تاريخ البداية أو النهاية غير صحيح');
+        throw new Error(
+          'طھط§ط±ظٹط® ط§ظ„ط¨ط¯ط§ظٹط© ط£ظˆ ط§ظ„ظ†ظ‡ط§ظٹط© ط؛ظٹط± طµط­ظٹط­',
+        );
       }
 
       const filters = { startDate: start, endDate: end, branchId };
-      const pdfBuffer = await this.reportingService.exportReportToPDF('sales', filters);
+      const pdfBuffer = await this.reportingService.exportReportToPDF(
+        'sales',
+        filters,
+      );
 
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename=sales-report-${startDate}-to-${endDate}.pdf`);
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=sales-report-${startDate}-to-${endDate}.pdf`,
+      );
       res.send(pdfBuffer);
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        message: 'فشل في تصدير تقرير المبيعات',
+        message: 'ظپط´ظ„ ظپظٹ طھطµط¯ظٹط± طھظ‚ط±ظٹط± ط§ظ„ظ…ط¨ظٹط¹ط§طھ',
         error: error.message,
       });
     }
   }
 
   /**
-   * تصدير تقرير المخزون إلى PDF
+   * طھطµط¯ظٹط± طھظ‚ط±ظٹط± ط§ظ„ظ…ط®ط²ظˆظ† ط¥ظ„ظ‰ PDF
    */
   @Get('inventory/export/pdf')
   @Permissions('reporting.export')
@@ -335,14 +397,20 @@ export class ReportingController {
   ) {
     try {
       const filters = { warehouseId };
-      const pdfBuffer = await this.reportingService.exportReportToPDF('inventory', filters);
+      const pdfBuffer = await this.reportingService.exportReportToPDF(
+        'inventory',
+        filters,
+      );
 
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename=inventory-report-${new Date().toISOString().split('T')[0]}.pdf`);
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=inventory-report-${new Date().toISOString().split('T')[0]}.pdf`,
+      );
       res.send(pdfBuffer);
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        message: 'فشل في تصدير تقرير المخزون',
+        message: 'ظپط´ظ„ ظپظٹ طھطµط¯ظٹط± طھظ‚ط±ظٹط± ط§ظ„ظ…ط®ط²ظˆظ†',
         error: error.message,
       });
     }
@@ -351,7 +419,7 @@ export class ReportingController {
   // ========== SCHEDULED REPORTS ==========
 
   /**
-   * إنشاء تقرير مجدول (للاستخدام الداخلي)
+   * ط¥ظ†ط´ط§ط، طھظ‚ط±ظٹط± ظ…ط¬ط¯ظˆظ„ (ظ„ظ„ط§ط³طھط®ط¯ط§ظ… ط§ظ„ط¯ط§ط®ظ„ظٹ)
    */
   @Get('scheduled/:reportType')
   @Permissions('reporting.scheduled')
@@ -361,9 +429,9 @@ export class ReportingController {
   ) {
     const now = new Date();
 
-    // حساب التواريخ حسب التكرار
+    // ط­ط³ط§ط¨ ط§ظ„طھظˆط§ط±ظٹط® ط­ط³ط¨ ط§ظ„طھظƒط±ط§ط±
     let startDate: Date;
-    let endDate: Date = now;
+    const endDate: Date = now;
 
     switch (frequency) {
       case 'daily':
@@ -377,9 +445,9 @@ export class ReportingController {
         break;
     }
 
-    // TODO: حفظ التقرير أو إرساله بالبريد الإلكتروني
+    // MVP note: ط­ظپط¸ ط§ظ„طھظ‚ط±ظٹط± ط£ظˆ ط¥ط±ط³ط§ظ„ظ‡ ط¨ط§ظ„ط¨ط±ظٹط¯ ط§ظ„ط¥ظ„ظƒطھط±ظˆظ†ظٹ
     return {
-      message: `تم إنشاء التقرير المجدول (${frequency})`,
+      message: `طھظ… ط¥ظ†ط´ط§ط، ط§ظ„طھظ‚ط±ظٹط± ط§ظ„ظ…ط¬ط¯ظˆظ„ (${frequency})`,
       period: `${startDate.toISOString()} - ${endDate.toISOString()}`,
     };
   }
@@ -387,7 +455,7 @@ export class ReportingController {
   // ========== CUSTOM REPORTS ==========
 
   /**
-   * تقرير مخصص (للاستخدام المتقدم)
+   * طھظ‚ط±ظٹط± ظ…ط®طµطµ (ظ„ظ„ط§ط³طھط®ط¯ط§ظ… ط§ظ„ظ…طھظ‚ط¯ظ…)
    */
   @Get('custom')
   @Permissions('reporting.custom')
@@ -397,9 +465,10 @@ export class ReportingController {
     @Query('groupBy') groupBy?: string,
     @Query('sortBy') sortBy?: string,
   ) {
-    // TODO: تنفيذ تقارير مخصصة مع فلاتر متقدمة
+    // MVP note: طھظ†ظپظٹط° طھظ‚ط§ط±ظٹط± ظ…ط®طµطµط© ظ…ط¹ ظپظ„ط§طھط± ظ…طھظ‚ط¯ظ…ط©
     return {
-      message: 'ميزة التقارير المخصصة ستكون متاحة قريباً',
+      message:
+        'ظ…ظٹط²ط© ط§ظ„طھظ‚ط§ط±ظٹط± ط§ظ„ظ…ط®طµطµط© ط³طھظƒظˆظ† ظ…طھط§ط­ط© ظ‚ط±ظٹط¨ط§ظ‹',
       requestedType: reportType,
       filters: JSON.parse(filters || '{}'),
     };
@@ -408,7 +477,7 @@ export class ReportingController {
   // ========== ANALYTICS ENDPOINTS ==========
 
   /**
-   * تحليلات الأداء
+   * طھط­ظ„ظٹظ„ط§طھ ط§ظ„ط£ط¯ط§ط،
    */
   @Get('analytics/performance')
   @Permissions('reporting.analytics')
@@ -417,9 +486,10 @@ export class ReportingController {
     @Query('period') period: 'month' | 'quarter' | 'year' = 'month',
     @Query('branchId') branchId?: string,
   ) {
-    // TODO: تنفيذ تحليلات الأداء المتقدمة
+    // MVP note: طھظ†ظپظٹط° طھط­ظ„ظٹظ„ط§طھ ط§ظ„ط£ط¯ط§ط، ط§ظ„ظ…طھظ‚ط¯ظ…ط©
     return {
-      message: 'تحليلات الأداء ستكون متاحة قريباً',
+      message:
+        'طھط­ظ„ظٹظ„ط§طھ ط§ظ„ط£ط¯ط§ط، ط³طھظƒظˆظ† ظ…طھط§ط­ط© ظ‚ط±ظٹط¨ط§ظ‹',
       metric,
       period,
       branchId,
@@ -427,7 +497,7 @@ export class ReportingController {
   }
 
   /**
-   * مقارنات الفترات
+   * ظ…ظ‚ط§ط±ظ†ط§طھ ط§ظ„ظپطھط±ط§طھ
    */
   @Get('analytics/comparison')
   @Permissions('reporting.analytics')
@@ -438,9 +508,10 @@ export class ReportingController {
     @Query('previousEnd') previousEnd: string,
     @Query('branchId') branchId?: string,
   ) {
-    // TODO: تنفيذ مقارنات الفترات
+    // MVP note: طھظ†ظپظٹط° ظ…ظ‚ط§ط±ظ†ط§طھ ط§ظ„ظپطھط±ط§طھ
     return {
-      message: 'مقارنات الفترات ستكون متاحة قريباً',
+      message:
+        'ظ…ظ‚ط§ط±ظ†ط§طھ ط§ظ„ظپطھط±ط§طھ ط³طھظƒظˆظ† ظ…طھط§ط­ط© ظ‚ط±ظٹط¨ط§ظ‹',
       currentPeriod: `${currentStart} - ${currentEnd}`,
       previousPeriod: `${previousStart} - ${previousEnd}`,
       branchId,

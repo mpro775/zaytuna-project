@@ -60,7 +60,9 @@ export class EmailProvider {
    */
   async sendEmail(message: EmailMessage): Promise<EmailResult> {
     try {
-      this.logger.log(`إرسال إيميل إلى: ${Array.isArray(message.to) ? message.to.join(', ') : message.to}`);
+      this.logger.log(
+        `إرسال إيميل إلى: ${Array.isArray(message.to) ? message.to.join(', ') : message.to}`,
+      );
 
       switch (this.config.provider) {
         case 'sendgrid':
@@ -96,31 +98,43 @@ export class EmailProvider {
       const sendGridUrl = 'https://api.sendgrid.com/v3/mail/send';
 
       const emailData = {
-        personalizations: [{
-          to: this.formatRecipients(message.to),
-          cc: message.cc ? this.formatRecipients(message.cc) : undefined,
-          bcc: message.bcc ? this.formatRecipients(message.bcc) : undefined,
-          subject: message.subject,
-          headers: message.headers,
-        }],
+        personalizations: [
+          {
+            to: this.formatRecipients(message.to),
+            cc: message.cc ? this.formatRecipients(message.cc) : undefined,
+            bcc: message.bcc ? this.formatRecipients(message.bcc) : undefined,
+            subject: message.subject,
+            headers: message.headers,
+          },
+        ],
         from: {
           email: this.config.fromEmail,
           name: this.config.fromName,
         },
-        reply_to: message.replyTo ? {
-          email: message.replyTo,
-        } : undefined,
+        reply_to: message.replyTo
+          ? {
+              email: message.replyTo,
+            }
+          : undefined,
         content: [
-          ...(message.text ? [{
-            type: 'text/plain',
-            value: message.text,
-          }] : []),
-          ...(message.html ? [{
-            type: 'text/html',
-            value: message.html,
-          }] : []),
+          ...(message.text
+            ? [
+                {
+                  type: 'text/plain',
+                  value: message.text,
+                },
+              ]
+            : []),
+          ...(message.html
+            ? [
+                {
+                  type: 'text/html',
+                  value: message.html,
+                },
+              ]
+            : []),
         ],
-        attachments: message.attachments?.map(attachment => ({
+        attachments: message.attachments?.map((attachment) => ({
           content: Buffer.isBuffer(attachment.content)
             ? attachment.content.toString('base64')
             : attachment.content,
@@ -137,7 +151,7 @@ export class EmailProvider {
       const response = await fetch(sendGridUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.config.apiKey}`,
+          Authorization: `Bearer ${this.config.apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(emailData),
@@ -146,7 +160,9 @@ export class EmailProvider {
 
       if (!response.ok) {
         const errorData = await response.text();
-        throw new Error(`SendGrid API error: ${response.status} - ${errorData}`);
+        throw new Error(
+          `SendGrid API error: ${response.status} - ${errorData}`,
+        );
       }
 
       const messageId = response.headers.get('x-message-id');
@@ -174,7 +190,10 @@ export class EmailProvider {
       const mailgunUrl = `https://api.mailgun.net/v3/${this.config.domain}/messages`;
 
       const formData = new FormData();
-      formData.append('from', `${this.config.fromName} <${this.config.fromEmail}>`);
+      formData.append(
+        'from',
+        `${this.config.fromName} <${this.config.fromEmail}>`,
+      );
       formData.append('to', this.formatRecipientsString(message.to));
       formData.append('subject', message.subject);
 
@@ -218,7 +237,7 @@ export class EmailProvider {
       const response = await fetch(mailgunUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Basic ${auth}`,
+          Authorization: `Basic ${auth}`,
         },
         body: formData,
         signal: AbortSignal.timeout(this.config.timeout),
@@ -253,7 +272,7 @@ export class EmailProvider {
       }
 
       // محاكاة الإرسال
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       return {
         success: true,
@@ -277,7 +296,7 @@ export class EmailProvider {
       }
 
       // محاكاة الإرسال
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       return {
         success: true,
@@ -293,9 +312,13 @@ export class EmailProvider {
   /**
    * تنسيق المستلمين لـ SendGrid
    */
-  private formatRecipients(recipients: string | string[]): Array<{ email: string }> {
-    const recipientArray = Array.isArray(recipients) ? recipients : [recipients];
-    return recipientArray.map(email => ({ email }));
+  private formatRecipients(
+    recipients: string | string[],
+  ): Array<{ email: string }> {
+    const recipientArray = Array.isArray(recipients)
+      ? recipients
+      : [recipients];
+    return recipientArray.map((email) => ({ email }));
   }
 
   /**
@@ -309,12 +332,21 @@ export class EmailProvider {
    * تحميل إعدادات المزود
    */
   private loadConfig(): EmailConfig {
-    const provider = this.configService.get<string>('EMAIL_PROVIDER', 'sendgrid') as EmailConfig['provider'];
+    const provider = this.configService.get<string>(
+      'EMAIL_PROVIDER',
+      'sendgrid',
+    ) as EmailConfig['provider'];
 
     const baseConfig = {
       provider,
-      fromEmail: this.configService.get<string>('EMAIL_FROM_EMAIL', 'noreply@zaytuna.com'),
-      fromName: this.configService.get<string>('EMAIL_FROM_NAME', 'نظام زيتونة'),
+      fromEmail: this.configService.get<string>(
+        'EMAIL_FROM_EMAIL',
+        'noreply@zaytuna.com',
+      ),
+      fromName: this.configService.get<string>(
+        'EMAIL_FROM_NAME',
+        'نظام زيتونة',
+      ),
       replyTo: this.configService.get<string>('EMAIL_REPLY_TO'),
       timeout: 30000, // 30 ثانية
       retryAttempts: 3,
@@ -365,11 +397,24 @@ export class EmailProvider {
         case 'sendgrid':
           return !!(this.config.apiKey && this.config.fromEmail);
         case 'mailgun':
-          return !!(this.config.apiKey && this.config.domain && this.config.fromEmail);
+          return !!(
+            this.config.apiKey &&
+            this.config.domain &&
+            this.config.fromEmail
+          );
         case 'ses':
-          return !!(this.config.apiKey && this.config.apiSecret && this.config.fromEmail);
+          return !!(
+            this.config.apiKey &&
+            this.config.apiSecret &&
+            this.config.fromEmail
+          );
         case 'smtp':
-          return !!(this.config.host && this.config.username && this.config.password && this.config.fromEmail);
+          return !!(
+            this.config.host &&
+            this.config.username &&
+            this.config.password &&
+            this.config.fromEmail
+          );
         default:
           return false;
       }

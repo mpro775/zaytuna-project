@@ -1,5 +1,10 @@
 import { BasePaymentAdapter, PaymentConfig } from './base-payment.adapter';
-import { PaymentRequest, PaymentResponse, RefundRequest, RefundResponse } from '../payment.service';
+import {
+  PaymentRequest,
+  PaymentResponse,
+  RefundRequest,
+  RefundResponse,
+} from '../payment.service';
 
 export class StripeAdapter extends BasePaymentAdapter {
   constructor(config: PaymentConfig) {
@@ -46,7 +51,10 @@ export class StripeAdapter extends BasePaymentAdapter {
     }
   }
 
-  async processRefund(transactionId: string, refundRequest: RefundRequest): Promise<RefundResponse> {
+  async processRefund(
+    transactionId: string,
+    refundRequest: RefundRequest,
+  ): Promise<RefundResponse> {
     try {
       // أولاً نحصل على Payment Intent ID من قاعدة البيانات أو من الـ transactionId
       // هنا نفترض أن transactionId هو Payment Intent ID
@@ -78,7 +86,10 @@ export class StripeAdapter extends BasePaymentAdapter {
 
   async checkTransactionStatus(transactionId: string): Promise<string> {
     try {
-      const paymentIntent = await this.makeRequest('GET', `/v1/payment_intents/${transactionId}`);
+      const paymentIntent = await this.makeRequest(
+        'GET',
+        `/v1/payment_intents/${transactionId}`,
+      );
       return this.normalizeStatus(paymentIntent.status, 'stripe');
     } catch (error) {
       return 'unknown';
@@ -103,7 +114,10 @@ export class StripeAdapter extends BasePaymentAdapter {
 
   async cancelTransaction(transactionId: string): Promise<boolean> {
     try {
-      await this.makeRequest('POST', `/v1/payment_intents/${transactionId}/cancel`);
+      await this.makeRequest(
+        'POST',
+        `/v1/payment_intents/${transactionId}/cancel`,
+      );
       return true;
     } catch (error) {
       return false;
@@ -112,7 +126,10 @@ export class StripeAdapter extends BasePaymentAdapter {
 
   async getTransactionDetails(transactionId: string): Promise<any> {
     try {
-      return await this.makeRequest('GET', `/v1/payment_intents/${transactionId}`);
+      return await this.makeRequest(
+        'GET',
+        `/v1/payment_intents/${transactionId}`,
+      );
     } catch (error) {
       throw new Error(`Failed to get transaction details: ${error.message}`);
     }
@@ -125,16 +142,18 @@ export class StripeAdapter extends BasePaymentAdapter {
 
       const paymentLink = await this.retryWithBackoff(async () => {
         return this.makeRequest('POST', '/v1/payment_links', {
-          line_items: [{
-            price_data: {
-              currency,
-              product_data: {
-                name: request.description || 'Payment',
+          line_items: [
+            {
+              price_data: {
+                currency,
+                product_data: {
+                  name: request.description || 'Payment',
+                },
+                unit_amount: amount,
               },
-              unit_amount: amount,
+              quantity: 1,
             },
-            quantity: 1,
-          }],
+          ],
           metadata: {
             invoice_id: request.invoiceId,
             invoice_type: request.invoiceType,
@@ -158,7 +177,7 @@ export class StripeAdapter extends BasePaymentAdapter {
       const elements = signature.split(',');
       const signatureElements: Record<string, string> = {};
 
-      elements.forEach(element => {
+      elements.forEach((element) => {
         const [key, value] = element.split('=');
         signatureElements[key] = value;
       });
@@ -185,9 +204,9 @@ export class StripeAdapter extends BasePaymentAdapter {
 
   private mapRefundReason(reason: string): string {
     const reasonMap: Record<string, string> = {
-      'duplicate': 'duplicate',
-      'fraudulent': 'fraudulent',
-      'requested_by_customer': 'requested_by_customer',
+      duplicate: 'duplicate',
+      fraudulent: 'fraudulent',
+      requested_by_customer: 'requested_by_customer',
     };
 
     return reasonMap[reason.toLowerCase()] || 'requested_by_customer';

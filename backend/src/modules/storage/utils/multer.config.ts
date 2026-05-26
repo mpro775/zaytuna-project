@@ -11,8 +11,14 @@ export class MulterConfigService implements MulterOptionsFactory {
   constructor(private readonly configService: ConfigService) {}
 
   createMulterOptions(): MulterModuleOptions {
-    const uploadDir = this.configService.get<string>('UPLOAD_DIR', './uploads/temp');
-    const maxFileSize = this.configService.get<number>('MAX_FILE_SIZE', 10 * 1024 * 1024); // 10MB
+    const uploadDir = this.configService.get<string>(
+      'UPLOAD_DIR',
+      './uploads/temp',
+    );
+    const maxFileSize = this.configService.get<number>(
+      'MAX_FILE_SIZE',
+      10 * 1024 * 1024,
+    ); // 10MB
 
     // إعدادات التحقق من الملفات
     const validationOptions: FileValidationOptions = {
@@ -74,7 +80,7 @@ export class MulterConfigService implements MulterOptionsFactory {
       ];
     }
 
-    return allowedTypes.split(',').map(type => type.trim());
+    return allowedTypes.split(',').map((type) => type.trim());
   }
 
   /**
@@ -87,26 +93,52 @@ export class MulterConfigService implements MulterOptionsFactory {
       // القائمة الافتراضية
       return [
         // صور
-        'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg',
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+        'webp',
+        'svg',
 
         // فيديو
-        'mp4', 'avi', 'mov', 'wmv', 'mkv',
+        'mp4',
+        'avi',
+        'mov',
+        'wmv',
+        'mkv',
 
         // صوت
-        'mp3', 'wav', 'ogg', 'm4a', 'aac',
+        'mp3',
+        'wav',
+        'ogg',
+        'm4a',
+        'aac',
 
         // مستندات
-        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
+        'pdf',
+        'doc',
+        'docx',
+        'xls',
+        'xlsx',
+        'ppt',
+        'pptx',
 
         // نصوص
-        'txt', 'csv', 'json', 'xml',
+        'txt',
+        'csv',
+        'json',
+        'xml',
 
         // أرشيف
-        'zip', 'rar', '7z', 'tar', 'gz',
+        'zip',
+        'rar',
+        '7z',
+        'tar',
+        'gz',
       ];
     }
 
-    return allowedExt.split(',').map(ext => ext.trim().toLowerCase());
+    return allowedExt.split(',').map((ext) => ext.trim().toLowerCase());
   }
 }
 
@@ -115,7 +147,10 @@ export class MulterConfigService implements MulterOptionsFactory {
  */
 export function createImageUploadConfig(configService: ConfigService) {
   const uploadDir = configService.get<string>('UPLOAD_DIR', './uploads/temp');
-  const maxFileSize = configService.get<number>('MAX_IMAGE_SIZE', 5 * 1024 * 1024); // 5MB
+  const maxFileSize = configService.get<number>(
+    'MAX_IMAGE_SIZE',
+    5 * 1024 * 1024,
+  ); // 5MB
 
   const validationOptions: FileValidationOptions = {
     maxSize: maxFileSize,
@@ -137,7 +172,10 @@ export function createImageUploadConfig(configService: ConfigService) {
  */
 export function createDocumentUploadConfig(configService: ConfigService) {
   const uploadDir = configService.get<string>('UPLOAD_DIR', './uploads/temp');
-  const maxFileSize = configService.get<number>('MAX_DOCUMENT_SIZE', 20 * 1024 * 1024); // 20MB
+  const maxFileSize = configService.get<number>(
+    'MAX_DOCUMENT_SIZE',
+    20 * 1024 * 1024,
+  ); // 20MB
 
   const validationOptions: FileValidationOptions = {
     maxSize: maxFileSize,
@@ -152,7 +190,17 @@ export function createDocumentUploadConfig(configService: ConfigService) {
       'text/plain',
       'text/csv',
     ],
-    allowedExtensions: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv'],
+    allowedExtensions: [
+      'pdf',
+      'doc',
+      'docx',
+      'xls',
+      'xlsx',
+      'ppt',
+      'pptx',
+      'txt',
+      'csv',
+    ],
   };
 
   return createUploadConfig(`${uploadDir}/documents`, validationOptions);
@@ -163,7 +211,10 @@ export function createDocumentUploadConfig(configService: ConfigService) {
  */
 export function createVideoUploadConfig(configService: ConfigService) {
   const uploadDir = configService.get<string>('UPLOAD_DIR', './uploads/temp');
-  const maxFileSize = configService.get<number>('MAX_VIDEO_SIZE', 100 * 1024 * 1024); // 100MB
+  const maxFileSize = configService.get<number>(
+    'MAX_VIDEO_SIZE',
+    100 * 1024 * 1024,
+  ); // 100MB
 
   const validationOptions: FileValidationOptions = {
     maxSize: maxFileSize,

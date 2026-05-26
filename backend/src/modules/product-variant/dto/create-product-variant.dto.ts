@@ -1,5 +1,13 @@
 import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
-import { IsNotEmpty, IsString, IsOptional, IsNumber, IsBoolean, MaxLength, Min } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsBoolean,
+  MaxLength,
+  Min,
+} from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 
 export class CreateProductVariantDto {
@@ -25,19 +33,19 @@ export class CreateProductVariantDto {
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'السعر يجب أن يكون رقم' })
   @Min(0, { message: 'السعر يجب أن يكون أكبر من أو يساوي صفر' })
-  @Transform(({ value }) => value ? parseFloat(value) : undefined)
+  @Transform(({ value }) => (value ? parseFloat(value) : undefined))
   price?: number;
 
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'سعر التكلفة يجب أن يكون رقم' })
   @Min(0, { message: 'سعر التكلفة يجب أن يكون أكبر من أو يساوي صفر' })
-  @Transform(({ value }) => value ? parseFloat(value) : undefined)
+  @Transform(({ value }) => (value ? parseFloat(value) : undefined))
   costPrice?: number;
 
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 3 }, { message: 'الوزن يجب أن يكون رقم' })
   @Min(0, { message: 'الوزن يجب أن يكون أكبر من أو يساوي صفر' })
-  @Transform(({ value }) => value ? parseFloat(value) : undefined)
+  @Transform(({ value }) => (value ? parseFloat(value) : undefined))
   weight?: number;
 
   @IsOptional()

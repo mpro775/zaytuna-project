@@ -10,34 +10,62 @@ import type {
   Payment,
 } from './types';
 
-// ============================================
-// Products API
-// ============================================
+interface BackendProduct {
+  id: string;
+  name: string;
+  barcode?: string;
+  sku?: string;
+  categoryId: string;
+  category?: { id: string; name: string };
+  basePrice?: number;
+  costPrice?: number;
+  currentStock?: number;
+  images?: Array<{ url?: string; isPrimary?: boolean }>;
+  variants?: Array<{
+    id: string;
+    name: string;
+    sku?: string;
+    barcode?: string;
+    price?: number;
+    priceModifier?: number;
+    stock?: number;
+  }>;
+}
 
-export const getPOSProducts = async (filters?: POSFilters): Promise<POSProduct[]> => {
-  const params = new URLSearchParams();
-  if (filters?.search) params.append('search', filters.search);
-  if (filters?.categoryId) params.append('categoryId', filters.categoryId);
-  if (filters?.barcode) params.append('barcode', filters.barcode);
-  if (filters?.inStock !== undefined) params.append('inStock', String(filters.inStock));
+interface BackendInvoice {
+  id: string;
+  invoiceNumber: string;
+  status: string;
+  paymentStatus?: string;
+  cashierId?: string;
+  branchId: string;
+  warehouseId: string;
+  totalAmount: number;
+  createdAt: string;
+  lines?: Array<{
+    id: string;
+    productVariantId: string;
+    quantity: number;
+    unitPrice: number;
+    discountAmount?: number;
+    taxAmount?: number;
+    lineTotal: number;
+    productVariant?: {
+      id: string;
+      name: string;
+      barcode?: string;
+      product?: { id: string; name: string };
+    };
+  }>;
+  payments?: Array<{ amount: number; paymentMethod: string; referenceNumber?: string; notes?: string }>;
+}
 
-  const response = await api.get(`/pos/products?${params.toString()}`);
-  return unwrap<POSProduct[]>(response.data) ?? [];
-};
-
-export const searchProductByBarcode = async (barcode: string): Promise<POSProduct | null> => {
-  try {
-    const response = await api.get(`/pos/products/barcode/${barcode}`);
-    const data = response.data as { data?: POSProduct } | POSProduct;
-    return data && typeof data === 'object' && 'data' in data ? data.data ?? null : (data as POSProduct);
-  } catch {
-    return null;
-  }
-};
-
-// ============================================
-// Transactions API
-// ============================================
+interface ReferenceRecord {
+  id: string;
+  code?: string;
+  isDefault?: boolean;
+  isBase?: boolean;
+}
 
 export interface CreateTransactionPayload {
   cart: Cart;
@@ -54,127 +82,282 @@ const unwrap = <T>(data: unknown): T => {
   return data as T;
 };
 
-export const createTransaction = async (payload: CreateTransactionPayload): Promise<POSTransaction> => {
-  const response = await api.post('/pos/transactions', payload);
-  return unwrap<POSTransaction>(response.data);
+const toArray = <T>(data: unknown): T[] => {
+  const unwrapped = unwrap<T[] | { data?: T[] }>(data);
+  if (Array.isArray(unwrapped)) return unwrapped;
+  if (unwrapped && typeof unwrapped === 'object' && Array.isArray((unwrapped as { data?: T[] }).data)) {
+    return (unwrapped as { data: T[] }).data;
+  }
+  return [];
 };
 
-export const getTransaction = async (id: string): Promise<POSTransaction> => {
-  const response = await api.get(`/pos/transactions/${id}`);
-  return unwrap<POSTransaction>(response.data);
+const mapProduct = (product: BackendProduct): POSProduct => {
+  const primaryImage = product.images?.find((image) => image.isPrimary)?.url ?? product.images?.[0]?.url;
+
+  const mapped: POSProduct = {
+    id: product.id,
+    name: product.name,
+    ...(product.barcode ? { barcode: product.barcode } : {}),
+    ...(product.sku ? { sku: product.sku } : {}),
+    price: Number(product.basePrice ?? 0),
+    costPrice: Number(product.costPrice ?? 0),
+    categoryId: product.categoryId,
+    ...(product.category?.name ? { categoryName: product.category.name } : {}),
+    ...(primaryImage ? { imageUrl: primaryImage } : {}),
+    stockQuantity: Number(product.currentStock ?? 0),
+    trackInventory: true,
+  };
+
+  if (product.variants?.length) {
+    mapped.variants = product.variants.map((variant) => ({
+      id: variant.id,
+      productId: product.id,
+      name: variant.name,
+      ...(variant.barcode ? { barcode: variant.barcode } : {}),
+      ...(variant.sku ? { sku: variant.sku } : {}),
+      price: Number(variant.price ?? product.basePrice ?? 0) + Number(variant.priceModifier ?? 0),
+      costPrice: Number(product.costPrice ?? 0),
+      stockQuantity: Number(variant.stock ?? product.currentStock ?? 0),
+      ...(primaryImage ? { imageUrl: primaryImage } : {}),
+    }));
+  }
+
+  return mapped;
 };
 
-export const getTransactions = async (params?: {
-  startDate?: string;
-  endDate?: string;
-  shiftId?: string;
-  status?: string;
-}): Promise<POSTransaction[]> => {
-  const queryParams = new URLSearchParams();
-  if (params?.startDate) queryParams.append('startDate', params.startDate);
-  if (params?.endDate) queryParams.append('endDate', params.endDate);
-  if (params?.shiftId) queryParams.append('shiftId', params.shiftId);
-  if (params?.status) queryParams.append('status', params.status);
+const mapInvoice = (invoice: BackendInvoice, fallbackCart?: Cart, fallbackPayments?: Payment[]): POSTransaction => ({
+  id: invoice.id,
+  invoiceNumber: invoice.invoiceNumber,
+  cart:
+    fallbackCart ??
+    ({
+      items:
+        invoice.lines?.map((line) => ({
+          id: line.id,
+          productId: line.productVariant?.product?.id ?? line.productVariantId,
+          variantId: line.productVariantId,
+          name: line.productVariant?.product?.name ?? line.productVariant?.name ?? line.productVariantId,
+          barcode: line.productVariant?.barcode,
+          price: Number(line.unitPrice),
+          quantity: Number(line.quantity),
+          discount: Number(line.discountAmount ?? 0),
+          discountType: 'fixed',
+          taxRate: 0,
+          taxAmount: Number(line.taxAmount ?? 0),
+          subtotal: Number(line.unitPrice) * Number(line.quantity),
+          total: Number(line.lineTotal),
+        })) ?? [],
+      subtotal: Number(invoice.totalAmount),
+      totalDiscount: 0,
+      totalTax: 0,
+      grandTotal: Number(invoice.totalAmount),
+    } as Cart),
+  payments: fallbackPayments ?? [],
+  totalPaid: (invoice.payments ?? fallbackPayments ?? []).reduce((sum, payment) => sum + Number(payment.amount), 0),
+  change: 0,
+  status: invoice.status === 'cancelled' ? 'cancelled' : invoice.paymentStatus === 'pending' ? 'pending' : 'completed',
+  cashierId: invoice.cashierId ?? '',
+  branchId: invoice.branchId,
+  warehouseId: invoice.warehouseId,
+  createdAt: invoice.createdAt,
+});
 
-  const response = await api.get(`/pos/transactions?${queryParams.toString()}`);
-  return unwrap<POSTransaction[]>(response.data) ?? [];
+const getFirstReferenceId = async (path: string, preferred?: (record: ReferenceRecord) => boolean): Promise<string> => {
+  const response = await api.get(path);
+  const records = toArray<ReferenceRecord>(response.data);
+  const selected = preferred ? records.find(preferred) ?? records[0] : records[0];
+
+  if (!selected?.id) {
+    throw new Error(`لا توجد بيانات مرجعية كافية من ${path}`);
+  }
+
+  return selected.id;
 };
 
-export const voidTransaction = async (id: string, reason: string): Promise<void> => {
-  await api.post(`/pos/transactions/${id}/void`, { reason });
+export const getPOSProducts = async (filters?: POSFilters): Promise<POSProduct[]> => {
+  if (filters?.barcode) {
+    const product = await searchProductByBarcode(filters.barcode);
+    return product ? [product] : [];
+  }
+
+  const params = new URLSearchParams();
+  if (filters?.search) params.append('search', filters.search);
+  if (filters?.categoryId) params.append('categoryId', filters.categoryId);
+
+  const response = await api.get(`/products?${params.toString()}`);
+  return toArray<BackendProduct>(response.data)
+    .map(mapProduct)
+    .filter((product) => (filters?.inStock ? product.stockQuantity > 0 : true));
 };
 
-// ============================================
-// Shifts API
-// ============================================
-
-export const openShift = async (openingCash: number): Promise<POSShift> => {
-  const response = await api.post('/pos/shifts/open', { openingCash });
-  return unwrap<POSShift>(response.data);
-};
-
-export const closeShift = async (shiftId: string, closingCash: number, notes?: string): Promise<POSShift> => {
-  const response = await api.post(`/pos/shifts/${shiftId}/close`, { closingCash, notes });
-  return unwrap<POSShift>(response.data);
-};
-
-export const getCurrentShift = async (): Promise<POSShift | null> => {
+export const searchProductByBarcode = async (barcode: string): Promise<POSProduct | null> => {
   try {
-    const response = await api.get('/pos/shifts/current');
-    return unwrap<POSShift>(response.data);
+    const response = await api.get(`/products/lookup/${encodeURIComponent(barcode)}`);
+    return mapProduct(unwrap<BackendProduct>(response.data));
   } catch {
     return null;
   }
 };
 
-export const getShiftReport = async (shiftId: string): Promise<{
-  shift: POSShift;
-  transactions: POSTransaction[];
-  summary: {
-    totalCash: number;
-    totalCard: number;
-    totalOther: number;
-    totalRefunds: number;
-    netSales: number;
+export const createTransaction = async (payload: CreateTransactionPayload): Promise<POSTransaction> => {
+  const [branchId, fallbackWarehouseId, currencyId] = await Promise.all([
+    getFirstReferenceId('/branches'),
+    payload.warehouseId && payload.warehouseId !== 'default'
+      ? Promise.resolve(payload.warehouseId)
+      : getFirstReferenceId('/warehouses'),
+    getFirstReferenceId('/currencies', (currency) => Boolean(currency.isDefault || currency.isBase)),
+  ]);
+
+  const invoicePayload = {
+    branchId,
+    warehouseId: fallbackWarehouseId,
+    currencyId,
+    customerId: payload.customerId,
+    status: 'confirmed',
+    notes: payload.notes ?? payload.cart.notes,
+    lines: payload.cart.items.map((item) => ({
+      productVariantId: item.variantId ?? item.productId,
+      quantity: item.quantity,
+      unitPrice: item.price,
+      discountAmount: item.discountType === 'fixed' ? item.discount : (item.price * item.quantity * item.discount) / 100,
+      taxAmount: item.taxAmount,
+      lineTotal: item.total,
+    })),
   };
-}> => {
-  const response = await api.get(`/pos/shifts/${shiftId}/report`);
-  return response.data;
+
+  const invoiceResponse = await api.post('/sales/invoices', invoicePayload);
+  let invoice = unwrap<BackendInvoice>(invoiceResponse.data);
+
+  for (const payment of payload.payments) {
+    const paymentResponse = await api.post(`/sales/invoices/${invoice.id}/payments`, {
+      currencyId,
+      amount: payment.amount,
+      paymentMethod: payment.methodType,
+      referenceNumber: payment.reference,
+      notes: payment.notes,
+    });
+    invoice = unwrap<BackendInvoice>(paymentResponse.data);
+  }
+
+  return mapInvoice(invoice, payload.cart, payload.payments);
 };
 
-// ============================================
-// Settings API
-// ============================================
+export const getTransaction = async (id: string): Promise<POSTransaction> => {
+  const response = await api.get(`/sales/invoices/${id}`);
+  return mapInvoice(unwrap<BackendInvoice>(response.data));
+};
+
+export const getTransactions = async (_params?: {
+  startDate?: string;
+  endDate?: string;
+  shiftId?: string;
+  status?: string;
+}): Promise<POSTransaction[]> => {
+  void _params;
+  const response = await api.get('/sales/invoices');
+  return toArray<BackendInvoice>(response.data).map((invoice) => mapInvoice(invoice));
+};
+
+export const voidTransaction = async (id: string, reason: string): Promise<void> => {
+  await api.delete(`/sales/invoices/${id}/cancel`, { data: { reason } });
+};
+
+export const openShift = async (openingCash: number): Promise<POSShift> => {
+  const shift: POSShift = {
+    id: crypto.randomUUID(),
+    cashierId: '',
+    cashierName: '',
+    branchId: '',
+    startTime: new Date().toISOString(),
+    openingCash,
+    totalSales: 0,
+    totalTransactions: 0,
+    status: 'open',
+  };
+  localStorage.setItem('zaytuna_current_shift', JSON.stringify(shift));
+  return shift;
+};
+
+export const closeShift = async (shiftId: string, closingCash: number, notes?: string): Promise<POSShift> => {
+  const current = await getCurrentShift();
+  const shift: POSShift = {
+    ...(current ?? (await openShift(0))),
+    id: shiftId,
+    endTime: new Date().toISOString(),
+    closingCash,
+    status: 'closed',
+  };
+  if (notes) shift.notes = notes;
+  localStorage.removeItem('zaytuna_current_shift');
+  return shift;
+};
+
+export const getCurrentShift = async (): Promise<POSShift | null> => {
+  const stored = localStorage.getItem('zaytuna_current_shift');
+  if (!stored) return null;
+  return JSON.parse(stored) as POSShift;
+};
+
+export const getShiftReport = async (shiftId: string) => {
+  const shift = (await getCurrentShift()) ?? (await openShift(0));
+  return {
+    shift: { ...shift, id: shiftId },
+    transactions: await getTransactions(),
+    summary: { totalCash: 0, totalCard: 0, totalOther: 0, totalRefunds: 0, netSales: 0 },
+  };
+};
 
 export const getPOSSettings = async (): Promise<POSSettings> => {
-  const response = await api.get('/pos/settings');
-  const data = response.data as { data?: POSSettings } | POSSettings;
-  return data && typeof data === 'object' && 'data' in data ? (data.data as POSSettings) : (data as POSSettings);
+  const [defaultWarehouseId, defaultCurrencyId] = await Promise.all([
+    getFirstReferenceId('/warehouses'),
+    getFirstReferenceId('/currencies', (currency) => Boolean(currency.isDefault || currency.isBase)),
+  ]);
+
+  return {
+    defaultWarehouseId,
+    defaultCurrencyId,
+    defaultTaxRate: 0,
+    allowNegativeStock: false,
+    requireCustomer: false,
+    printReceiptByDefault: true,
+    receiptPrinterType: 'thermal',
+    soundEnabled: true,
+    quickAccessCategories: [],
+    quickAccessProducts: [],
+  };
 };
 
-export const updatePOSSettings = async (settings: Partial<POSSettings>): Promise<POSSettings> => {
-  const response = await api.put('/pos/settings', settings);
-  const data = response.data as { data?: POSSettings } | POSSettings;
-  return data && typeof data === 'object' && 'data' in data ? (data.data as POSSettings) : (data as POSSettings);
-};
-
-// ============================================
-// Customers API (Quick Access)
-// ============================================
+export const updatePOSSettings = async (settings: Partial<POSSettings>): Promise<POSSettings> => ({
+  ...(await getPOSSettings()),
+  ...settings,
+});
 
 export const searchCustomers = async (query: string): Promise<QuickCustomer[]> => {
-  const response = await api.get(`/pos/customers/search?q=${encodeURIComponent(query)}`);
-  return unwrap<QuickCustomer[]>(response.data) ?? [];
+  const response = await api.get(`/customers/search?q=${encodeURIComponent(query)}`);
+  return toArray<QuickCustomer>(response.data);
 };
 
 export const getFrequentCustomers = async (): Promise<QuickCustomer[]> => {
-  const response = await api.get('/pos/customers/frequent');
-  return unwrap<QuickCustomer[]>(response.data) ?? [];
+  const response = await api.get('/customers?limit=20');
+  return toArray<QuickCustomer>(response.data);
 };
-
-// ============================================
-// Receipt API
-// ============================================
 
 export const printReceipt = async (transactionId: string): Promise<Blob> => {
-  const response = await api.get(`/pos/transactions/${transactionId}/receipt`, {
-    responseType: 'blob',
-  });
-  const data = response.data as { data?: Blob } | Blob;
-  return data && typeof data === 'object' && 'data' in data && data.data instanceof Blob
-    ? data.data
-    : (data as Blob);
+  const response = await api.get(`/sales/invoices/${transactionId}/print`, { responseType: 'blob' });
+  return response.data as Blob;
 };
 
-export const emailReceipt = async (transactionId: string, email: string): Promise<void> => {
-  await api.post(`/pos/transactions/${transactionId}/email-receipt`, { email });
+export const emailReceipt = async (_transactionId?: string, _email?: string): Promise<void> => {
+  void _transactionId;
+  void _email;
+  throw new Error('إرسال الإيصال بالبريد خارج نطاق MVP الحالي.');
 };
-
-// ============================================
-// Categories API
-// ============================================
 
 export const getPOSCategories = async (): Promise<{ id: string; name: string; productCount: number }[]> => {
-  const response = await api.get('/pos/categories');
-  return unwrap<{ id: string; name: string; productCount: number }[]>(response.data) ?? [];
+  const response = await api.get('/categories');
+  return toArray<{ id: string; name: string; productCount?: number }>(response.data).map((category) => ({
+    id: category.id,
+    name: category.name,
+    productCount: category.productCount ?? 0,
+  }));
 };

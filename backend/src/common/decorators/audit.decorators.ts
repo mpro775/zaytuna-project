@@ -33,7 +33,11 @@ export interface AuditLogOptions {
  * Decorator لتسجيل عمليات التدقيق
  */
 export function AuditLog(options: AuditLogOptions) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor,
+  ) {
     SetMetadata(AUDIT_LOG, options)(target, propertyKey, descriptor);
   };
 }
@@ -101,7 +105,9 @@ export function AuditDelete(options: Omit<AuditLogOptions, 'action'> = {}) {
 /**
  * تسجيل عمليات الأمان
  */
-export function AuditSecurity(options: Omit<AuditLogOptions, 'category' | 'severity'> = {}) {
+export function AuditSecurity(
+  options: Omit<AuditLogOptions, 'category' | 'severity'> = {},
+) {
   return AuditLog({
     category: 'security',
     severity: 'warning',
@@ -114,7 +120,9 @@ export function AuditSecurity(options: Omit<AuditLogOptions, 'category' | 'sever
 /**
  * تسجيل عمليات تسجيل الدخول
  */
-export function AuditAuth(options: Omit<AuditLogOptions, 'category' | 'module'> = {}) {
+export function AuditAuth(
+  options: Omit<AuditLogOptions, 'category' | 'module'> = {},
+) {
   return AuditLog({
     category: 'security',
     module: 'auth',
@@ -205,7 +213,9 @@ export function AuditReporting(options: Omit<AuditLogOptions, 'module'> = {}) {
 /**
  * Decorator لتسجيل عمليات الإدارة
  */
-export function AuditAdmin(options: Omit<AuditLogOptions, 'category' | 'severity'> = {}) {
+export function AuditAdmin(
+  options: Omit<AuditLogOptions, 'category' | 'severity'> = {},
+) {
   return AuditLog({
     category: 'security',
     severity: 'warning',
@@ -231,10 +241,16 @@ export function sanitizeObject(obj: any, excludeFields: string[] = []): any {
   const sanitized = { ...obj };
 
   // إزالة الحقول الحساسة الافتراضية
-  const defaultSensitiveFields = ['password', 'passwordHash', 'token', 'secret', 'key'];
+  const defaultSensitiveFields = [
+    'password',
+    'passwordHash',
+    'token',
+    'secret',
+    'key',
+  ];
   const allExcludeFields = [...defaultSensitiveFields, ...excludeFields];
 
-  allExcludeFields.forEach(field => {
+  allExcludeFields.forEach((field) => {
     if (sanitized[field] !== undefined) {
       sanitized[field] = '[REDACTED]';
     }

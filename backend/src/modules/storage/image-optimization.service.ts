@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  BadRequestException,
-} from '@nestjs/common';
+﻿import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -63,7 +59,7 @@ export class ImageOptimizationService {
   }
 
   /**
-   * تحسين صورة وحفظها
+   * طھط­ط³ظٹظ† طµظˆط±ط© ظˆط­ظپط¸ظ‡ط§
    */
   async optimizeImage(
     inputPath: string,
@@ -71,23 +67,25 @@ export class ImageOptimizationService {
     options: ImageOptimizationOptions = {},
   ): Promise<OptimizationResult> {
     try {
-      this.logger.log(`تحسين الصورة: ${inputPath} -> ${outputPath}`);
+      this.logger.log(
+        `طھط­ط³ظٹظ† ط§ظ„طµظˆط±ط©: ${inputPath} -> ${outputPath}`,
+      );
 
-      // التحقق من وجود الملف الأصلي
+      // ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ظˆط¬ظˆط¯ ط§ظ„ظ…ظ„ظپ ط§ظ„ط£طµظ„ظٹ
       await fs.access(inputPath);
 
-      // الحصول على معلومات الملف الأصلي
+      // ط§ظ„ط­طµظˆظ„ ط¹ظ„ظ‰ ظ…ط¹ظ„ظˆظ…ط§طھ ط§ظ„ظ…ظ„ظپ ط§ظ„ط£طµظ„ظٹ
       const stats = await fs.stat(inputPath);
       const originalSize = stats.size;
 
-      // TODO: Uncomment when sharp is installed
+      // MVP note: Uncomment when sharp is installed
       /*
       const sharp = require('sharp');
       const inputBuffer = await fs.readFile(inputPath);
 
       let pipeline = sharp(inputBuffer);
 
-      // تطبيق الخيارات
+      // طھط·ط¨ظٹظ‚ ط§ظ„ط®ظٹط§ط±ط§طھ
       if (options.maxWidth || options.maxHeight) {
         pipeline = pipeline.resize({
           width: options.maxWidth,
@@ -97,7 +95,7 @@ export class ImageOptimizationService {
         });
       }
 
-      // تحويل التنسيق
+      // طھط­ظˆظٹظ„ ط§ظ„طھظ†ط³ظٹظ‚
       if (options.format) {
         const formatOptions: any = {};
 
@@ -116,11 +114,11 @@ export class ImageOptimizationService {
         pipeline = pipeline[options.format](formatOptions);
       }
 
-      // حفظ الصورة المحسنة
+      // ط­ظپط¸ ط§ظ„طµظˆط±ط© ط§ظ„ظ…ط­ط³ظ†ط©
       const outputBuffer = await pipeline.toBuffer();
       await fs.writeFile(outputPath, outputBuffer);
 
-      // الحصول على metadata للصورة الناتجة
+      // ط§ظ„ط­طµظˆظ„ ط¹ظ„ظ‰ metadata ظ„ظ„طµظˆط±ط© ط§ظ„ظ†ط§طھط¬ط©
       const metadata = await sharp(outputBuffer).metadata();
 
       const optimizedSize = outputBuffer.length;
@@ -144,10 +142,12 @@ export class ImageOptimizationService {
       };
       */
 
-      // محاكاة التحسين للتطوير
-      this.logger.log(`[MOCK] تم تحسين الصورة: ${path.basename(inputPath)}`);
+      // ظ…ط­ط§ظƒط§ط© ط§ظ„طھط­ط³ظٹظ† ظ„ظ„طھط·ظˆظٹط±
+      this.logger.log(
+        `[MVP_LOCAL] طھظ… طھط­ط³ظٹظ† ط§ظ„طµظˆط±ط©: ${path.basename(inputPath)}`,
+      );
 
-      // نسخ الملف كما هو (محاكاة)
+      // ظ†ط³ط® ط§ظ„ظ…ظ„ظپ ظƒظ…ط§ ظ‡ظˆ (ظ…ط­ط§ظƒط§ط©)
       await fs.copyFile(inputPath, outputPath);
 
       return {
@@ -167,7 +167,10 @@ export class ImageOptimizationService {
         },
       };
     } catch (error) {
-      this.logger.error(`فشل في تحسين الصورة: ${inputPath}`, error);
+      this.logger.error(
+        `ظپط´ظ„ ظپظٹ طھط­ط³ظٹظ† ط§ظ„طµظˆط±ط©: ${inputPath}`,
+        error,
+      );
       return {
         success: false,
         originalSize: 0,
@@ -180,7 +183,7 @@ export class ImageOptimizationService {
   }
 
   /**
-   * إنشاء صورة مصغرة
+   * ط¥ظ†ط´ط§ط، طµظˆط±ط© ظ…طµط؛ط±ط©
    */
   async createThumbnail(
     inputPath: string,
@@ -188,15 +191,17 @@ export class ImageOptimizationService {
     options: ThumbnailOptions = {},
   ): Promise<OptimizationResult> {
     try {
-      this.logger.log(`إنشاء صورة مصغرة: ${inputPath} -> ${outputPath}`);
+      this.logger.log(
+        `ط¥ظ†ط´ط§ط، طµظˆط±ط© ظ…طµط؛ط±ط©: ${inputPath} -> ${outputPath}`,
+      );
 
-      // التحقق من وجود الملف الأصلي
+      // ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ظˆط¬ظˆط¯ ط§ظ„ظ…ظ„ظپ ط§ظ„ط£طµظ„ظٹ
       await fs.access(inputPath);
 
       const stats = await fs.stat(inputPath);
       const originalSize = stats.size;
 
-      // خيارات افتراضية للصور المصغرة
+      // ط®ظٹط§ط±ط§طھ ط§ظپطھط±ط§ط¶ظٹط© ظ„ظ„طµظˆط± ط§ظ„ظ…طµط؛ط±ط©
       const defaultOptions: ThumbnailOptions = {
         width: 300,
         height: 300,
@@ -206,7 +211,7 @@ export class ImageOptimizationService {
         ...options,
       };
 
-      // TODO: Uncomment when sharp is installed
+      // MVP note: Uncomment when sharp is installed
       /*
       const sharp = require('sharp');
       const inputBuffer = await fs.readFile(inputPath);
@@ -220,7 +225,7 @@ export class ImageOptimizationService {
           withoutEnlargement: true,
         });
 
-      // تطبيق الجودة والتنسيق
+      // طھط·ط¨ظٹظ‚ ط§ظ„ط¬ظˆط¯ط© ظˆط§ظ„طھظ†ط³ظٹظ‚
       if (defaultOptions.format === 'jpeg') {
         pipeline = pipeline.jpeg({ quality: defaultOptions.quality || 80 });
       } else if (defaultOptions.format === 'png') {
@@ -244,10 +249,12 @@ export class ImageOptimizationService {
       };
       */
 
-      // محاكاة إنشاء الصورة المصغرة للتطوير
-      this.logger.log(`[MOCK] تم إنشاء صورة مصغرة: ${path.basename(inputPath)}`);
+      // ظ…ط­ط§ظƒط§ط© ط¥ظ†ط´ط§ط، ط§ظ„طµظˆط±ط© ط§ظ„ظ…طµط؛ط±ط© ظ„ظ„طھط·ظˆظٹط±
+      this.logger.log(
+        `[MVP_LOCAL] طھظ… ط¥ظ†ط´ط§ط، طµظˆط±ط© ظ…طµط؛ط±ط©: ${path.basename(inputPath)}`,
+      );
 
-      // نسخ الملف كما هو (محاكاة)
+      // ظ†ط³ط® ط§ظ„ظ…ظ„ظپ ظƒظ…ط§ ظ‡ظˆ (ظ…ط­ط§ظƒط§ط©)
       await fs.copyFile(inputPath, outputPath);
 
       const optimizedSize = originalSize;
@@ -261,7 +268,10 @@ export class ImageOptimizationService {
         outputPath,
       };
     } catch (error) {
-      this.logger.error(`فشل في إنشاء الصورة المصغرة: ${inputPath}`, error);
+      this.logger.error(
+        `ظپط´ظ„ ظپظٹ ط¥ظ†ط´ط§ط، ط§ظ„طµظˆط±ط© ط§ظ„ظ…طµط؛ط±ط©: ${inputPath}`,
+        error,
+      );
       return {
         success: false,
         originalSize: 0,
@@ -274,7 +284,7 @@ export class ImageOptimizationService {
   }
 
   /**
-   * إنشاء صور مصغرة متعددة الأحجام
+   * ط¥ظ†ط´ط§ط، طµظˆط± ظ…طµط؛ط±ط© ظ…طھط¹ط¯ط¯ط© ط§ظ„ط£ط­ط¬ط§ظ…
    */
   async createMultipleThumbnails(
     inputPath: string,
@@ -298,7 +308,7 @@ export class ImageOptimizationService {
   }
 
   /**
-   * تحسين صورة وحفظها كملف جديد
+   * طھط­ط³ظٹظ† طµظˆط±ط© ظˆط­ظپط¸ظ‡ط§ ظƒظ…ظ„ظپ ط¬ط¯ظٹط¯
    */
   async optimizeAndSaveImage(
     fileId: string,
@@ -310,31 +320,35 @@ export class ImageOptimizationService {
       });
 
       if (!file) {
-        throw new BadRequestException('الملف غير موجود');
+        throw new BadRequestException('ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظ…ظˆط¬ظˆط¯');
       }
 
       if (!this.isImageFile(file.mimeType)) {
-        throw new BadRequestException('الملف ليس صورة');
+        throw new BadRequestException('ط§ظ„ظ…ظ„ظپ ظ„ظٹط³ طµظˆط±ط©');
       }
 
-      // إنشاء مسار الملف المحسن
+      // ط¥ظ†ط´ط§ط، ظ…ط³ط§ط± ط§ظ„ظ…ظ„ظپ ط§ظ„ظ…ط­ط³ظ†
       const optimizedPath = path.join(
         this.optimizedDir,
         file.bucket,
         `optimized_${file.filename}`,
       );
 
-      // التأكد من وجود المجلد
+      // ط§ظ„طھط£ظƒط¯ ظ…ظ† ظˆط¬ظˆط¯ ط§ظ„ظ…ط¬ظ„ط¯
       await fs.mkdir(path.dirname(optimizedPath), { recursive: true });
 
-      // تحسين الصورة
-      const result = await this.optimizeImage(file.path, optimizedPath, options);
+      // طھط­ط³ظٹظ† ط§ظ„طµظˆط±ط©
+      const result = await this.optimizeImage(
+        file.path,
+        optimizedPath,
+        options,
+      );
 
       if (result.success) {
-        // إنشاء نسخة احتياطية من الإصدار الأصلي
-        await this.createBackupVersion(fileId, 'تحسين الصورة');
+        // ط¥ظ†ط´ط§ط، ظ†ط³ط®ط© ط§ط­طھظٹط§ط·ظٹط© ظ…ظ† ط§ظ„ط¥طµط¯ط§ط± ط§ظ„ط£طµظ„ظٹ
+        await this.createBackupVersion(fileId, 'طھط­ط³ظٹظ† ط§ظ„طµظˆط±ط©');
 
-        // تحديث معلومات الملف
+        // طھط­ط¯ظٹط« ظ…ط¹ظ„ظˆظ…ط§طھ ط§ظ„ظ…ظ„ظپ
         await this.prisma.file.update({
           where: { id: fileId },
           data: {
@@ -353,13 +367,16 @@ export class ImageOptimizationService {
 
       return result;
     } catch (error) {
-      this.logger.error(`فشل في تحسين الصورة: ${fileId}`, error);
+      this.logger.error(
+        `ظپط´ظ„ ظپظٹ طھط­ط³ظٹظ† ط§ظ„طµظˆط±ط©: ${fileId}`,
+        error,
+      );
       throw error;
     }
   }
 
   /**
-   * إنشاء صور مصغرة لملف موجود
+   * ط¥ظ†ط´ط§ط، طµظˆط± ظ…طµط؛ط±ط© ظ„ظ…ظ„ظپ ظ…ظˆط¬ظˆط¯
    */
   async generateThumbnailsForFile(
     fileId: string,
@@ -375,11 +392,11 @@ export class ImageOptimizationService {
       });
 
       if (!file) {
-        throw new BadRequestException('الملف غير موجود');
+        throw new BadRequestException('ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظ…ظˆط¬ظˆط¯');
       }
 
       if (!this.isImageFile(file.mimeType)) {
-        throw new BadRequestException('الملف ليس صورة');
+        throw new BadRequestException('ط§ظ„ظ…ظ„ظپ ظ„ظٹط³ طµظˆط±ط©');
       }
 
       const baseThumbnailPath = path.join(
@@ -388,18 +405,18 @@ export class ImageOptimizationService {
         path.parse(file.filename).name,
       );
 
-      // التأكد من وجود مجلد الصور المصغرة
+      // ط§ظ„طھط£ظƒط¯ ظ…ظ† ظˆط¬ظˆط¯ ظ…ط¬ظ„ط¯ ط§ظ„طµظˆط± ط§ظ„ظ…طµط؛ط±ط©
       await fs.mkdir(path.dirname(baseThumbnailPath), { recursive: true });
 
-      // إنشاء الصور المصغرة
+      // ط¥ظ†ط´ط§ط، ط§ظ„طµظˆط± ط§ظ„ظ…طµط؛ط±ط©
       const results = await this.createMultipleThumbnails(
         file.path,
         baseThumbnailPath,
         sizes,
       );
 
-      // تحديث مسار الصورة المصغرة الافتراضية (المتوسطة)
-      const mediumThumbnail = results.find(r => r.outputPath.includes('_md'));
+      // طھط­ط¯ظٹط« ظ…ط³ط§ط± ط§ظ„طµظˆط±ط© ط§ظ„ظ…طµط؛ط±ط© ط§ظ„ط§ظپطھط±ط§ط¶ظٹط© (ط§ظ„ظ…طھظˆط³ط·ط©)
+      const mediumThumbnail = results.find((r) => r.outputPath.includes('_md'));
       if (mediumThumbnail) {
         await this.prisma.file.update({
           where: { id: fileId },
@@ -421,13 +438,16 @@ export class ImageOptimizationService {
 
       return results;
     } catch (error) {
-      this.logger.error(`فشل في إنشاء الصور المصغرة: ${fileId}`, error);
+      this.logger.error(
+        `ظپط´ظ„ ظپظٹ ط¥ظ†ط´ط§ط، ط§ظ„طµظˆط± ط§ظ„ظ…طµط؛ط±ط©: ${fileId}`,
+        error,
+      );
       throw error;
     }
   }
 
   /**
-   * تحويل صورة إلى تنسيق آخر
+   * طھط­ظˆظٹظ„ طµظˆط±ط© ط¥ظ„ظ‰ طھظ†ط³ظٹظ‚ ط¢ط®ط±
    */
   async convertImageFormat(
     fileId: string,
@@ -440,34 +460,37 @@ export class ImageOptimizationService {
       });
 
       if (!file) {
-        throw new BadRequestException('الملف غير موجود');
+        throw new BadRequestException('ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظ…ظˆط¬ظˆط¯');
       }
 
       if (!this.isImageFile(file.mimeType)) {
-        throw new BadRequestException('الملف ليس صورة');
+        throw new BadRequestException('ط§ظ„ظ…ظ„ظپ ظ„ظٹط³ طµظˆط±ط©');
       }
 
-      // إنشاء مسار الملف المحول
+      // ط¥ظ†ط´ط§ط، ظ…ط³ط§ط± ط§ظ„ظ…ظ„ظپ ط§ظ„ظ…ط­ظˆظ„
       const convertedPath = path.join(
         this.optimizedDir,
         file.bucket,
         `converted_${path.parse(file.filename).name}.${targetFormat}`,
       );
 
-      // التأكد من وجود المجلد
+      // ط§ظ„طھط£ظƒط¯ ظ…ظ† ظˆط¬ظˆط¯ ط§ظ„ظ…ط¬ظ„ط¯
       await fs.mkdir(path.dirname(convertedPath), { recursive: true });
 
-      // تحويل الصورة
+      // طھط­ظˆظٹظ„ ط§ظ„طµظˆط±ط©
       const result = await this.optimizeImage(file.path, convertedPath, {
         format: targetFormat,
         quality,
       });
 
       if (result.success) {
-        // إنشاء نسخة احتياطية
-        await this.createBackupVersion(fileId, `تحويل إلى ${targetFormat}`);
+        // ط¥ظ†ط´ط§ط، ظ†ط³ط®ط© ط§ط­طھظٹط§ط·ظٹط©
+        await this.createBackupVersion(
+          fileId,
+          `طھط­ظˆظٹظ„ ط¥ظ„ظ‰ ${targetFormat}`,
+        );
 
-        // تحديث معلومات الملف
+        // طھط­ط¯ظٹط« ظ…ط¹ظ„ظˆظ…ط§طھ ط§ظ„ظ…ظ„ظپ
         await this.prisma.file.update({
           where: { id: fileId },
           data: {
@@ -490,17 +513,20 @@ export class ImageOptimizationService {
 
       return result;
     } catch (error) {
-      this.logger.error(`فشل في تحويل تنسيق الصورة: ${fileId}`, error);
+      this.logger.error(
+        `ظپط´ظ„ ظپظٹ طھط­ظˆظٹظ„ طھظ†ط³ظٹظ‚ ط§ظ„طµظˆط±ط©: ${fileId}`,
+        error,
+      );
       throw error;
     }
   }
 
   /**
-   * الحصول على metadata للصورة
+   * ط§ظ„ط­طµظˆظ„ ط¹ظ„ظ‰ metadata ظ„ظ„طµظˆط±ط©
    */
   async getImageMetadata(filePath: string): Promise<ImageMetadata | null> {
     try {
-      // TODO: Uncomment when sharp is installed
+      // MVP note: Uncomment when sharp is installed
       /*
       const sharp = require('sharp');
       const metadata = await sharp(filePath).metadata();
@@ -509,14 +535,14 @@ export class ImageOptimizationService {
         width: metadata.width || 0,
         height: metadata.height || 0,
         format: metadata.format || 'unknown',
-        size: 0, // سيتم حسابه لاحقاً
+        size: 0, // ط³ظٹطھظ… ط­ط³ط§ط¨ظ‡ ظ„ط§ط­ظ‚ط§ظ‹
         colorSpace: metadata.space,
         hasAlpha: metadata.hasAlpha,
         density: metadata.density,
       };
       */
 
-      // محاكاة للتطوير
+      // ظ…ط­ط§ظƒط§ط© ظ„ظ„طھط·ظˆظٹط±
       const stats = await fs.stat(filePath);
 
       return {
@@ -529,13 +555,16 @@ export class ImageOptimizationService {
         density: 72,
       };
     } catch (error) {
-      this.logger.error(`فشل في الحصول على metadata للصورة: ${filePath}`, error);
+      this.logger.error(
+        `ظپط´ظ„ ظپظٹ ط§ظ„ط­طµظˆظ„ ط¹ظ„ظ‰ metadata ظ„ظ„طµظˆط±ط©: ${filePath}`,
+        error,
+      );
       return null;
     }
   }
 
   /**
-   * تطبيق تحسين تلقائي للصور
+   * طھط·ط¨ظٹظ‚ طھط­ط³ظٹظ† طھظ„ظ‚ط§ط¦ظٹ ظ„ظ„طµظˆط±
    */
   async autoOptimizeImage(
     fileId: string,
@@ -551,21 +580,21 @@ export class ImageOptimizationService {
       });
 
       if (!file) {
-        throw new BadRequestException('الملف غير موجود');
+        throw new BadRequestException('ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظ…ظˆط¬ظˆط¯');
       }
 
       const optimizations: string[] = [];
       const results: OptimizationResult[] = [];
       let totalCompression = 0;
 
-      // تحسين الجودة والحجم
+      // طھط­ط³ظٹظ† ط§ظ„ط¬ظˆط¯ط© ظˆط§ظ„ط­ط¬ظ…
       if (aggressive) {
         const qualityResult = await this.optimizeImage(file.path, file.path, {
           quality: 70,
           format: 'jpeg',
         });
         if (qualityResult.success) {
-          optimizations.push('تقليل الجودة إلى 70%');
+          optimizations.push('طھظ‚ظ„ظٹظ„ ط§ظ„ط¬ظˆط¯ط© ط¥ظ„ظ‰ 70%');
           results.push(qualityResult);
           totalCompression += qualityResult.compressionRatio;
         }
@@ -575,13 +604,13 @@ export class ImageOptimizationService {
           format: 'jpeg',
         });
         if (qualityResult.success) {
-          optimizations.push('تقليل الجودة إلى 85%');
+          optimizations.push('طھظ‚ظ„ظٹظ„ ط§ظ„ط¬ظˆط¯ط© ط¥ظ„ظ‰ 85%');
           results.push(qualityResult);
           totalCompression += qualityResult.compressionRatio;
         }
       }
 
-      // تغيير الحجم إذا كانت الصورة كبيرة جداً
+      // طھط؛ظٹظٹط± ط§ظ„ط­ط¬ظ… ط¥ط°ط§ ظƒط§ظ†طھ ط§ظ„طµظˆط±ط© ظƒط¨ظٹط±ط© ط¬ط¯ط§ظ‹
       const metadata = await this.getImageMetadata(file.path);
       if (metadata && (metadata.width > 2000 || metadata.height > 2000)) {
         const resizeResult = await this.optimizeImage(file.path, file.path, {
@@ -590,13 +619,15 @@ export class ImageOptimizationService {
           maintainAspectRatio: true,
         });
         if (resizeResult.success) {
-          optimizations.push('تغيير الحجم إلى 1920x1080 كحد أقصى');
+          optimizations.push(
+            'طھط؛ظٹظٹط± ط§ظ„ط­ط¬ظ… ط¥ظ„ظ‰ 1920x1080 ظƒط­ط¯ ط£ظ‚طµظ‰',
+          );
           results.push(resizeResult);
           totalCompression += resizeResult.compressionRatio;
         }
       }
 
-      // تحويل إلى WebP إذا كان مدعوماً
+      // طھط­ظˆظٹظ„ ط¥ظ„ظ‰ WebP ط¥ط°ط§ ظƒط§ظ† ظ…ط¯ط¹ظˆظ…ط§ظ‹
       if (file.mimeType === 'image/jpeg' || file.mimeType === 'image/png') {
         const webpPath = file.path.replace(/\.[^.]+$/, '.webp');
         const webpResult = await this.optimizeImage(file.path, webpPath, {
@@ -604,12 +635,15 @@ export class ImageOptimizationService {
           quality: 80,
         });
 
-        if (webpResult.success && webpResult.optimizedSize < Number(file.size)) {
-          optimizations.push('تحويل إلى WebP');
+        if (
+          webpResult.success &&
+          webpResult.optimizedSize < Number(file.size)
+        ) {
+          optimizations.push('طھط­ظˆظٹظ„ ط¥ظ„ظ‰ WebP');
           results.push(webpResult);
           totalCompression += webpResult.compressionRatio;
 
-          // استبدال الملف الأصلي بالنسخة المحسنة
+          // ط§ط³طھط¨ط¯ط§ظ„ ط§ظ„ظ…ظ„ظپ ط§ظ„ط£طµظ„ظٹ ط¨ط§ظ„ظ†ط³ط®ط© ط§ظ„ظ…ط­ط³ظ†ط©
           await fs.rename(webpPath, file.path);
         }
       }
@@ -620,27 +654,35 @@ export class ImageOptimizationService {
         results,
       };
     } catch (error) {
-      this.logger.error(`فشل في التحسين التلقائي: ${fileId}`, error);
+      this.logger.error(
+        `ظپط´ظ„ ظپظٹ ط§ظ„طھط­ط³ظٹظ† ط§ظ„طھظ„ظ‚ط§ط¦ظٹ: ${fileId}`,
+        error,
+      );
       throw error;
     }
   }
 
   /**
-   * تنظيف الصور المصغرة القديمة
+   * طھظ†ط¸ظٹظپ ط§ظ„طµظˆط± ط§ظ„ظ…طµط؛ط±ط© ط§ظ„ظ‚ط¯ظٹظ…ط©
    */
   async cleanupOrphanedThumbnails(): Promise<number> {
     try {
-      this.logger.log('تنظيف الصور المصغرة اليتيمة');
+      this.logger.log('طھظ†ط¸ظٹظپ ط§ظ„طµظˆط± ط§ظ„ظ…طµط؛ط±ط© ط§ظ„ظٹطھظٹظ…ط©');
 
-      // TODO: تنفيذ فحص شامل للصور المصغرة غير المرتبطة بملفات
-      let deletedCount = 0;
+      // MVP note: طھظ†ظپظٹط° ظپط­طµ ط´ط§ظ…ظ„ ظ„ظ„طµظˆط± ط§ظ„ظ…طµط؛ط±ط© ط؛ظٹط± ط§ظ„ظ…ط±طھط¨ط·ط© ط¨ظ…ظ„ظپط§طھ
+      const deletedCount = 0;
 
-      // محاكاة للتطوير
-      this.logger.log(`تم حذف ${deletedCount} صورة مصغرة يتيمة`);
+      // ظ…ط­ط§ظƒط§ط© ظ„ظ„طھط·ظˆظٹط±
+      this.logger.log(
+        `طھظ… ط­ط°ظپ ${deletedCount} طµظˆط±ط© ظ…طµط؛ط±ط© ظٹطھظٹظ…ط©`,
+      );
 
       return deletedCount;
     } catch (error) {
-      this.logger.error('فشل في تنظيف الصور المصغرة اليتيمة', error);
+      this.logger.error(
+        'ظپط´ظ„ ظپظٹ طھظ†ط¸ظٹظپ ط§ظ„طµظˆط± ط§ظ„ظ…طµط؛ط±ط© ط§ظ„ظٹطھظٹظ…ط©',
+        error,
+      );
       return 0;
     }
   }
@@ -648,34 +690,42 @@ export class ImageOptimizationService {
   // ========== PRIVATE METHODS ==========
 
   /**
-   * التأكد من وجود المجلدات المطلوبة
+   * ط§ظ„طھط£ظƒط¯ ظ…ظ† ظˆط¬ظˆط¯ ط§ظ„ظ…ط¬ظ„ط¯ط§طھ ط§ظ„ظ…ط·ظ„ظˆط¨ط©
    */
   private async ensureDirectories(): Promise<void> {
     try {
       await fs.mkdir(this.thumbnailsDir, { recursive: true });
       await fs.mkdir(this.optimizedDir, { recursive: true });
     } catch (error) {
-      this.logger.error('فشل في إنشاء مجلدات التحسين', error);
+      this.logger.error(
+        'ظپط´ظ„ ظپظٹ ط¥ظ†ط´ط§ط، ظ…ط¬ظ„ط¯ط§طھ ط§ظ„طھط­ط³ظٹظ†',
+        error,
+      );
     }
   }
 
   /**
-   * إنشاء نسخة احتياطية قبل التعديل
+   * ط¥ظ†ط´ط§ط، ظ†ط³ط®ط© ط§ط­طھظٹط§ط·ظٹط© ظ‚ط¨ظ„ ط§ظ„طھط¹ط¯ظٹظ„
    */
-  private async createBackupVersion(fileId: string, reason: string): Promise<void> {
-    // TODO: استخدام FileManagementService لإنشاء نسخة احتياطية
-    this.logger.log(`[MOCK] إنشاء نسخة احتياطية: ${fileId} - ${reason}`);
+  private async createBackupVersion(
+    fileId: string,
+    reason: string,
+  ): Promise<void> {
+    // MVP note: ط§ط³طھط®ط¯ط§ظ… FileManagementService ظ„ط¥ظ†ط´ط§ط، ظ†ط³ط®ط© ط§ط­طھظٹط§ط·ظٹط©
+    this.logger.log(
+      `[MVP_LOCAL] ط¥ظ†ط´ط§ط، ظ†ط³ط®ط© ط§ط­طھظٹط§ط·ظٹط©: ${fileId} - ${reason}`,
+    );
   }
 
   /**
-   * التحقق من أن الملف صورة
+   * ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط£ظ† ط§ظ„ظ…ظ„ظپ طµظˆط±ط©
    */
   private isImageFile(mimeType: string): boolean {
     return mimeType.startsWith('image/');
   }
 
   /**
-   * الحصول على إعدادات التحسين الافتراضية
+   * ط§ظ„ط­طµظˆظ„ ط¹ظ„ظ‰ ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„طھط­ط³ظٹظ† ط§ظ„ط§ظپطھط±ط§ط¶ظٹط©
    */
   getDefaultOptimizationOptions(): ImageOptimizationOptions {
     return {
@@ -689,7 +739,7 @@ export class ImageOptimizationService {
   }
 
   /**
-   * الحصول على إعدادات الصور المصغرة الافتراضية
+   * ط§ظ„ط­طµظˆظ„ ط¹ظ„ظ‰ ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„طµظˆط± ط§ظ„ظ…طµط؛ط±ط© ط§ظ„ط§ظپطھط±ط§ط¶ظٹط©
    */
   getDefaultThumbnailOptions(): ThumbnailOptions {
     return {

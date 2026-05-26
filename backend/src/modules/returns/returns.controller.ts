@@ -67,7 +67,10 @@ export class ReturnsController {
   @Patch(':id')
   @Permissions('returns.update')
   @HttpCode(HttpStatus.OK)
-  updateReturn(@Param('id') id: string, @Body() updateReturnDto: UpdateReturnDto) {
+  updateReturn(
+    @Param('id') id: string,
+    @Body() updateReturnDto: UpdateReturnDto,
+  ) {
     return this.returnsService.update(id, updateReturnDto);
   }
 
@@ -96,7 +99,11 @@ export class ReturnsController {
     @Body() createCreditNoteDto: CreateCreditNoteDto,
     @Req() req: any,
   ) {
-    return this.returnsService.createCreditNote(id, createCreditNoteDto, req.user.id);
+    return this.returnsService.createCreditNote(
+      id,
+      createCreditNoteDto,
+      req.user.id,
+    );
   }
 
   /**

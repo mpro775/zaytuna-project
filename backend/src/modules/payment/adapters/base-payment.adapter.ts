@@ -1,4 +1,9 @@
-import { PaymentRequest, PaymentResponse, RefundRequest, RefundResponse } from '../payment.service';
+import {
+  PaymentRequest,
+  PaymentResponse,
+  RefundRequest,
+  RefundResponse,
+} from '../payment.service';
 
 export interface PaymentConfig {
   apiKey: string;
@@ -32,7 +37,10 @@ export abstract class BasePaymentAdapter {
   /**
    * معالجة الاسترداد
    */
-  abstract processRefund(transactionId: string, refundRequest: RefundRequest): Promise<RefundResponse>;
+  abstract processRefund(
+    transactionId: string,
+    refundRequest: RefundRequest,
+  ): Promise<RefundResponse>;
 
   /**
    * التحقق من حالة المعاملة
@@ -42,7 +50,10 @@ export abstract class BasePaymentAdapter {
   /**
    * معالجة webhook
    */
-  abstract processWebhook(payload: any, signature?: string): Promise<WebhookEvent>;
+  abstract processWebhook(
+    payload: any,
+    signature?: string,
+  ): Promise<WebhookEvent>;
 
   /**
    * إلغاء معاملة
@@ -90,13 +101,16 @@ export abstract class BasePaymentAdapter {
     const url = `${this.config.baseUrl}${endpoint}`;
     const requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.config.apiKey}`,
+      Authorization: `Bearer ${this.config.apiKey}`,
       ...headers,
     };
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
+      const timeoutId = setTimeout(
+        () => controller.abort(),
+        this.config.timeout,
+      );
 
       const response = await fetch(url, {
         method,
@@ -141,7 +155,7 @@ export abstract class BasePaymentAdapter {
 
         // انتظار تصاعدي (exponential backoff)
         const delay = Math.min(1000 * Math.pow(2, attempt - 1), 30000);
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
 
@@ -184,8 +198,10 @@ export abstract class BasePaymentAdapter {
    */
   protected extractCardInfo(response: any): { last4?: string; brand?: string } {
     return {
-      last4: response?.card?.last4 || response?.payment_method_details?.card?.last4,
-      brand: response?.card?.brand || response?.payment_method_details?.card?.brand,
+      last4:
+        response?.card?.last4 || response?.payment_method_details?.card?.last4,
+      brand:
+        response?.card?.brand || response?.payment_method_details?.card?.brand,
     };
   }
 
@@ -194,7 +210,9 @@ export abstract class BasePaymentAdapter {
    */
   protected extractWalletInfo(response: any): { provider?: string } {
     return {
-      provider: response?.wallet?.provider || response?.payment_method_details?.wallet?.provider,
+      provider:
+        response?.wallet?.provider ||
+        response?.payment_method_details?.wallet?.provider,
     };
   }
 
@@ -204,32 +222,32 @@ export abstract class BasePaymentAdapter {
   protected normalizeStatus(gatewayStatus: string, gateway: string): string {
     const statusMap: Record<string, Record<string, string>> = {
       stripe: {
-        'succeeded': 'completed',
-        'pending': 'pending',
-        'failed': 'failed',
-        'canceled': 'cancelled',
-        'requires_payment_method': 'failed',
-        'requires_confirmation': 'pending',
-        'requires_action': 'pending',
-        'processing': 'processing',
-        'requires_capture': 'pending',
+        succeeded: 'completed',
+        pending: 'pending',
+        failed: 'failed',
+        canceled: 'cancelled',
+        requires_payment_method: 'failed',
+        requires_confirmation: 'pending',
+        requires_action: 'pending',
+        processing: 'processing',
+        requires_capture: 'pending',
       },
       paypal: {
-        'COMPLETED': 'completed',
-        'PENDING': 'pending',
-        'FAILED': 'failed',
-        'CANCELLED': 'cancelled',
-        'APPROVED': 'pending',
-        'CREATED': 'pending',
+        COMPLETED: 'completed',
+        PENDING: 'pending',
+        FAILED: 'failed',
+        CANCELLED: 'cancelled',
+        APPROVED: 'pending',
+        CREATED: 'pending',
       },
       tap: {
-        'CAPTURED': 'completed',
-        'AUTHORIZED': 'pending',
-        'DECLINED': 'failed',
-        'CANCELLED': 'cancelled',
-        'FAILED': 'failed',
-        'PENDING': 'pending',
-        'RESTRICTED': 'failed',
+        CAPTURED: 'completed',
+        AUTHORIZED: 'pending',
+        DECLINED: 'failed',
+        CANCELLED: 'cancelled',
+        FAILED: 'failed',
+        PENDING: 'pending',
+        RESTRICTED: 'failed',
       },
     };
 

@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  Inject,
-  forwardRef,
-} from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import type { Request } from 'express';
 import { REQUEST } from '@nestjs/core';
 import { PrismaService } from '../../shared/database/prisma.service';
@@ -114,7 +109,8 @@ export class AuditService {
         referenceType: auditData.referenceType,
         referenceId: auditData.referenceId,
         module: auditData.module,
-        searchableText: auditData.searchableText || this.generateSearchableText(auditData),
+        searchableText:
+          auditData.searchableText || this.generateSearchableText(auditData),
       };
 
       await this.prisma.auditLog.create({
@@ -132,7 +128,7 @@ export class AuditService {
             entityId: auditData.entityId,
             errorMessage: auditData.errorMessage,
             details: auditData.details,
-          }
+          },
         );
       } else if (auditData.severity === 'warning') {
         this.logger.warn(
@@ -140,10 +136,9 @@ export class AuditService {
           {
             entityId: auditData.entityId,
             details: auditData.details,
-          }
+          },
         );
       }
-
     } catch (error) {
       // لا نرمي خطأ هنا لأن فشل التسجيل لا يجب أن يوقف العملية الأساسية
       this.logger.error('فشل في تسجيل عملية التدقيق', error);
@@ -153,7 +148,12 @@ export class AuditService {
   /**
    * تسجيل عملية إنشاء
    */
-  async logCreate(entity: string, entityId: string, newValues: Record<string, any>, options?: Partial<AuditLogData>): Promise<void> {
+  async logCreate(
+    entity: string,
+    entityId: string,
+    newValues: Record<string, any>,
+    options?: Partial<AuditLogData>,
+  ): Promise<void> {
     await this.log({
       action: 'CREATE',
       entity,
@@ -166,7 +166,11 @@ export class AuditService {
   /**
    * تسجيل عملية قراءة
    */
-  async logRead(entity: string, entityId: string, options?: Partial<AuditLogData>): Promise<void> {
+  async logRead(
+    entity: string,
+    entityId: string,
+    options?: Partial<AuditLogData>,
+  ): Promise<void> {
     await this.log({
       action: 'READ',
       entity,
@@ -178,7 +182,13 @@ export class AuditService {
   /**
    * تسجيل عملية تحديث
    */
-  async logUpdate(entity: string, entityId: string, oldValues: Record<string, any>, newValues: Record<string, any>, options?: Partial<AuditLogData>): Promise<void> {
+  async logUpdate(
+    entity: string,
+    entityId: string,
+    oldValues: Record<string, any>,
+    newValues: Record<string, any>,
+    options?: Partial<AuditLogData>,
+  ): Promise<void> {
     await this.log({
       action: 'UPDATE',
       entity,
@@ -192,7 +202,12 @@ export class AuditService {
   /**
    * تسجيل عملية حذف
    */
-  async logDelete(entity: string, entityId: string, oldValues: Record<string, any>, options?: Partial<AuditLogData>): Promise<void> {
+  async logDelete(
+    entity: string,
+    entityId: string,
+    oldValues: Record<string, any>,
+    options?: Partial<AuditLogData>,
+  ): Promise<void> {
     await this.log({
       action: 'DELETE',
       entity,
@@ -205,7 +220,11 @@ export class AuditService {
   /**
    * تسجيل عملية تسجيل دخول
    */
-  async logLogin(userId: string, success: boolean = true, options?: Partial<AuditLogData>): Promise<void> {
+  async logLogin(
+    userId: string,
+    success: boolean = true,
+    options?: Partial<AuditLogData>,
+  ): Promise<void> {
     await this.log({
       action: success ? 'LOGIN_SUCCESS' : 'LOGIN_FAILED',
       entity: 'User',
@@ -220,7 +239,10 @@ export class AuditService {
   /**
    * تسجيل عملية تسجيل خروج
    */
-  async logLogout(userId: string, options?: Partial<AuditLogData>): Promise<void> {
+  async logLogout(
+    userId: string,
+    options?: Partial<AuditLogData>,
+  ): Promise<void> {
     await this.log({
       action: 'LOGOUT',
       entity: 'User',
@@ -233,7 +255,11 @@ export class AuditService {
   /**
    * تسجيل عملية تغيير كلمة مرور
    */
-  async logPasswordChange(userId: string, success: boolean = true, options?: Partial<AuditLogData>): Promise<void> {
+  async logPasswordChange(
+    userId: string,
+    success: boolean = true,
+    options?: Partial<AuditLogData>,
+  ): Promise<void> {
     await this.log({
       action: 'PASSWORD_CHANGE',
       entity: 'User',
@@ -248,7 +274,13 @@ export class AuditService {
   /**
    * تسجيل عملية تغيير صلاحيات
    */
-  async logPermissionChange(userId: string, targetUserId: string, oldPermissions: any, newPermissions: any, options?: Partial<AuditLogData>): Promise<void> {
+  async logPermissionChange(
+    userId: string,
+    targetUserId: string,
+    oldPermissions: any,
+    newPermissions: any,
+    options?: Partial<AuditLogData>,
+  ): Promise<void> {
     await this.log({
       action: 'PERMISSION_CHANGE',
       entity: 'User',
@@ -465,7 +497,7 @@ export class AuditService {
       const topEntities = logsByEntity
         .sort((a, b) => b._count.id - a._count.id)
         .slice(0, 10)
-        .map(item => ({
+        .map((item) => ({
           entity: item.entity,
           count: item._count.id,
         }));
@@ -486,34 +518,38 @@ export class AuditService {
               userName: user?.username || user?.email || 'غير معروف',
               count: item._count.id,
             };
-          })
+          }),
       );
 
       const stats: AuditStats = {
         totalLogs,
         logsByAction: Object.fromEntries(
-          logsByAction.map(item => [item.action, item._count.id])
+          logsByAction.map((item) => [item.action, item._count.id]),
         ),
         logsByEntity: Object.fromEntries(
-          logsByEntity.map(item => [item.entity, item._count.id])
+          logsByEntity.map((item) => [item.entity, item._count.id]),
         ),
         logsByUser: Object.fromEntries(
-          logsByUser.map(item => [item.userId || 'unknown', item._count.id])
+          logsByUser.map((item) => [item.userId || 'unknown', item._count.id]),
         ),
         logsBySeverity: Object.fromEntries(
-          logsBySeverity.map(item => [item.severity, item._count.id])
+          logsBySeverity.map((item) => [item.severity, item._count.id]),
         ),
         logsByCategory: Object.fromEntries(
-          logsByCategory.map(item => [item.category, item._count.id])
+          logsByCategory.map((item) => [item.category, item._count.id]),
         ),
         logsByModule: Object.fromEntries(
-          logsByModule.map(item => [item.module || 'unknown', item._count.id])
+          logsByModule.map((item) => [
+            item.module || 'unknown',
+            item._count.id,
+          ]),
         ),
-        recentActivity: recentActivity.map(activity => ({
+        recentActivity: recentActivity.map((activity) => ({
           timestamp: activity.timestamp,
           action: activity.action,
           entity: activity.entity,
-          userName: activity.user?.username || activity.user?.email || 'غير معروف',
+          userName:
+            activity.user?.username || activity.user?.email || 'غير معروف',
           success: activity.success,
         })),
         errorRate,
@@ -533,7 +569,11 @@ export class AuditService {
   /**
    * الحصول على تتبع العمليات لكيان محدد
    */
-  async getEntityAuditTrail(entity: string, entityId: string, limit: number = 50) {
+  async getEntityAuditTrail(
+    entity: string,
+    entityId: string,
+    limit: number = 50,
+  ) {
     return this.prisma.auditLog.findMany({
       where: {
         entity,
@@ -617,7 +657,7 @@ export class AuditService {
       limit: 10000, // حد أقصى للتصدير
     });
 
-    return result.logs.map(log => ({
+    return result.logs.map((log) => ({
       id: log.id,
       timestamp: log.timestamp,
       userId: log.userId,
@@ -650,13 +690,15 @@ export class AuditService {
     const clientIp = this.request.get('x-client-ip');
     const cfConnectingIp = this.request.get('cf-connecting-ip');
 
-    return forwarded?.split(',')[0].trim() ||
-           realIp ||
-           clientIp ||
-           cfConnectingIp ||
-           this.request.ip ||
-           this.request.socket?.remoteAddress ||
-           'unknown';
+    return (
+      forwarded?.split(',')[0].trim() ||
+      realIp ||
+      clientIp ||
+      cfConnectingIp ||
+      this.request.ip ||
+      this.request.socket?.remoteAddress ||
+      'unknown'
+    );
   }
 
   /**
@@ -675,7 +717,7 @@ export class AuditService {
 
     // إضافة تفاصيل مهمة
     if (auditData.details) {
-      Object.values(auditData.details).forEach(value => {
+      Object.values(auditData.details).forEach((value) => {
         if (typeof value === 'string') parts.push(value);
       });
     }
@@ -686,7 +728,10 @@ export class AuditService {
   /**
    * إنشاء تتبع تفصيلي للتغييرات على كيان محدد
    */
-  async getDetailedAuditTrail(entity: string, entityId: string): Promise<{
+  async getDetailedAuditTrail(
+    entity: string,
+    entityId: string,
+  ): Promise<{
     entity: string;
     entityId: string;
     currentState: any;
@@ -770,7 +815,7 @@ export class AuditService {
           const oldValues = log.oldValues as any;
           const newValues = log.newValues as any;
 
-          Object.keys({ ...oldValues, ...newValues }).forEach(field => {
+          Object.keys({ ...oldValues, ...newValues }).forEach((field) => {
             const oldValue = oldValues[field];
             const newValue = newValues[field];
 
@@ -780,7 +825,12 @@ export class AuditService {
                 field,
                 oldValue,
                 newValue,
-                changeType: oldValue === undefined ? 'added' : newValue === undefined ? 'removed' : 'modified',
+                changeType:
+                  oldValue === undefined
+                    ? 'added'
+                    : newValue === undefined
+                      ? 'removed'
+                      : 'modified',
               });
             }
           });
@@ -810,15 +860,17 @@ export class AuditService {
       }
 
       // حساب الملخص
-      const createLog = auditLogs.find(log => log.action === 'CREATE');
+      const createLog = auditLogs.find((log) => log.action === 'CREATE');
       const lastLog = auditLogs[auditLogs.length - 1];
 
       const summary = {
         totalChanges: changeHistory.length,
         lastModified: lastLog.timestamp,
-        lastModifiedBy: lastLog.user?.username || lastLog.user?.email || 'غير معروف',
+        lastModifiedBy:
+          lastLog.user?.username || lastLog.user?.email || 'غير معروف',
         createdAt: createLog?.timestamp || lastLog.timestamp,
-        createdBy: createLog?.user?.username || createLog?.user?.email || 'غير معروف',
+        createdBy:
+          createLog?.user?.username || createLog?.user?.email || 'غير معروف',
       };
 
       return {
@@ -829,7 +881,10 @@ export class AuditService {
         summary,
       };
     } catch (error) {
-      this.logger.error(`فشل في إنشاء تتبع التدقيق التفصيلي لـ ${entity}:${entityId}`, error);
+      this.logger.error(
+        `فشل في إنشاء تتبع التدقيق التفصيلي لـ ${entity}:${entityId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -847,7 +902,10 @@ export class AuditService {
     changeType: 'added' | 'modified' | 'removed';
   }> {
     const changes: any[] = [];
-    const allFields = new Set([...Object.keys(oldState || {}), ...Object.keys(newState || {})]);
+    const allFields = new Set([
+      ...Object.keys(oldState || {}),
+      ...Object.keys(newState || {}),
+    ]);
 
     for (const field of allFields) {
       const oldValue = oldState?.[field];
@@ -942,11 +1000,17 @@ export class AuditService {
       const entitiesAffected = new Set<string>();
       const usersInvolved = new Set<string>();
 
-      changes.forEach(change => {
-        changesByEntity[change.entity] = (changesByEntity[change.entity] || 0) + 1;
-        changesByAction[change.action] = (changesByAction[change.action] || 0) + 1;
+      changes.forEach((change) => {
+        changesByEntity[change.entity] =
+          (changesByEntity[change.entity] || 0) + 1;
+        changesByAction[change.action] =
+          (changesByAction[change.action] || 0) + 1;
 
-        const userKey = change.user?.username || change.user?.email || change.userId || 'unknown';
+        const userKey =
+          change.user?.username ||
+          change.user?.email ||
+          change.userId ||
+          'unknown';
         changesByUser[userKey] = (changesByUser[userKey] || 0) + 1;
 
         entitiesAffected.add(change.entity);
@@ -954,14 +1018,16 @@ export class AuditService {
       });
 
       // العثور على الأكثر تغييراً
-      const mostChangedEntity = Object.entries(changesByEntity)
-        .sort(([, a], [, b]) => b - a)[0]?.[0] || '';
+      const mostChangedEntity =
+        Object.entries(changesByEntity).sort(([, a], [, b]) => b - a)[0]?.[0] ||
+        '';
 
-      const mostActiveUser = Object.entries(changesByUser)
-        .sort(([, a], [, b]) => b - a)[0]?.[0] || '';
+      const mostActiveUser =
+        Object.entries(changesByUser).sort(([, a], [, b]) => b - a)[0]?.[0] ||
+        '';
 
       // التغييرات الأخيرة
-      const recentChanges = changes.slice(0, 20).map(change => ({
+      const recentChanges = changes.slice(0, 20).map((change) => ({
         timestamp: change.timestamp,
         entity: change.entity,
         entityId: change.entityId,
@@ -1011,7 +1077,9 @@ export class AuditService {
    * إبطال كاش التدقيق
    */
   private async invalidateAuditCache(): Promise<void> {
-    const auditKeys = await this.cacheService.getKeys(`${this.auditCacheKey}:*`);
+    const auditKeys = await this.cacheService.getKeys(
+      `${this.auditCacheKey}:*`,
+    );
     for (const key of auditKeys) {
       await this.cacheService.delete(key);
     }

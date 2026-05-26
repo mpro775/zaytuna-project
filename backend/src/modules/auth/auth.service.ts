@@ -74,10 +74,7 @@ export class AuthService {
       // البحث عن المستخدم
       const user = await this.prisma.user.findFirst({
         where: {
-          OR: [
-            { username: loginDto.username },
-            { email: loginDto.username },
-          ],
+          OR: [{ username: loginDto.username }, { email: loginDto.username }],
         },
         include: {
           role: {
@@ -106,7 +103,10 @@ export class AuthService {
       }
 
       // التحقق من كلمة المرور
-      const isPasswordValid = await bcrypt.compare(loginDto.password, user.passwordHash);
+      const isPasswordValid = await bcrypt.compare(
+        loginDto.password,
+        user.passwordHash,
+      );
       if (!isPasswordValid) {
         throw new UnauthorizedException('بيانات الدخول غير صحيحة');
       }
@@ -138,7 +138,10 @@ export class AuthService {
         expiresIn: tokens.expiresIn,
       };
     } catch (error) {
-      this.logger.error(`فشل في تسجيل دخول المستخدم: ${loginDto.username}`, error);
+      this.logger.error(
+        `فشل في تسجيل دخول المستخدم: ${loginDto.username}`,
+        error,
+      );
       throw error;
     }
   }
@@ -242,7 +245,10 @@ export class AuthService {
         expiresIn: tokens.expiresIn,
       };
     } catch (error) {
-      this.logger.error(`فشل في تسجيل المستخدم: ${registerDto.username}`, error);
+      this.logger.error(
+        `فشل في تسجيل المستخدم: ${registerDto.username}`,
+        error,
+      );
       throw error;
     }
   }
@@ -255,7 +261,9 @@ export class AuthService {
       this.logger.log('محاولة تحديث الرمز المميز');
 
       // التحقق من صحة refresh token
-      const payload = await this.verifyRefreshToken(refreshTokenDto.refreshToken);
+      const payload = await this.verifyRefreshToken(
+        refreshTokenDto.refreshToken,
+      );
 
       // البحث عن المستخدم
       const user = await this.prisma.user.findUnique({
@@ -317,7 +325,10 @@ export class AuthService {
   /**
    * تغيير كلمة المرور
    */
-  async changePassword(userId: string, changePasswordDto: ChangePasswordDto): Promise<void> {
+  async changePassword(
+    userId: string,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<void> {
     try {
       this.logger.log(`محاولة تغيير كلمة المرور للمستخدم: ${userId}`);
 
@@ -343,7 +354,9 @@ export class AuthService {
       }
 
       // تشفير كلمة المرور الجديدة
-      const newPasswordHash = await this.hashPassword(changePasswordDto.newPassword);
+      const newPasswordHash = await this.hashPassword(
+        changePasswordDto.newPassword,
+      );
 
       // تحديث كلمة المرور
       await this.prisma.user.update({
@@ -397,7 +410,10 @@ export class AuthService {
 
       this.logger.log(`تم إعادة تعيين كلمة المرور بنجاح للمستخدم: ${userId}`);
     } catch (error) {
-      this.logger.error(`فشل في إعادة تعيين كلمة المرور للمستخدم: ${userId}`, error);
+      this.logger.error(
+        `فشل في إعادة تعيين كلمة المرور للمستخدم: ${userId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -413,7 +429,12 @@ export class AuthService {
       roleId: user.roleId,
       branchId: user.branchId,
       iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + parseInt(this.configService.get<string>('jwt.accessTokenTtl', '900'), 10),
+      exp:
+        Math.floor(Date.now() / 1000) +
+        parseInt(
+          this.configService.get<string>('jwt.accessTokenTtl', '900'),
+          10,
+        ),
       type: 'access',
     };
 
@@ -423,17 +444,27 @@ export class AuthService {
     const refreshPayload: JwtPayload = {
       ...payload,
       type: 'refresh',
-      exp: Math.floor(Date.now() / 1000) + parseInt(this.configService.get<string>('jwt.refreshTokenTtl', '604800'), 10),
+      exp:
+        Math.floor(Date.now() / 1000) +
+        parseInt(
+          this.configService.get<string>('jwt.refreshTokenTtl', '604800'),
+          10,
+        ),
     };
 
     const refreshToken = this.jwtService.sign(refreshPayload, {
-      secret: this.configService.get<string>('jwt.refreshSecret') || this.configService.get<string>('jwt.secret'),
+      secret:
+        this.configService.get<string>('jwt.refreshSecret') ||
+        this.configService.get<string>('jwt.secret'),
     });
 
     return {
       accessToken,
       refreshToken,
-      expiresIn: parseInt(this.configService.get<string>('jwt.accessTokenTtl', '900'), 10),
+      expiresIn: parseInt(
+        this.configService.get<string>('jwt.accessTokenTtl', '900'),
+        10,
+      ),
     };
   }
 
@@ -443,7 +474,9 @@ export class AuthService {
   private async verifyRefreshToken(token: string): Promise<JwtPayload> {
     try {
       const payload = this.jwtService.verify<JwtPayload>(token, {
-        secret: this.configService.get<string>('jwt.refreshSecret') || this.configService.get<string>('jwt.secret'),
+        secret:
+          this.configService.get<string>('jwt.refreshSecret') ||
+          this.configService.get<string>('jwt.secret'),
       });
 
       if (payload.type !== 'refresh') {
@@ -459,7 +492,10 @@ export class AuthService {
   /**
    * إنشاء جلسة في الكاش
    */
-  private async createSession(userId: string, accessToken: string): Promise<void> {
+  private async createSession(
+    userId: string,
+    accessToken: string,
+  ): Promise<void> {
     const sessionData = {
       userId,
       accessToken,
@@ -468,14 +504,24 @@ export class AuthService {
       isActive: true,
     };
 
-    const ttl = parseInt(this.configService.get<string>('jwt.refreshTokenTtl', '604800'), 10);
-    await this.cacheService.set(`session:${userId}:${Date.now()}`, sessionData, { ttl });
+    const ttl = parseInt(
+      this.configService.get<string>('jwt.refreshTokenTtl', '604800'),
+      10,
+    );
+    await this.cacheService.set(
+      `session:${userId}:${Date.now()}`,
+      sessionData,
+      { ttl },
+    );
   }
 
   /**
    * تحديث جلسة في الكاش
    */
-  private async updateSession(userId: string, newAccessToken: string): Promise<void> {
+  private async updateSession(
+    userId: string,
+    newAccessToken: string,
+  ): Promise<void> {
     // البحث عن الجلسة الحالية وتحديثها
     const sessionKey = `session:${userId}:*`; // ستحتاج للبحث عن المفاتيح
     await this.createSession(userId, newAccessToken);

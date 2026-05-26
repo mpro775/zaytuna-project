@@ -57,12 +57,15 @@ export class SanitizationPipe implements PipeTransform {
         return value.slice(0, config.maxArrayLength);
       }
 
-      return value.map(item => this.sanitizeValue(item, config));
+      return value.map((item) => this.sanitizeValue(item, config));
     }
 
     if (typeof value === 'object') {
       // التحقق من عمق الكائن
-      if (config.maxObjectDepth && this.getObjectDepth(value) > config.maxObjectDepth) {
+      if (
+        config.maxObjectDepth &&
+        this.getObjectDepth(value) > config.maxObjectDepth
+      ) {
         return {}; // إرجاع كائن فارغ إذا تجاوز العمق
       }
 

@@ -138,15 +138,20 @@ export class BranchService {
    */
   async findAll(companyId?: string): Promise<BranchWithDetails[]> {
     try {
-      const cacheKey = companyId ? `${this.branchesCacheKey}:company:${companyId}` : this.branchesCacheKey;
+      const cacheKey = companyId
+        ? `${this.branchesCacheKey}:company:${companyId}`
+        : this.branchesCacheKey;
 
       // محاولة الحصول من الكاش أولاً
-      const cachedBranches = await this.cacheService.get<BranchWithDetails[]>(cacheKey);
+      const cachedBranches =
+        await this.cacheService.get<BranchWithDetails[]>(cacheKey);
       if (cachedBranches) {
         return cachedBranches;
       }
 
-      const where = companyId ? { companyId, isActive: true } : { isActive: true };
+      const where = companyId
+        ? { companyId, isActive: true }
+        : { isActive: true };
 
       const branches = await this.prisma.branch.findMany({
         where,
@@ -167,22 +172,24 @@ export class BranchService {
         orderBy: { name: 'asc' },
       });
 
-      const branchesWithDetails: BranchWithDetails[] = branches.map(branch => ({
-        id: branch.id,
-        name: branch.name,
-        code: branch.code,
-        address: branch.address || undefined,
-        phone: branch.phone || undefined,
-        email: branch.email || undefined,
-        managerId: branch.managerId || undefined,
-        companyId: branch.companyId,
-        isActive: branch.isActive,
-        company: branch.company,
-        warehouseCount: branch._count.warehouses,
-        userCount: branch._count.users,
-        createdAt: branch.createdAt,
-        updatedAt: branch.updatedAt,
-      }));
+      const branchesWithDetails: BranchWithDetails[] = branches.map(
+        (branch) => ({
+          id: branch.id,
+          name: branch.name,
+          code: branch.code,
+          address: branch.address || undefined,
+          phone: branch.phone || undefined,
+          email: branch.email || undefined,
+          managerId: branch.managerId || undefined,
+          companyId: branch.companyId,
+          isActive: branch.isActive,
+          company: branch.company,
+          warehouseCount: branch._count.warehouses,
+          userCount: branch._count.users,
+          createdAt: branch.createdAt,
+          updatedAt: branch.updatedAt,
+        }),
+      );
 
       // حفظ في الكاش لمدة 10 دقائق
       await this.cacheService.set(cacheKey, branchesWithDetails, { ttl: 600 });
@@ -200,7 +207,8 @@ export class BranchService {
   async findOne(id: string): Promise<BranchWithDetails> {
     try {
       const cacheKey = `${this.branchCacheKey}:${id}`;
-      const cachedBranch = await this.cacheService.get<BranchWithDetails>(cacheKey);
+      const cachedBranch =
+        await this.cacheService.get<BranchWithDetails>(cacheKey);
 
       if (cachedBranch) {
         return cachedBranch;
@@ -258,7 +266,10 @@ export class BranchService {
   /**
    * تحديث فرع
    */
-  async update(id: string, updateBranchDto: UpdateBranchDto): Promise<BranchWithDetails> {
+  async update(
+    id: string,
+    updateBranchDto: UpdateBranchDto,
+  ): Promise<BranchWithDetails> {
     try {
       this.logger.log(`تحديث الفرع: ${id}`);
 
@@ -272,7 +283,10 @@ export class BranchService {
       }
 
       // التحقق من عدم تكرار الكود
-      if (updateBranchDto.code && updateBranchDto.code !== existingBranch.code) {
+      if (
+        updateBranchDto.code &&
+        updateBranchDto.code !== existingBranch.code
+      ) {
         const branchWithSameCode = await this.prisma.branch.findUnique({
           where: { code: updateBranchDto.code },
         });
@@ -426,7 +440,10 @@ export class BranchService {
 
       return users;
     } catch (error) {
-      this.logger.error(`فشل في الحصول على المستخدمين بالفرع: ${branchId}`, error);
+      this.logger.error(
+        `فشل في الحصول على المستخدمين بالفرع: ${branchId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -460,9 +477,10 @@ export class BranchService {
         activeBranches,
         inactiveBranches: totalBranches - activeBranches,
         totalCompanies: companiesWithBranches.length,
-        averageBranchesPerCompany: companiesWithBranches.length > 0
-          ? (totalBranches / companiesWithBranches.length).toFixed(1)
-          : 0,
+        averageBranchesPerCompany:
+          companiesWithBranches.length > 0
+            ? (totalBranches / companiesWithBranches.length).toFixed(1)
+            : 0,
         totalUsers,
         totalWarehouses,
       };
@@ -478,7 +496,9 @@ export class BranchService {
   private async invalidateBranchesCache(): Promise<void> {
     await this.cacheService.delete(this.branchesCacheKey);
     // إبطال جميع الكاشات المتعلقة بالشركات
-    const companyKeys = await this.cacheService.getKeys(`${this.branchesCacheKey}:company:*`);
+    const companyKeys = await this.cacheService.getKeys(
+      `${this.branchesCacheKey}:company:*`,
+    );
     for (const key of companyKeys) {
       await this.cacheService.delete(key);
     }

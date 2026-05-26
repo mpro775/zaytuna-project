@@ -15,8 +15,14 @@ import { AuthService } from './auth.service';
 import { LoginDto, LoginResponseDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ChangePasswordDto, ResetPasswordDto } from './dto/change-password.dto';
-import { RefreshTokenDto, RefreshTokenResponseDto } from './dto/refresh-token.dto';
-import { Public, Permissions } from '../../common/decorators/permissions.decorator';
+import {
+  RefreshTokenDto,
+  RefreshTokenResponseDto,
+} from './dto/refresh-token.dto';
+import {
+  Public,
+  Permissions,
+} from '../../common/decorators/permissions.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { LocalAuthGuard } from '../../common/guards/local-auth.guard';
 import { AuthenticatedUser } from '../../common/strategies/jwt.strategy';
@@ -52,7 +58,9 @@ export class AuthController {
   @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async refreshToken(@Body() refreshTokenDto: RefreshTokenDto): Promise<RefreshTokenResponseDto> {
+  async refreshToken(
+    @Body() refreshTokenDto: RefreshTokenDto,
+  ): Promise<RefreshTokenResponseDto> {
     const tokens = await this.authService.refreshToken(refreshTokenDto);
     return {
       accessToken: tokens.accessToken,
@@ -117,7 +125,9 @@ export class AuthController {
    */
   @UseGuards(JwtAuthGuard)
   @Get('verify')
-  async verifyToken(@Request() req): Promise<{ valid: boolean; user: AuthenticatedUser }> {
+  async verifyToken(
+    @Request() req,
+  ): Promise<{ valid: boolean; user: AuthenticatedUser }> {
     return {
       valid: true,
       user: req.user,

@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsString, IsOptional, IsArray, IsBoolean, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsArray,
+  IsBoolean,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateRoleDto {
   @IsNotEmpty({ message: 'اسم الدور مطلوب' })

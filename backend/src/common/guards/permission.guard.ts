@@ -25,7 +25,8 @@ export class PermissionGuard implements CanActivate {
     }
 
     // الحصول على الصلاحيات المطلوبة
-    const requiredPermissions = this.permissionChecker.getRequiredPermissions(context);
+    const requiredPermissions =
+      this.permissionChecker.getRequiredPermissions(context);
 
     // إذا لم تكن هناك صلاحيات مطلوبة، السماح بالوصول
     if (!requiredPermissions || requiredPermissions.length === 0) {

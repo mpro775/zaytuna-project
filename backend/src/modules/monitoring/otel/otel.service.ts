@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 // TODO: Uncomment when OpenTelemetry packages are installed
 /*
@@ -70,7 +75,6 @@ export class OtelService implements OnModuleInit, OnModuleDestroy {
         start: async () => this.logger.log('Mock SDK started'),
         shutdown: async () => this.logger.log('Mock SDK shutdown'),
       };
-
     } catch (error) {
       this.logger.error('فشل في تهيئة OpenTelemetry:', error);
     }
@@ -109,12 +113,13 @@ export class OtelService implements OnModuleInit, OnModuleDestroy {
         addEvent: (name: string, attributes?: any) => {},
         end: () => {},
       }),
-      startActiveSpan: (name: string, fn: any) => fn({
-        setAttribute: (key: string, value: any) => {},
-        setStatus: (status: any) => {},
-        addEvent: (name: string, attributes?: any) => {},
-        end: () => {},
-      }),
+      startActiveSpan: (name: string, fn: any) =>
+        fn({
+          setAttribute: (key: string, value: any) => {},
+          setStatus: (status: any) => {},
+          addEvent: (name: string, attributes?: any) => {},
+          end: () => {},
+        }),
     };
   }
 
@@ -145,7 +150,12 @@ export class OtelService implements OnModuleInit, OnModuleDestroy {
   /**
    * تسجيل metric مخصص
    */
-  recordMetric(name: string, value: number, type: 'counter' | 'histogram' | 'gauge', attributes?: Record<string, any>) {
+  recordMetric(
+    name: string,
+    value: number,
+    type: 'counter' | 'histogram' | 'gauge',
+    attributes?: Record<string, any>,
+  ) {
     try {
       // TODO: Implement actual metric recording
       this.logger.debug(`[METRIC] ${type}:${name} = ${value}`, attributes);
@@ -167,7 +177,11 @@ export class OtelService implements OnModuleInit, OnModuleDestroy {
   /**
    * إنشاء active span
    */
-  withSpan<T>(name: string, fn: (span: any) => Promise<T>, attributes?: Record<string, any>): Promise<T> {
+  withSpan<T>(
+    name: string,
+    fn: (span: any) => Promise<T>,
+    attributes?: Record<string, any>,
+  ): Promise<T> {
     const tracer = this.createTracer('zaytuna-monitoring');
     return tracer.startActiveSpan(name, async (span) => {
       if (attributes) {
@@ -198,11 +212,7 @@ export class OtelService implements OnModuleInit, OnModuleDestroy {
       serviceName: 'zaytuna-backend',
       serviceVersion: '1.0.0',
       sdk: this.sdk ? 'initialized' : 'not_initialized',
-      instrumentations: [
-        'http',
-        'express',
-        'prisma',
-      ],
+      instrumentations: ['http', 'express', 'prisma'],
     };
   }
 }

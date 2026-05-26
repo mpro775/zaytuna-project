@@ -81,15 +81,18 @@ export class RefundService {
     userId: string,
   ): Promise<RefundResponse> {
     try {
-      this.logger.log(`معالجة طلب استرداد: ${refundRequest.transactionId} - ${refundRequest.amount}`);
+      this.logger.log(
+        `معالجة طلب استرداد: ${refundRequest.transactionId} - ${refundRequest.amount}`,
+      );
 
       // التحقق من صحة الطلب
       await this.validateRefundRequest(refundRequest);
 
       // العثور على المعاملة الأصلية
-      const originalTransaction = await this.prisma.paymentTransaction.findUnique({
-        where: { transactionId: refundRequest.transactionId },
-      });
+      const originalTransaction =
+        await this.prisma.paymentTransaction.findUnique({
+          where: { transactionId: refundRequest.transactionId },
+        });
 
       if (!originalTransaction) {
         throw new Error(`المعاملة غير موجودة: ${refundRequest.transactionId}`);
@@ -99,16 +102,26 @@ export class RefundService {
       await this.checkRefundEligibility(originalTransaction, refundRequest);
 
       // إنشاء سجل الاسترداد في قاعدة البيانات
-      const refundRecord = await this.createRefundRecord(originalTransaction, refundRequest, userId);
+      const refundRecord = await this.createRefundRecord(
+        originalTransaction,
+        refundRequest,
+        userId,
+      );
 
       // معالجة الاسترداد حسب البوابة
-      const refundResult = await this.processGatewayRefund(originalTransaction, refundRequest);
+      const refundResult = await this.processGatewayRefund(
+        originalTransaction,
+        refundRequest,
+      );
 
       // تحديث سجل الاسترداد
       await this.updateRefundRecord(refundRecord.id, refundResult);
 
       // تحديث المعاملة الأصلية
-      await this.updateOriginalTransaction(originalTransaction.id, refundRequest.amount);
+      await this.updateOriginalTransaction(
+        originalTransaction.id,
+        refundRequest.amount,
+      );
 
       // تسجيل في سجل التدقيق
       await this.auditService.log({
@@ -122,12 +135,18 @@ export class RefundService {
           originalAmount: Number(originalTransaction.amount),
         },
         oldValues: { refundAmount: Number(originalTransaction.refundAmount) },
-        newValues: { refundAmount: Number(originalTransaction.refundAmount) + refundRequest.amount },
+        newValues: {
+          refundAmount:
+            Number(originalTransaction.refundAmount) + refundRequest.amount,
+        },
         module: 'payment',
         category: 'financial',
       });
 
-      const remainingAmount = Number(originalTransaction.amount) - Number(originalTransaction.refundAmount) - refundRequest.amount;
+      const remainingAmount =
+        Number(originalTransaction.amount) -
+        Number(originalTransaction.refundAmount) -
+        refundRequest.amount;
 
       return {
         refundId: refundRecord.id,
@@ -138,7 +157,10 @@ export class RefundService {
         processedAt: new Date(),
       };
     } catch (error) {
-      this.logger.error(`فشل في معالجة الاسترداد: ${refundRequest.transactionId}`, error);
+      this.logger.error(
+        `فشل في معالجة الاسترداد: ${refundRequest.transactionId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -153,7 +175,9 @@ export class RefundService {
   /**
    * تحديث سياسة الاسترداد
    */
-  async updateRefundPolicy(policy: Partial<RefundPolicy>): Promise<RefundPolicy> {
+  async updateRefundPolicy(
+    policy: Partial<RefundPolicy>,
+  ): Promise<RefundPolicy> {
     try {
       Object.assign(this.refundPolicy, policy);
 
@@ -192,20 +216,21 @@ export class RefundService {
       }
 
       // جلب المعاملات التي تحتوي على استردادات
-      const transactionsWithRefunds = await this.prisma.paymentTransaction.findMany({
-        where: {
-          ...where,
-          refundAmount: { gt: 0 },
-        },
-        select: {
-          amount: true,
-          refundAmount: true,
-          refundReason: true,
-          status: true,
-          createdAt: true,
-          processedAt: true,
-        },
-      });
+      const transactionsWithRefunds =
+        await this.prisma.paymentTransaction.findMany({
+          where: {
+            ...where,
+            refundAmount: { gt: 0 },
+          },
+          select: {
+            amount: true,
+            refundAmount: true,
+            refundReason: true,
+            status: true,
+            createdAt: true,
+            processedAt: true,
+          },
+        });
 
       // حساب إجمالي المبيعات لنفس الفترة
       const totalSalesResult = await this.prisma.paymentTransaction.aggregate({
@@ -219,27 +244,39 @@ export class RefundService {
       });
 
       const totalSales = Number(totalSalesResult._sum.amount || 0);
-      const totalRefunds = transactionsWithRefunds.reduce((sum, t) => sum + Number(t.refundAmount), 0);
+      const totalRefunds = transactionsWithRefunds.reduce(
+        (sum, t) => sum + Number(t.refundAmount),
+        0,
+      );
 
       // حساب أسباب الاسترداد
       const commonReasons: Record<string, number> = {};
-      transactionsWithRefunds.forEach(transaction => {
+      transactionsWithRefunds.forEach((transaction) => {
         if (transaction.refundReason) {
-          commonReasons[transaction.refundReason] = (commonReasons[transaction.refundReason] || 0) + 1;
+          commonReasons[transaction.refundReason] =
+            (commonReasons[transaction.refundReason] || 0) + 1;
         }
       });
 
       // حساب متوسط وقت المعالجة
-      const completedRefunds = transactionsWithRefunds.filter(t => t.processedAt);
-      const averageProcessingTime = completedRefunds.length > 0
-        ? completedRefunds.reduce((sum, t) =>
-            sum + (t.processedAt!.getTime() - t.createdAt.getTime()), 0) / completedRefunds.length
-        : 0;
+      const completedRefunds = transactionsWithRefunds.filter(
+        (t) => t.processedAt,
+      );
+      const averageProcessingTime =
+        completedRefunds.length > 0
+          ? completedRefunds.reduce(
+              (sum, t) =>
+                sum + (t.processedAt!.getTime() - t.createdAt.getTime()),
+              0,
+            ) / completedRefunds.length
+          : 0;
 
       return {
         totalRefunds: transactionsWithRefunds.length,
         totalRefundAmount: totalRefunds,
-        successfulRefunds: transactionsWithRefunds.filter(t => t.status === 'refunded' || t.status === 'partially_refunded').length,
+        successfulRefunds: transactionsWithRefunds.filter(
+          (t) => t.status === 'refunded' || t.status === 'partially_refunded',
+        ).length,
         failedRefunds: 0, // TODO: implement failed refunds tracking
         pendingRefunds: 0, // TODO: implement pending refunds tracking
         averageProcessingTime,
@@ -362,11 +399,15 @@ export class RefundService {
     }
 
     if (request.amount < this.refundPolicy.minRefundAmount) {
-      throw new Error(`مبلغ الاسترداد أقل من الحد الأدنى: ${this.refundPolicy.minRefundAmount}`);
+      throw new Error(
+        `مبلغ الاسترداد أقل من الحد الأدنى: ${this.refundPolicy.minRefundAmount}`,
+      );
     }
 
     if (request.amount > this.refundPolicy.maxRefundAmount) {
-      throw new Error(`مبلغ الاسترداد أكبر من الحد الأقصى: ${this.refundPolicy.maxRefundAmount}`);
+      throw new Error(
+        `مبلغ الاسترداد أكبر من الحد الأقصى: ${this.refundPolicy.maxRefundAmount}`,
+      );
     }
 
     if (!this.refundPolicy.supportedReasons.includes(request.reason)) {
@@ -388,10 +429,13 @@ export class RefundService {
 
     // التحقق من الوقت المسموح للاسترداد
     const transactionDate = new Date(transaction.createdAt);
-    const daysSinceTransaction = (Date.now() - transactionDate.getTime()) / (1000 * 60 * 60 * 24);
+    const daysSinceTransaction =
+      (Date.now() - transactionDate.getTime()) / (1000 * 60 * 60 * 24);
 
     if (daysSinceTransaction > this.refundPolicy.maxRefundDays) {
-      throw new Error(`تجاوز المهلة المسموحة للاسترداد: ${this.refundPolicy.maxRefundDays} يوم`);
+      throw new Error(
+        `تجاوز المهلة المسموحة للاسترداد: ${this.refundPolicy.maxRefundDays} يوم`,
+      );
     }
 
     // التحقق من المبلغ المتاح للاسترداد
@@ -399,16 +443,24 @@ export class RefundService {
     const remainingAmount = Number(transaction.amount) - totalRefunded;
 
     if (refundRequest.amount > remainingAmount) {
-      throw new Error(`مبلغ الاسترداد أكبر من المبلغ المتاح: ${remainingAmount}`);
+      throw new Error(
+        `مبلغ الاسترداد أكبر من المبلغ المتاح: ${remainingAmount}`,
+      );
     }
 
     // التحقق من الاسترداد الجزئي
-    if (!this.refundPolicy.allowPartialRefunds && refundRequest.amount < Number(transaction.amount)) {
+    if (
+      !this.refundPolicy.allowPartialRefunds &&
+      refundRequest.amount < Number(transaction.amount)
+    ) {
       throw new Error('الاسترداد الجزئي غير مسموح');
     }
 
     // التحقق من الحاجة للموافقة
-    if (this.refundPolicy.requireApproval && refundRequest.amount >= this.refundPolicy.approvalThreshold) {
+    if (
+      this.refundPolicy.requireApproval &&
+      refundRequest.amount >= this.refundPolicy.approvalThreshold
+    ) {
       // TODO: التحقق من وجود موافقة
       throw new Error('هذا الاسترداد يتطلب موافقة إدارية');
     }
@@ -453,7 +505,10 @@ export class RefundService {
 
       return refundResult;
     } catch (error) {
-      this.logger.error(`فشل في معالجة الاسترداد للبوابة ${transaction.gateway}`, error);
+      this.logger.error(
+        `فشل في معالجة الاسترداد للبوابة ${transaction.gateway}`,
+        error,
+      );
       return {
         status: 'failed',
         gatewayRefundId: null,
@@ -464,7 +519,10 @@ export class RefundService {
   /**
    * تحديث سجل الاسترداد
    */
-  private async updateRefundRecord(refundId: string, refundResult: any): Promise<void> {
+  private async updateRefundRecord(
+    refundId: string,
+    refundResult: any,
+  ): Promise<void> {
     // TODO: تحديث سجل الاسترداد في قاعدة البيانات
     this.logger.log(`تحديث سجل الاسترداد ${refundId}: ${refundResult.status}`);
   }
@@ -498,11 +556,14 @@ export class RefundService {
     csvRows.push(headers.join(','));
 
     // إضافة البيانات
-    data.forEach(row => {
-      const values = headers.map(header => {
+    data.forEach((row) => {
+      const values = headers.map((header) => {
         const value = row[header];
         // إذا كان القيمة تحتوي على فاصلة أو اقتباس، نضعها بين اقتباسات
-        if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+        if (
+          typeof value === 'string' &&
+          (value.includes(',') || value.includes('"'))
+        ) {
           return `"${value.replace(/"/g, '""')}"`;
         }
         return String(value || '');

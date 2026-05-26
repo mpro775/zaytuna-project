@@ -14,7 +14,15 @@ export interface WhatsAppConfig {
 
 export interface WhatsAppMessage {
   to: string;
-  type: 'text' | 'image' | 'document' | 'audio' | 'video' | 'location' | 'contacts' | 'interactive';
+  type:
+    | 'text'
+    | 'image'
+    | 'document'
+    | 'audio'
+    | 'video'
+    | 'location'
+    | 'contacts'
+    | 'interactive';
   text?: {
     body: string;
     preview_url?: boolean;
@@ -97,7 +105,9 @@ export class WhatsAppProvider {
    */
   async sendWhatsApp(message: WhatsAppMessage): Promise<WhatsAppResult> {
     try {
-      this.logger.log(`إرسال WhatsApp إلى: ${message.to} - نوع: ${message.type}`);
+      this.logger.log(
+        `إرسال WhatsApp إلى: ${message.to} - نوع: ${message.type}`,
+      );
 
       switch (this.config.provider) {
         case 'whatsapp_business':
@@ -124,7 +134,9 @@ export class WhatsAppProvider {
   /**
    * إرسال رسالة باستخدام WhatsApp Business API
    */
-  private async sendViaWhatsAppBusiness(message: WhatsAppMessage): Promise<WhatsAppResult> {
+  private async sendViaWhatsAppBusiness(
+    message: WhatsAppMessage,
+  ): Promise<WhatsAppResult> {
     try {
       if (!this.config.phoneNumberId) {
         throw new Error('معرف رقم الهاتف غير مكون');
@@ -144,7 +156,7 @@ export class WhatsAppProvider {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.config.accessToken}`,
+          Authorization: `Bearer ${this.config.accessToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(messageData),
@@ -153,7 +165,9 @@ export class WhatsAppProvider {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(`WhatsApp Business API error: ${response.status} - ${JSON.stringify(errorData)}`);
+        throw new Error(
+          `WhatsApp Business API error: ${response.status} - ${JSON.stringify(errorData)}`,
+        );
       }
 
       const result = await response.json();
@@ -173,7 +187,9 @@ export class WhatsAppProvider {
   /**
    * إرسال رسالة باستخدام 360Dialog
    */
-  private async sendVia360Dialog(message: WhatsAppMessage): Promise<WhatsAppResult> {
+  private async sendVia360Dialog(
+    message: WhatsAppMessage,
+  ): Promise<WhatsAppResult> {
     try {
       const url = `${this.config.baseUrl}/messages`;
 
@@ -197,7 +213,9 @@ export class WhatsAppProvider {
 
       if (!response.ok) {
         const errorData = await response.text();
-        throw new Error(`360Dialog API error: ${response.status} - ${errorData}`);
+        throw new Error(
+          `360Dialog API error: ${response.status} - ${errorData}`,
+        );
       }
 
       const result = await response.json();
@@ -216,7 +234,9 @@ export class WhatsAppProvider {
   /**
    * إرسال رسالة باستخدام Twilio
    */
-  private async sendViaTwilio(message: WhatsAppMessage): Promise<WhatsAppResult> {
+  private async sendViaTwilio(
+    message: WhatsAppMessage,
+  ): Promise<WhatsAppResult> {
     try {
       if (!this.config.accountId) {
         throw new Error('معرف حساب Twilio غير مكون');
@@ -230,12 +250,14 @@ export class WhatsAppProvider {
         Body: message.text?.body || '',
       };
 
-      const auth = Buffer.from(`${this.config.accountId}:${this.config.accessToken}`).toString('base64');
+      const auth = Buffer.from(
+        `${this.config.accountId}:${this.config.accessToken}`,
+      ).toString('base64');
 
       const response = await fetch(twilioUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Basic ${auth}`,
+          Authorization: `Basic ${auth}`,
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams(messageData).toString(),
@@ -244,7 +266,9 @@ export class WhatsAppProvider {
 
       if (!response.ok) {
         const errorData = await response.text();
-        throw new Error(`Twilio WhatsApp API error: ${response.status} - ${errorData}`);
+        throw new Error(
+          `Twilio WhatsApp API error: ${response.status} - ${errorData}`,
+        );
       }
 
       const result = await response.json();
@@ -264,7 +288,9 @@ export class WhatsAppProvider {
   /**
    * إرسال رسالة محلية (محاكاة)
    */
-  private async sendViaLocal(message: WhatsAppMessage): Promise<WhatsAppResult> {
+  private async sendViaLocal(
+    message: WhatsAppMessage,
+  ): Promise<WhatsAppResult> {
     try {
       // للاختبار والتطوير - لا يرسل رسائل حقيقية
       this.logger.log(`[LOCAL WhatsApp] إرسال إلى: ${message.to}`);
@@ -274,7 +300,7 @@ export class WhatsAppProvider {
       }
 
       // محاكاة الإرسال
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       return {
         success: true,
@@ -294,7 +320,11 @@ export class WhatsAppProvider {
   /**
    * إنشاء رسالة نصية بسيطة
    */
-  createTextMessage(to: string, body: string, previewUrl: boolean = false): WhatsAppMessage {
+  createTextMessage(
+    to: string,
+    body: string,
+    previewUrl: boolean = false,
+  ): WhatsAppMessage {
     return {
       to,
       type: 'text',
@@ -308,7 +338,11 @@ export class WhatsAppProvider {
   /**
    * إنشاء رسالة مع صورة
    */
-  createImageMessage(to: string, imageUrl: string, caption?: string): WhatsAppMessage {
+  createImageMessage(
+    to: string,
+    imageUrl: string,
+    caption?: string,
+  ): WhatsAppMessage {
     return {
       to,
       type: 'image',
@@ -322,7 +356,12 @@ export class WhatsAppProvider {
   /**
    * إنشاء رسالة مع مستند
    */
-  createDocumentMessage(to: string, documentUrl: string, filename?: string, caption?: string): WhatsAppMessage {
+  createDocumentMessage(
+    to: string,
+    documentUrl: string,
+    filename?: string,
+    caption?: string,
+  ): WhatsAppMessage {
     return {
       to,
       type: 'document',
@@ -364,7 +403,7 @@ export class WhatsAppProvider {
           },
         }),
         action: {
-          buttons: buttons.map(btn => ({
+          buttons: buttons.map((btn) => ({
             type: 'reply',
             reply: {
               id: btn.id,
@@ -457,7 +496,10 @@ export class WhatsAppProvider {
    * تحميل إعدادات المزود
    */
   private loadConfig(): WhatsAppConfig {
-    const provider = this.configService.get<string>('WHATSAPP_PROVIDER', 'whatsapp_business') as WhatsAppConfig['provider'];
+    const provider = this.configService.get<string>(
+      'WHATSAPP_PROVIDER',
+      'whatsapp_business',
+    ) as WhatsAppConfig['provider'];
 
     const baseConfig = {
       provider,
@@ -472,7 +514,9 @@ export class WhatsAppProvider {
           ...baseConfig,
           apiVersion: 'v18.0',
           baseUrl: 'https://graph.facebook.com',
-          phoneNumberId: this.configService.get<string>('WHATSAPP_PHONE_NUMBER_ID'),
+          phoneNumberId: this.configService.get<string>(
+            'WHATSAPP_PHONE_NUMBER_ID',
+          ),
         };
 
       case '360dialog':
@@ -514,7 +558,11 @@ export class WhatsAppProvider {
         case '360dialog':
           return !!this.config.accessToken;
         case 'twilio':
-          return !!(this.config.accessToken && this.config.accountId && this.config.phoneNumberId);
+          return !!(
+            this.config.accessToken &&
+            this.config.accountId &&
+            this.config.phoneNumberId
+          );
         case 'local':
           return true;
         default:
@@ -622,7 +670,7 @@ export class WhatsAppProvider {
           const url = `${this.config.baseUrl}/${this.config.phoneNumberId}/messages/${messageId}`;
           const response = await fetch(url, {
             headers: {
-              'Authorization': `Bearer ${this.config.accessToken}`,
+              Authorization: `Bearer ${this.config.accessToken}`,
             },
           });
 

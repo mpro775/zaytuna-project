@@ -80,7 +80,10 @@ export class CategoryController {
   @Patch(':id')
   @Permissions('products.update')
   @HttpCode(HttpStatus.OK)
-  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ) {
     return this.categoryService.update(id, updateCategoryDto);
   }
 

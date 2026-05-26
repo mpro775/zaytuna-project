@@ -49,7 +49,9 @@ export class WarehouseService {
   /**
    * إنشاء مخزن جديد
    */
-  async create(createWarehouseDto: CreateWarehouseDto): Promise<WarehouseWithDetails> {
+  async create(
+    createWarehouseDto: CreateWarehouseDto,
+  ): Promise<WarehouseWithDetails> {
     try {
       this.logger.log(`إنشاء مخزن جديد: ${createWarehouseDto.name}`);
 
@@ -140,7 +142,10 @@ export class WarehouseService {
       this.logger.log(`تم إنشاء المخزن بنجاح: ${warehouse.name}`);
       return warehouseWithDetails;
     } catch (error) {
-      this.logger.error(`فشل في إنشاء المخزن: ${createWarehouseDto.name}`, error);
+      this.logger.error(
+        `فشل في إنشاء المخزن: ${createWarehouseDto.name}`,
+        error,
+      );
       throw error;
     }
   }
@@ -150,15 +155,20 @@ export class WarehouseService {
    */
   async findAll(branchId?: string): Promise<WarehouseWithDetails[]> {
     try {
-      const cacheKey = branchId ? `${this.warehousesCacheKey}:branch:${branchId}` : this.warehousesCacheKey;
+      const cacheKey = branchId
+        ? `${this.warehousesCacheKey}:branch:${branchId}`
+        : this.warehousesCacheKey;
 
       // محاولة الحصول من الكاش أولاً
-      const cachedWarehouses = await this.cacheService.get<WarehouseWithDetails[]>(cacheKey);
+      const cachedWarehouses =
+        await this.cacheService.get<WarehouseWithDetails[]>(cacheKey);
       if (cachedWarehouses) {
         return cachedWarehouses;
       }
 
-      const where = branchId ? { branchId, isActive: true } : { isActive: true };
+      const where = branchId
+        ? { branchId, isActive: true }
+        : { isActive: true };
 
       const warehouses = await this.prisma.warehouse.findMany({
         where,
@@ -186,25 +196,29 @@ export class WarehouseService {
         orderBy: { name: 'asc' },
       });
 
-      const warehousesWithDetails: WarehouseWithDetails[] = warehouses.map(warehouse => ({
-        id: warehouse.id,
-        name: warehouse.name,
-        code: warehouse.code,
-        address: warehouse.address || undefined,
-        phone: warehouse.phone || undefined,
-        email: warehouse.email || undefined,
-        managerId: warehouse.managerId || undefined,
-        branchId: warehouse.branchId,
-        isActive: warehouse.isActive,
-        manager: warehouse.manager || undefined,
-        branch: warehouse.branch,
-        stockItemCount: warehouse._count.stockItems,
-        createdAt: warehouse.createdAt,
-        updatedAt: warehouse.updatedAt,
-      }));
+      const warehousesWithDetails: WarehouseWithDetails[] = warehouses.map(
+        (warehouse) => ({
+          id: warehouse.id,
+          name: warehouse.name,
+          code: warehouse.code,
+          address: warehouse.address || undefined,
+          phone: warehouse.phone || undefined,
+          email: warehouse.email || undefined,
+          managerId: warehouse.managerId || undefined,
+          branchId: warehouse.branchId,
+          isActive: warehouse.isActive,
+          manager: warehouse.manager || undefined,
+          branch: warehouse.branch,
+          stockItemCount: warehouse._count.stockItems,
+          createdAt: warehouse.createdAt,
+          updatedAt: warehouse.updatedAt,
+        }),
+      );
 
       // حفظ في الكاش لمدة 10 دقائق
-      await this.cacheService.set(cacheKey, warehousesWithDetails, { ttl: 600 });
+      await this.cacheService.set(cacheKey, warehousesWithDetails, {
+        ttl: 600,
+      });
 
       return warehousesWithDetails;
     } catch (error) {
@@ -219,7 +233,8 @@ export class WarehouseService {
   async findOne(id: string): Promise<WarehouseWithDetails> {
     try {
       const cacheKey = `${this.warehouseCacheKey}:${id}`;
-      const cachedWarehouse = await this.cacheService.get<WarehouseWithDetails>(cacheKey);
+      const cachedWarehouse =
+        await this.cacheService.get<WarehouseWithDetails>(cacheKey);
 
       if (cachedWarehouse) {
         return cachedWarehouse;
@@ -272,7 +287,9 @@ export class WarehouseService {
       };
 
       // حفظ في الكاش لمدة 30 دقيقة
-      await this.cacheService.set(cacheKey, warehouseWithDetails, { ttl: 1800 });
+      await this.cacheService.set(cacheKey, warehouseWithDetails, {
+        ttl: 1800,
+      });
 
       return warehouseWithDetails;
     } catch (error) {
@@ -284,7 +301,10 @@ export class WarehouseService {
   /**
    * تحديث مخزن
    */
-  async update(id: string, updateWarehouseDto: UpdateWarehouseDto): Promise<WarehouseWithDetails> {
+  async update(
+    id: string,
+    updateWarehouseDto: UpdateWarehouseDto,
+  ): Promise<WarehouseWithDetails> {
     try {
       this.logger.log(`تحديث المخزن: ${id}`);
 
@@ -298,7 +318,10 @@ export class WarehouseService {
       }
 
       // التحقق من عدم تكرار الكود
-      if (updateWarehouseDto.code && updateWarehouseDto.code !== existingWarehouse.code) {
+      if (
+        updateWarehouseDto.code &&
+        updateWarehouseDto.code !== existingWarehouse.code
+      ) {
         const warehouseWithSameCode = await this.prisma.warehouse.findUnique({
           where: { code: updateWarehouseDto.code },
         });
@@ -438,7 +461,7 @@ export class WarehouseService {
         orderBy: { createdAt: 'desc' },
       });
 
-      return stockItems.map(item => ({
+      return stockItems.map((item) => ({
         id: item.id,
         productVariantId: item.productVariantId,
         quantity: Number(item.quantity),
@@ -448,7 +471,10 @@ export class WarehouseService {
         updatedAt: item.updatedAt,
       }));
     } catch (error) {
-      this.logger.error(`فشل في الحصول على عناصر المخزون بالمخزن: ${warehouseId}`, error);
+      this.logger.error(
+        `فشل في الحصول على عناصر المخزون بالمخزن: ${warehouseId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -489,9 +515,10 @@ export class WarehouseService {
         inactiveWarehouses: totalWarehouses - activeWarehouses,
         totalStockItems: stockStats._count.id,
         totalStockQuantity: stockStats._sum.quantity || 0,
-        averageWarehousesPerBranch: branchesWithWarehouses.length > 0
-          ? (totalWarehouses / branchesWithWarehouses.length).toFixed(1)
-          : 0,
+        averageWarehousesPerBranch:
+          branchesWithWarehouses.length > 0
+            ? (totalWarehouses / branchesWithWarehouses.length).toFixed(1)
+            : 0,
       };
     } catch (error) {
       this.logger.error('فشل في الحصول على إحصائيات المخازن', error);
@@ -537,7 +564,9 @@ export class WarehouseService {
       });
 
       if (!sourceStock || Number(sourceStock.quantity) < quantity) {
-        throw new BadRequestException('الكمية المتاحة غير كافية في مخزن المصدر');
+        throw new BadRequestException(
+          'الكمية المتاحة غير كافية في مخزن المصدر',
+        );
       }
 
       // تنفيذ النقل في معاملة
@@ -620,7 +649,9 @@ export class WarehouseService {
   private async invalidateWarehousesCache(): Promise<void> {
     await this.cacheService.delete(this.warehousesCacheKey);
     // إبطال جميع الكاشات المتعلقة بالفروع
-    const branchKeys = await this.cacheService.getKeys(`${this.warehousesCacheKey}:branch:*`);
+    const branchKeys = await this.cacheService.getKeys(
+      `${this.warehousesCacheKey}:branch:*`,
+    );
     for (const key of branchKeys) {
       await this.cacheService.delete(key);
     }

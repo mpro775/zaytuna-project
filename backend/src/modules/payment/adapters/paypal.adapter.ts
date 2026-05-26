@@ -1,5 +1,10 @@
 import { BasePaymentAdapter, PaymentConfig } from './base-payment.adapter';
-import { PaymentRequest, PaymentResponse, RefundRequest, RefundResponse } from '../payment.service';
+import {
+  PaymentRequest,
+  PaymentResponse,
+  RefundRequest,
+  RefundResponse,
+} from '../payment.service';
 
 export class PayPalAdapter extends BasePaymentAdapter {
   private accessToken: string | null = null;
@@ -17,24 +22,31 @@ export class PayPalAdapter extends BasePaymentAdapter {
 
       // إنشاء طلب دفع
       const order = await this.retryWithBackoff(async () => {
-        return this.makeRequest('POST', '/v2/checkout/orders', {
-          intent: 'CAPTURE',
-          purchase_units: [{
-            reference_id: request.invoiceId,
-            amount: {
-              currency_code: currency,
-              value: request.amount.toFixed(2),
+        return this.makeRequest(
+          'POST',
+          '/v2/checkout/orders',
+          {
+            intent: 'CAPTURE',
+            purchase_units: [
+              {
+                reference_id: request.invoiceId,
+                amount: {
+                  currency_code: currency,
+                  value: request.amount.toFixed(2),
+                },
+                description: request.description,
+              },
+            ],
+            application_context: {
+              return_url: `${process.env.APP_URL}/payment/success`,
+              cancel_url: `${process.env.APP_URL}/payment/cancel`,
             },
-            description: request.description,
-          }],
-          application_context: {
-            return_url: `${process.env.APP_URL}/payment/success`,
-            cancel_url: `${process.env.APP_URL}/payment/cancel`,
           },
-        }, {
-          'Authorization': `Bearer ${this.accessToken}`,
-          'PayPal-Request-Id': `paypal_${Date.now()}`,
-        });
+          {
+            Authorization: `Bearer ${this.accessToken}`,
+            'PayPal-Request-Id': `paypal_${Date.now()}`,
+          },
+        );
       });
 
       return {
@@ -43,7 +55,8 @@ export class PayPalAdapter extends BasePaymentAdapter {
         gatewayTransactionId: order.id,
         gatewayResponse: order,
         ...(order.links && {
-          redirectUrl: order.links.find((link: any) => link.rel === 'approve')?.href,
+          redirectUrl: order.links.find((link: any) => link.rel === 'approve')
+            ?.href,
         }),
       };
     } catch (error) {
@@ -55,20 +68,28 @@ export class PayPalAdapter extends BasePaymentAdapter {
     }
   }
 
-  async processRefund(transactionId: string, refundRequest: RefundRequest): Promise<RefundResponse> {
+  async processRefund(
+    transactionId: string,
+    refundRequest: RefundRequest,
+  ): Promise<RefundResponse> {
     try {
       await this.ensureAccessToken();
 
       const refund = await this.retryWithBackoff(async () => {
-        return this.makeRequest('POST', `/v2/payments/captures/${transactionId}/refund`, {
-          amount: {
-            value: refundRequest.amount.toFixed(2),
-            currency_code: 'SAR', // يجب تحديث هذا حسب العملة الفعلية
+        return this.makeRequest(
+          'POST',
+          `/v2/payments/captures/${transactionId}/refund`,
+          {
+            amount: {
+              value: refundRequest.amount.toFixed(2),
+              currency_code: 'SAR', // يجب تحديث هذا حسب العملة الفعلية
+            },
+            reason: refundRequest.reason,
           },
-          reason: refundRequest.reason,
-        }, {
-          'Authorization': `Bearer ${this.accessToken}`,
-        });
+          {
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+        );
       });
 
       return {
@@ -90,9 +111,14 @@ export class PayPalAdapter extends BasePaymentAdapter {
     try {
       await this.ensureAccessToken();
 
-      const order = await this.makeRequest('GET', `/v2/checkout/orders/${transactionId}`, undefined, {
-        'Authorization': `Bearer ${this.accessToken}`,
-      });
+      const order = await this.makeRequest(
+        'GET',
+        `/v2/checkout/orders/${transactionId}`,
+        undefined,
+        {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      );
 
       return this.normalizeStatus(order.status, 'paypal');
     } catch (error) {
@@ -126,9 +152,14 @@ export class PayPalAdapter extends BasePaymentAdapter {
     try {
       await this.ensureAccessToken();
 
-      return await this.makeRequest('GET', `/v2/checkout/orders/${transactionId}`, undefined, {
-        'Authorization': `Bearer ${this.accessToken}`,
-      });
+      return await this.makeRequest(
+        'GET',
+        `/v2/checkout/orders/${transactionId}`,
+        undefined,
+        {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      );
     } catch (error) {
       throw new Error(`Failed to get transaction details: ${error.message}`);
     }
@@ -148,21 +179,34 @@ export class PayPalAdapter extends BasePaymentAdapter {
    * الحصول على access token من PayPal
    */
   private async ensureAccessToken(): Promise<void> {
-    if (this.accessToken && this.tokenExpiresAt && this.tokenExpiresAt > new Date()) {
+    if (
+      this.accessToken &&
+      this.tokenExpiresAt &&
+      this.tokenExpiresAt > new Date()
+    ) {
       return;
     }
 
     try {
-      const auth = Buffer.from(`${this.config.apiKey}:${this.config.secretKey}`).toString('base64');
+      const auth = Buffer.from(
+        `${this.config.apiKey}:${this.config.secretKey}`,
+      ).toString('base64');
 
-      const response = await this.makeRequest('POST', '/v1/oauth2/token', 'grant_type=client_credentials', {
-        'Authorization': `Basic ${auth}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      });
+      const response = await this.makeRequest(
+        'POST',
+        '/v1/oauth2/token',
+        'grant_type=client_credentials',
+        {
+          Authorization: `Basic ${auth}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      );
 
       this.accessToken = response.access_token;
       // PayPal tokens تنتهي خلال 9 ساعات تقريباً
-      this.tokenExpiresAt = new Date(Date.now() + (response.expires_in - 60) * 1000); // -60 ثانية للأمان
+      this.tokenExpiresAt = new Date(
+        Date.now() + (response.expires_in - 60) * 1000,
+      ); // -60 ثانية للأمان
     } catch (error) {
       throw new Error(`Failed to get PayPal access token: ${error.message}`);
     }

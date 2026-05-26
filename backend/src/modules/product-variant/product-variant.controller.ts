@@ -62,7 +62,10 @@ export class ProductVariantController {
   @Patch(':id')
   @Permissions('products.update')
   @HttpCode(HttpStatus.OK)
-  update(@Param('id') id: string, @Body() updateProductVariantDto: UpdateProductVariantDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateProductVariantDto: UpdateProductVariantDto,
+  ) {
     return this.productVariantService.update(id, updateProductVariantDto);
   }
 

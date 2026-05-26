@@ -20,6 +20,12 @@ import { NotificationModule } from './modules/notification/notification.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { CurrencyModule } from './modules/currency/currency.module';
+import { SalesModule } from './modules/sales/sales.module';
+import { PurchasingModule } from './modules/purchasing/purchasing.module';
+import { ReturnsModule } from './modules/returns/returns.module';
+import { ReportingModule } from './modules/reporting/reporting.module';
+import { BackupModule } from './modules/backup/backup.module';
+import { PaymentModule } from './modules/payment/payment.module';
 import { CacheInterceptor } from './common/interceptors/cache.interceptor';
 import { CacheInvalidationInterceptor } from './common/interceptors/cache-invalidation.interceptor';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
@@ -67,10 +73,12 @@ import securityConfig from './config/security.config';
     StorageModule,
     SettingsModule,
     CurrencyModule,
-    // Phase 1 intentionally defers advanced runtime modules (sales workflows,
-    // purchasing workflows, payment gateways, monitoring, backup, reporting,
-    // security dashboard, and performance tooling) until their providers are
-    // stabilized. Their database/API contract is documented for Phase 2.
+    SalesModule,
+    PurchasingModule,
+    ReturnsModule,
+    ReportingModule,
+    BackupModule,
+    PaymentModule,
     ThrottlerModule.forRoot([
       {
         ttl: 60000, // 1 minute

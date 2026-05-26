@@ -61,7 +61,9 @@ export class PaymentAdapterFactory {
         return {
           ...baseConfig,
           apiKey: this.configService.get<string>('STRIPE_SECRET_KEY', ''),
-          webhookSecret: this.configService.get<string>('STRIPE_WEBHOOK_SECRET'),
+          webhookSecret: this.configService.get<string>(
+            'STRIPE_WEBHOOK_SECRET',
+          ),
           baseUrl: 'https://api.stripe.com',
         };
 
@@ -70,9 +72,10 @@ export class PaymentAdapterFactory {
           ...baseConfig,
           apiKey: this.configService.get<string>('PAYPAL_CLIENT_ID', ''),
           secretKey: this.configService.get<string>('PAYPAL_CLIENT_SECRET'),
-          baseUrl: this.configService.get<string>('PAYPAL_ENVIRONMENT') === 'sandbox'
-            ? 'https://api-m.sandbox.paypal.com'
-            : 'https://api-m.paypal.com',
+          baseUrl:
+            this.configService.get<string>('PAYPAL_ENVIRONMENT') === 'sandbox'
+              ? 'https://api-m.sandbox.paypal.com'
+              : 'https://api-m.paypal.com',
         };
 
       case 'tap':
@@ -112,7 +115,7 @@ export class PaymentAdapterFactory {
    */
   getAvailableGateways(): PaymentGateway[] {
     const allGateways: PaymentGateway[] = ['stripe', 'paypal', 'tap', 'local'];
-    return allGateways.filter(gateway => this.isGatewayAvailable(gateway));
+    return allGateways.filter((gateway) => this.isGatewayAvailable(gateway));
   }
 
   /**
@@ -148,7 +151,13 @@ export class PaymentAdapterFactory {
         description: 'بوابة دفع عالمية تدعم جميع أنواع البطاقات والمحافظ',
         supportedCurrencies: ['SAR', 'USD', 'EUR', 'GBP'],
         supportedMethods: ['card', 'wallet'],
-        features: ['3d_secure', 'recurring', 'refunds', 'webhooks', 'payment_links'],
+        features: [
+          '3d_secure',
+          'recurring',
+          'refunds',
+          'webhooks',
+          'payment_links',
+        ],
       },
       paypal: {
         name: 'paypal',
@@ -200,8 +209,8 @@ export class PaymentAdapterFactory {
    */
   getGatewaysForCurrency(currency: string): PaymentGateway[] {
     const availableGateways = this.getAvailableGateways();
-    return availableGateways.filter(gateway =>
-      this.isCurrencySupported(gateway, currency)
+    return availableGateways.filter((gateway) =>
+      this.isCurrencySupported(gateway, currency),
     );
   }
 
@@ -210,8 +219,8 @@ export class PaymentAdapterFactory {
    */
   getGatewaysForMethod(method: string): PaymentGateway[] {
     const availableGateways = this.getAvailableGateways();
-    return availableGateways.filter(gateway =>
-      this.isMethodSupported(gateway, method)
+    return availableGateways.filter((gateway) =>
+      this.isMethodSupported(gateway, method),
     );
   }
 }

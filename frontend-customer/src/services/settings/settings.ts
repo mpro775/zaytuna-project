@@ -114,14 +114,16 @@ export const settingsApi = {
 
   uploadCompanyLogo: async (file: File): Promise<{ logoUrl: string }> => {
     const formData = new FormData();
-    formData.append('logo', file);
+    formData.append('file', file);
 
-    const response = await api.post<ApiResponse<{ logoUrl: string }>>('/settings/company/logo', formData, {
+    const uploadResponse = await api.post<ApiResponse<{ id: string; url?: string; logoUrl?: string }>>('/storage/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
-    return response.data.data;
+    const uploadedFile = uploadResponse.data.data;
+    await api.post<ApiResponse<CompanySettings>>('/settings/company/logo', { fileId: uploadedFile.id });
+    return { logoUrl: uploadedFile.logoUrl ?? uploadedFile.url ?? uploadedFile.id };
   },
 
   // System Settings

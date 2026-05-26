@@ -47,7 +47,9 @@ export class ProductService {
   /**
    * إنشاء منتج جديد
    */
-  async create(createProductDto: CreateProductDto): Promise<ProductWithDetails> {
+  async create(
+    createProductDto: CreateProductDto,
+  ): Promise<ProductWithDetails> {
     try {
       this.logger.log(`إنشاء منتج جديد: ${createProductDto.name}`);
 
@@ -147,16 +149,20 @@ export class ProductService {
   /**
    * الحصول على جميع المنتجات
    */
-  async findAll(categoryId?: string, search?: string): Promise<ProductWithDetails[]> {
+  async findAll(
+    categoryId?: string,
+    search?: string,
+  ): Promise<ProductWithDetails[]> {
     try {
       const cacheKey = categoryId
         ? `products:category:${categoryId}`
         : search
-        ? `products:search:${search}`
-        : this.productsCacheKey;
+          ? `products:search:${search}`
+          : this.productsCacheKey;
 
       // محاولة الحصول من الكاش أولاً
-      const cachedProducts = await this.cacheService.get<ProductWithDetails[]>(cacheKey);
+      const cachedProducts =
+        await this.cacheService.get<ProductWithDetails[]>(cacheKey);
       if (cachedProducts) {
         return cachedProducts;
       }
@@ -194,25 +200,27 @@ export class ProductService {
         orderBy: { name: 'asc' },
       });
 
-      const productsWithDetails: ProductWithDetails[] = products.map(product => ({
-        id: product.id,
-        name: product.name,
-        description: product.description || undefined,
-        barcode: product.barcode || undefined,
-        sku: product.sku || undefined,
-        categoryId: product.categoryId,
-        basePrice: Number(product.basePrice),
-        costPrice: product.costPrice ? Number(product.costPrice) : undefined,
-        taxId: product.taxId || undefined,
-        isActive: product.isActive,
-        trackInventory: product.trackInventory,
-        reorderPoint: product.reorderPoint || undefined,
-        imageUrl: product.imageUrl || undefined,
-        category: product.category,
-        variantCount: product._count.variants,
-        createdAt: product.createdAt,
-        updatedAt: product.updatedAt,
-      }));
+      const productsWithDetails: ProductWithDetails[] = products.map(
+        (product) => ({
+          id: product.id,
+          name: product.name,
+          description: product.description || undefined,
+          barcode: product.barcode || undefined,
+          sku: product.sku || undefined,
+          categoryId: product.categoryId,
+          basePrice: Number(product.basePrice),
+          costPrice: product.costPrice ? Number(product.costPrice) : undefined,
+          taxId: product.taxId || undefined,
+          isActive: product.isActive,
+          trackInventory: product.trackInventory,
+          reorderPoint: product.reorderPoint || undefined,
+          imageUrl: product.imageUrl || undefined,
+          category: product.category,
+          variantCount: product._count.variants,
+          createdAt: product.createdAt,
+          updatedAt: product.updatedAt,
+        }),
+      );
 
       // حفظ في الكاش لمدة 10 دقائق
       await this.cacheService.set(cacheKey, productsWithDetails, { ttl: 600 });
@@ -230,7 +238,8 @@ export class ProductService {
   async findOne(id: string): Promise<ProductWithDetails> {
     try {
       const cacheKey = `${this.productCacheKey}:${id}`;
-      const cachedProduct = await this.cacheService.get<ProductWithDetails>(cacheKey);
+      const cachedProduct =
+        await this.cacheService.get<ProductWithDetails>(cacheKey);
 
       if (cachedProduct) {
         return cachedProduct;
@@ -290,7 +299,10 @@ export class ProductService {
   /**
    * تحديث منتج
    */
-  async update(id: string, updateProductDto: UpdateProductDto): Promise<ProductWithDetails> {
+  async update(
+    id: string,
+    updateProductDto: UpdateProductDto,
+  ): Promise<ProductWithDetails> {
     try {
       this.logger.log(`تحديث المنتج: ${id}`);
 
@@ -304,7 +316,10 @@ export class ProductService {
       }
 
       // التحقق من عدم تكرار الباركود
-      if (updateProductDto.barcode && updateProductDto.barcode !== existingProduct.barcode) {
+      if (
+        updateProductDto.barcode &&
+        updateProductDto.barcode !== existingProduct.barcode
+      ) {
         const productWithSameBarcode = await this.prisma.product.findUnique({
           where: { barcode: updateProductDto.barcode },
         });
@@ -315,7 +330,10 @@ export class ProductService {
       }
 
       // التحقق من عدم تكرار SKU
-      if (updateProductDto.sku && updateProductDto.sku !== existingProduct.sku) {
+      if (
+        updateProductDto.sku &&
+        updateProductDto.sku !== existingProduct.sku
+      ) {
         const productWithSameSku = await this.prisma.product.findUnique({
           where: { sku: updateProductDto.sku },
         });
@@ -437,14 +455,13 @@ export class ProductService {
   /**
    * الحصول على المنتجات حسب الباركود أو SKU
    */
-  async findByBarcodeOrSku(identifier: string): Promise<ProductWithDetails | null> {
+  async findByBarcodeOrSku(
+    identifier: string,
+  ): Promise<ProductWithDetails | null> {
     try {
       const product = await this.prisma.product.findFirst({
         where: {
-          OR: [
-            { barcode: identifier },
-            { sku: identifier },
-          ],
+          OR: [{ barcode: identifier }, { sku: identifier }],
           isActive: true,
         },
         include: {
@@ -522,9 +539,10 @@ export class ProductService {
         activeVariants,
         inactiveVariants: totalVariants - activeVariants,
         totalCategories: categoriesWithProducts.length,
-        averageProductsPerCategory: categoriesWithProducts.length > 0
-          ? (totalProducts / categoriesWithProducts.length).toFixed(1)
-          : 0,
+        averageProductsPerCategory:
+          categoriesWithProducts.length > 0
+            ? (totalProducts / categoriesWithProducts.length).toFixed(1)
+            : 0,
       };
     } catch (error) {
       this.logger.error('فشل في الحصول على إحصائيات المنتجات', error);

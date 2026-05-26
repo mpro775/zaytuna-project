@@ -46,7 +46,9 @@ export class CategoryService {
   /**
    * إنشاء فئة جديدة
    */
-  async create(createCategoryDto: CreateCategoryDto): Promise<CategoryWithDetails> {
+  async create(
+    createCategoryDto: CreateCategoryDto,
+  ): Promise<CategoryWithDetails> {
     try {
       this.logger.log(`إنشاء فئة جديدة: ${createCategoryDto.name}`);
 
@@ -71,7 +73,9 @@ export class CategoryService {
 
         // منع إنشاء فئة فرعية لفئة غير نشطة
         if (!parentCategory.isActive) {
-          throw new BadRequestException('لا يمكن إنشاء فئة فرعية لفئة غير نشطة');
+          throw new BadRequestException(
+            'لا يمكن إنشاء فئة فرعية لفئة غير نشطة',
+          );
         }
       }
 
@@ -123,12 +127,17 @@ export class CategoryService {
   /**
    * الحصول على جميع الفئات
    */
-  async findAll(includeInactive: boolean = false): Promise<CategoryWithDetails[]> {
+  async findAll(
+    includeInactive: boolean = false,
+  ): Promise<CategoryWithDetails[]> {
     try {
-      const cacheKey = includeInactive ? `${this.categoriesCacheKey}:all` : this.categoriesCacheKey;
+      const cacheKey = includeInactive
+        ? `${this.categoriesCacheKey}:all`
+        : this.categoriesCacheKey;
 
       // محاولة الحصول من الكاش أولاً
-      const cachedCategories = await this.cacheService.get<CategoryWithDetails[]>(cacheKey);
+      const cachedCategories =
+        await this.cacheService.get<CategoryWithDetails[]>(cacheKey);
       if (cachedCategories) {
         return cachedCategories;
       }
@@ -164,11 +173,15 @@ export class CategoryService {
       const categoriesWithDetails: CategoryWithDetails[] = [];
 
       for (const category of categories) {
-        categoriesWithDetails.push(await this.buildCategoryWithDetails(category));
+        categoriesWithDetails.push(
+          await this.buildCategoryWithDetails(category),
+        );
       }
 
       // حفظ في الكاش لمدة 10 دقائق
-      await this.cacheService.set(cacheKey, categoriesWithDetails, { ttl: 600 });
+      await this.cacheService.set(cacheKey, categoriesWithDetails, {
+        ttl: 600,
+      });
 
       return categoriesWithDetails;
     } catch (error) {
@@ -183,7 +196,8 @@ export class CategoryService {
   async findOne(id: string): Promise<CategoryWithDetails> {
     try {
       const cacheKey = `${this.categoryCacheKey}:${id}`;
-      const cachedCategory = await this.cacheService.get<CategoryWithDetails>(cacheKey);
+      const cachedCategory =
+        await this.cacheService.get<CategoryWithDetails>(cacheKey);
 
       if (cachedCategory) {
         return cachedCategory;
@@ -233,7 +247,10 @@ export class CategoryService {
   /**
    * تحديث فئة
    */
-  async update(id: string, updateCategoryDto: UpdateCategoryDto): Promise<CategoryWithDetails> {
+  async update(
+    id: string,
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<CategoryWithDetails> {
     try {
       this.logger.log(`تحديث الفئة: ${id}`);
 
@@ -247,7 +264,10 @@ export class CategoryService {
       }
 
       // التحقق من عدم تكرار الاسم
-      if (updateCategoryDto.name && updateCategoryDto.name !== existingCategory.name) {
+      if (
+        updateCategoryDto.name &&
+        updateCategoryDto.name !== existingCategory.name
+      ) {
         const categoryWithSameName = await this.prisma.category.findFirst({
           where: { name: updateCategoryDto.name },
         });
@@ -274,7 +294,9 @@ export class CategoryService {
 
         // منع إنشاء حلقات في التسلسل الهرمي
         if (await this.wouldCreateCycle(id, updateCategoryDto.parentId)) {
-          throw new BadRequestException('تحديد هذه الفئة كأب سيؤدي إلى حلقة في التسلسل الهرمي');
+          throw new BadRequestException(
+            'تحديد هذه الفئة كأب سيؤدي إلى حلقة في التسلسل الهرمي',
+          );
         }
       }
 
@@ -407,7 +429,9 @@ export class CategoryService {
       const categoriesWithDetails: CategoryWithDetails[] = [];
 
       for (const category of categories) {
-        categoriesWithDetails.push(await this.buildCategoryWithDetails(category));
+        categoriesWithDetails.push(
+          await this.buildCategoryWithDetails(category),
+        );
       }
 
       return categoriesWithDetails;
@@ -448,12 +472,17 @@ export class CategoryService {
       const categoriesWithDetails: CategoryWithDetails[] = [];
 
       for (const category of categories) {
-        categoriesWithDetails.push(await this.buildCategoryWithDetails(category));
+        categoriesWithDetails.push(
+          await this.buildCategoryWithDetails(category),
+        );
       }
 
       return categoriesWithDetails;
     } catch (error) {
-      this.logger.error(`فشل في الحصول على الفئات الفرعية للفئة: ${parentId}`, error);
+      this.logger.error(
+        `فشل في الحصول على الفئات الفرعية للفئة: ${parentId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -494,9 +523,10 @@ export class CategoryService {
         rootCategories,
         maxDepth,
         totalProducts,
-        averageProductsPerCategory: totalCategories > 0
-          ? (totalProducts / totalCategories).toFixed(1)
-          : 0,
+        averageProductsPerCategory:
+          totalCategories > 0
+            ? (totalProducts / totalCategories).toFixed(1)
+            : 0,
       };
     } catch (error) {
       this.logger.error('فشل في الحصول على إحصائيات الفئات', error);
@@ -507,7 +537,9 @@ export class CategoryService {
   /**
    * بناء كائن فئة مع التفاصيل
    */
-  private async buildCategoryWithDetails(category: any): Promise<CategoryWithDetails> {
+  private async buildCategoryWithDetails(
+    category: any,
+  ): Promise<CategoryWithDetails> {
     const level = await this.getCategoryLevel(category.id);
     const path = await this.getCategoryPath(category.id);
 
@@ -575,7 +607,10 @@ export class CategoryService {
   /**
    * التحقق من وجود حلقة في التسلسل الهرمي
    */
-  private async wouldCreateCycle(categoryId: string, parentId: string): Promise<boolean> {
+  private async wouldCreateCycle(
+    categoryId: string,
+    parentId: string,
+  ): Promise<boolean> {
     let currentId: string | null = parentId;
 
     while (currentId) {
@@ -619,7 +654,9 @@ export class CategoryService {
     await this.cacheService.delete(this.categoriesCacheKey);
     await this.cacheService.delete(`${this.categoriesCacheKey}:all`);
     // إبطال جميع كاشات الفئات الفردية
-    const categoryKeys = await this.cacheService.getKeys(`${this.categoryCacheKey}:*`);
+    const categoryKeys = await this.cacheService.getKeys(
+      `${this.categoryCacheKey}:*`,
+    );
     for (const key of categoryKeys) {
       await this.cacheService.delete(key);
     }

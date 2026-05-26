@@ -12,26 +12,12 @@ export interface MockConfig {
 }
 
 const getMockConfig = (): MockConfig => {
-  // Mock mode is enabled by default unless explicitly disabled
-  // Check environment variable first, then localStorage, then default to true
   const envValue = import.meta.env.VITE_USE_MOCK_DATA;
-  const localStorageValue = localStorage.getItem('mockDataEnabled');
-  
-  let enabled: boolean;
-  
-  if (envValue !== undefined) {
-    // Environment variable takes precedence
-    enabled = envValue === 'true';
-  } else if (localStorageValue !== null) {
-    // localStorage value if env var is not set
-    enabled = localStorageValue === 'true';
-  } else {
-    // Default: enabled
-    enabled = true;
-  }
+  const localStorageValue = typeof window !== 'undefined' ? localStorage.getItem('mockDataEnabled') : null;
+  const explicitlyEnabled = envValue === 'true' || (import.meta.env.DEV && localStorageValue === 'true');
   
   return {
-    enabled,
+    enabled: explicitlyEnabled,
     delayMin: parseInt(import.meta.env.VITE_MOCK_DELAY_MIN || '100', 10),
     delayMax: parseInt(import.meta.env.VITE_MOCK_DELAY_MAX || '500', 10),
     errorRate: parseFloat(import.meta.env.VITE_MOCK_ERROR_RATE || '0'),
@@ -46,6 +32,11 @@ export const mockConfig = getMockConfig();
  * Enable or disable mock mode
  */
 export const setMockMode = (enabled: boolean): void => {
+  if (!import.meta.env.DEV) {
+    console.warn('Mock mode is disabled in MVP runtime builds.');
+    return;
+  }
+
   localStorage.setItem('mockDataEnabled', enabled.toString());
   if (enabled) {
     console.warn('⚠️ Mock Data Mode is ENABLED - All API calls will use mock data');
@@ -59,20 +50,18 @@ export const setMockMode = (enabled: boolean): void => {
  * Check if mock mode is enabled (dynamic check)
  */
 export const isMockModeEnabled = (): boolean => {
-  // Always check current state, not cached value
   const envValue = import.meta.env.VITE_USE_MOCK_DATA;
   const localStorageValue = typeof window !== 'undefined' ? localStorage.getItem('mockDataEnabled') : null;
-  
-  if (envValue !== undefined) {
-    return envValue === 'true';
+
+  if (envValue === 'true') {
+    return true;
   }
-  
-  if (localStorageValue !== null) {
+
+  if (import.meta.env.DEV && localStorageValue !== null) {
     return localStorageValue === 'true';
   }
-  
-  // Default: enabled
-  return true;
+
+  return false;
 };
 
 export default mockConfig;

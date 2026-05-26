@@ -38,7 +38,10 @@ export class InventoryController {
     @Query('warehouseId') warehouseId?: string,
     @Query('lowStockOnly') lowStockOnly?: boolean,
   ) {
-    return this.inventoryService.findAllStockItems(warehouseId, lowStockOnly === true);
+    return this.inventoryService.findAllStockItems(
+      warehouseId,
+      lowStockOnly === true,
+    );
   }
 
   /**
@@ -56,7 +59,10 @@ export class InventoryController {
   @Patch('stock-items/:id')
   @Permissions('inventory.update')
   @HttpCode(HttpStatus.OK)
-  updateStockItem(@Param('id') id: string, @Body() updateStockItemDto: UpdateStockItemDto) {
+  updateStockItem(
+    @Param('id') id: string,
+    @Body() updateStockItemDto: UpdateStockItemDto,
+  ) {
     return this.inventoryService.updateStockItem(id, updateStockItemDto);
   }
 
@@ -71,7 +77,11 @@ export class InventoryController {
     @Param('productVariantId') productVariantId: string,
     @Body() adjustStockDto: AdjustStockDto,
   ) {
-    return this.inventoryService.adjustStock(warehouseId, productVariantId, adjustStockDto);
+    return this.inventoryService.adjustStock(
+      warehouseId,
+      productVariantId,
+      adjustStockDto,
+    );
   }
 
   /**
@@ -114,11 +124,15 @@ export class InventoryController {
    */
   @Get('products/:productVariantId/stock')
   @Permissions('inventory.read')
-  async getProductStockAcrossWarehouses(@Param('productVariantId') productVariantId: string) {
+  async getProductStockAcrossWarehouses(
+    @Param('productVariantId') productVariantId: string,
+  ) {
     // البحث عن جميع عناصر المخزون لهذا المنتج
-    return this.inventoryService.findAllStockItems().then(items =>
-      items.filter(item => item.productVariantId === productVariantId)
-    );
+    return this.inventoryService
+      .findAllStockItems()
+      .then((items) =>
+        items.filter((item) => item.productVariantId === productVariantId),
+      );
   }
 
   /**

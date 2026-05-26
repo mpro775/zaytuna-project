@@ -246,7 +246,10 @@ export class NotificationTemplateService {
         },
       });
     } catch (error) {
-      this.logger.error(`فشل في الحصول على القالب الافتراضي: ${event} - ${type}`, error);
+      this.logger.error(
+        `فشل في الحصول على القالب الافتراضي: ${event} - ${type}`,
+        error,
+      );
       return null;
     }
   }
@@ -326,111 +329,308 @@ export class NotificationTemplateService {
   /**
    * الحصول على قائمة الأحداث المتاحة
    */
-  async getAvailableEvents(): Promise<Array<{
-    event: string;
-    module: string;
-    description: string;
-  }>> {
+  async getAvailableEvents(): Promise<
+    Array<{
+      event: string;
+      module: string;
+      description: string;
+    }>
+  > {
     return [
       // أحداث المبيعات
-      { event: 'sale_created', module: 'sales', description: 'إنشاء فاتورة مبيعات' },
-      { event: 'sale_updated', module: 'sales', description: 'تحديث فاتورة مبيعات' },
-      { event: 'sale_cancelled', module: 'sales', description: 'إلغاء فاتورة مبيعات' },
-      { event: 'payment_received', module: 'sales', description: 'استلام دفعة' },
+      {
+        event: 'sale_created',
+        module: 'sales',
+        description: 'إنشاء فاتورة مبيعات',
+      },
+      {
+        event: 'sale_updated',
+        module: 'sales',
+        description: 'تحديث فاتورة مبيعات',
+      },
+      {
+        event: 'sale_cancelled',
+        module: 'sales',
+        description: 'إلغاء فاتورة مبيعات',
+      },
+      {
+        event: 'payment_received',
+        module: 'sales',
+        description: 'استلام دفعة',
+      },
       { event: 'payment_failed', module: 'sales', description: 'فشل في الدفع' },
 
       // أحداث المرتجعات
-      { event: 'return_created', module: 'returns', description: 'إنشاء مرتجع' },
-      { event: 'return_processed', module: 'returns', description: 'معالجة مرتجع' },
-      { event: 'credit_note_issued', module: 'returns', description: 'إصدار إشعار دائن' },
+      {
+        event: 'return_created',
+        module: 'returns',
+        description: 'إنشاء مرتجع',
+      },
+      {
+        event: 'return_processed',
+        module: 'returns',
+        description: 'معالجة مرتجع',
+      },
+      {
+        event: 'credit_note_issued',
+        module: 'returns',
+        description: 'إصدار إشعار دائن',
+      },
 
       // أحداث المخزون
       { event: 'stock_low', module: 'inventory', description: 'مخزون منخفض' },
       { event: 'stock_out', module: 'inventory', description: 'نفاد المخزون' },
-      { event: 'stock_adjusted', module: 'inventory', description: 'تعديل المخزون' },
+      {
+        event: 'stock_adjusted',
+        module: 'inventory',
+        description: 'تعديل المخزون',
+      },
 
       // أحداث المشتريات
-      { event: 'purchase_order_created', module: 'purchasing', description: 'إنشاء أمر شراء' },
-      { event: 'purchase_invoice_received', module: 'purchasing', description: 'استلام فاتورة شراء' },
-      { event: 'supplier_payment_due', module: 'purchasing', description: 'استحقاق دفع لمورد' },
+      {
+        event: 'purchase_order_created',
+        module: 'purchasing',
+        description: 'إنشاء أمر شراء',
+      },
+      {
+        event: 'purchase_invoice_received',
+        module: 'purchasing',
+        description: 'استلام فاتورة شراء',
+      },
+      {
+        event: 'supplier_payment_due',
+        module: 'purchasing',
+        description: 'استحقاق دفع لمورد',
+      },
 
       // أحداث العملاء
-      { event: 'customer_registered', module: 'customer', description: 'تسجيل عميل جديد' },
-      { event: 'customer_birthday', module: 'customer', description: 'عيد ميلاد العميل' },
-      { event: 'loyalty_points_earned', module: 'customer', description: 'كسب نقاط ولاء' },
-      { event: 'loyalty_tier_upgraded', module: 'customer', description: 'ترقية درجة الولاء' },
+      {
+        event: 'customer_registered',
+        module: 'customer',
+        description: 'تسجيل عميل جديد',
+      },
+      {
+        event: 'customer_birthday',
+        module: 'customer',
+        description: 'عيد ميلاد العميل',
+      },
+      {
+        event: 'loyalty_points_earned',
+        module: 'customer',
+        description: 'كسب نقاط ولاء',
+      },
+      {
+        event: 'loyalty_tier_upgraded',
+        module: 'customer',
+        description: 'ترقية درجة الولاء',
+      },
 
       // أحداث المحاسبة
-      { event: 'journal_entry_posted', module: 'accounting', description: 'ترحيل قيد يومي' },
-      { event: 'period_closed', module: 'accounting', description: 'إغلاق فترة محاسبية' },
-      { event: 'budget_exceeded', module: 'accounting', description: 'تجاوز الميزانية' },
+      {
+        event: 'journal_entry_posted',
+        module: 'accounting',
+        description: 'ترحيل قيد يومي',
+      },
+      {
+        event: 'period_closed',
+        module: 'accounting',
+        description: 'إغلاق فترة محاسبية',
+      },
+      {
+        event: 'budget_exceeded',
+        module: 'accounting',
+        description: 'تجاوز الميزانية',
+      },
 
       // أحداث النظام
-      { event: 'user_login_failed', module: 'auth', description: 'فشل في تسجيل الدخول' },
-      { event: 'password_reset', module: 'auth', description: 'إعادة تعيين كلمة المرور' },
+      {
+        event: 'user_login_failed',
+        module: 'auth',
+        description: 'فشل في تسجيل الدخول',
+      },
+      {
+        event: 'password_reset',
+        module: 'auth',
+        description: 'إعادة تعيين كلمة المرور',
+      },
       { event: 'admin_action', module: 'admin', description: 'إجراء إداري' },
 
       // أحداث التقارير
-      { event: 'report_generated', module: 'reporting', description: 'توليد تقرير' },
-      { event: 'alert_triggered', module: 'reporting', description: 'تشغيل تنبيه' },
+      {
+        event: 'report_generated',
+        module: 'reporting',
+        description: 'توليد تقرير',
+      },
+      {
+        event: 'alert_triggered',
+        module: 'reporting',
+        description: 'تشغيل تنبيه',
+      },
     ];
   }
 
   /**
    * الحصول على المتغيرات المتاحة لقالب معين
    */
-  async getTemplateVariables(event: string, module: string): Promise<Record<string, any>> {
+  async getTemplateVariables(
+    event: string,
+    module: string,
+  ): Promise<Record<string, any>> {
     const variables: Record<string, any> = {
       // متغيرات عامة
-      app_name: { type: 'string', description: 'اسم التطبيق', example: 'نظام زيتونة' },
-      current_date: { type: 'date', description: 'التاريخ الحالي', example: '2025-01-11' },
-      current_time: { type: 'time', description: 'الوقت الحالي', example: '14:30:00' },
+      app_name: {
+        type: 'string',
+        description: 'اسم التطبيق',
+        example: 'نظام زيتونة',
+      },
+      current_date: {
+        type: 'date',
+        description: 'التاريخ الحالي',
+        example: '2025-01-11',
+      },
+      current_time: {
+        type: 'time',
+        description: 'الوقت الحالي',
+        example: '14:30:00',
+      },
 
       // متغيرات المستخدم
-      user_name: { type: 'string', description: 'اسم المستخدم', example: 'أحمد محمد' },
-      user_email: { type: 'email', description: 'بريد المستخدم', example: 'ahmed@example.com' },
-      user_phone: { type: 'phone', description: 'هاتف المستخدم', example: '+966501234567' },
+      user_name: {
+        type: 'string',
+        description: 'اسم المستخدم',
+        example: 'أحمد محمد',
+      },
+      user_email: {
+        type: 'email',
+        description: 'بريد المستخدم',
+        example: 'ahmed@example.com',
+      },
+      user_phone: {
+        type: 'phone',
+        description: 'هاتف المستخدم',
+        example: '+966501234567',
+      },
     };
 
     // إضافة متغيرات محددة حسب الوحدة والحدث
     switch (module) {
       case 'sales':
         Object.assign(variables, {
-          invoice_number: { type: 'string', description: 'رقم الفاتورة', example: 'INV-001' },
-          invoice_amount: { type: 'number', description: 'مبلغ الفاتورة', example: '299.99' },
-          invoice_date: { type: 'date', description: 'تاريخ الفاتورة', example: '2025-01-11' },
-          customer_name: { type: 'string', description: 'اسم العميل', example: 'شركة أبو بكر' },
-          payment_status: { type: 'string', description: 'حالة الدفع', example: 'مدفوع' },
+          invoice_number: {
+            type: 'string',
+            description: 'رقم الفاتورة',
+            example: 'INV-001',
+          },
+          invoice_amount: {
+            type: 'number',
+            description: 'مبلغ الفاتورة',
+            example: '299.99',
+          },
+          invoice_date: {
+            type: 'date',
+            description: 'تاريخ الفاتورة',
+            example: '2025-01-11',
+          },
+          customer_name: {
+            type: 'string',
+            description: 'اسم العميل',
+            example: 'شركة أبو بكر',
+          },
+          payment_status: {
+            type: 'string',
+            description: 'حالة الدفع',
+            example: 'مدفوع',
+          },
         });
         break;
 
       case 'inventory':
         Object.assign(variables, {
-          product_name: { type: 'string', description: 'اسم المنتج', example: 'زيت زيتون بكر' },
-          product_sku: { type: 'string', description: 'رمز المنتج', example: 'OLIVE-OIL-001' },
-          current_stock: { type: 'number', description: 'المخزون الحالي', example: '15' },
-          minimum_stock: { type: 'number', description: 'الحد الأدنى', example: '10' },
-          warehouse_name: { type: 'string', description: 'اسم المخزن', example: 'المخزن الرئيسي' },
+          product_name: {
+            type: 'string',
+            description: 'اسم المنتج',
+            example: 'زيت زيتون بكر',
+          },
+          product_sku: {
+            type: 'string',
+            description: 'رمز المنتج',
+            example: 'OLIVE-OIL-001',
+          },
+          current_stock: {
+            type: 'number',
+            description: 'المخزون الحالي',
+            example: '15',
+          },
+          minimum_stock: {
+            type: 'number',
+            description: 'الحد الأدنى',
+            example: '10',
+          },
+          warehouse_name: {
+            type: 'string',
+            description: 'اسم المخزن',
+            example: 'المخزن الرئيسي',
+          },
         });
         break;
 
       case 'customer':
         Object.assign(variables, {
-          customer_name: { type: 'string', description: 'اسم العميل', example: 'أحمد محمد' },
-          customer_email: { type: 'email', description: 'بريد العميل', example: 'ahmed@example.com' },
-          loyalty_points: { type: 'number', description: 'نقاط الولاء', example: '150' },
-          loyalty_tier: { type: 'string', description: 'درجة الولاء', example: 'ذهبي' },
-          total_purchases: { type: 'number', description: 'إجمالي المشتريات', example: '2500.00' },
+          customer_name: {
+            type: 'string',
+            description: 'اسم العميل',
+            example: 'أحمد محمد',
+          },
+          customer_email: {
+            type: 'email',
+            description: 'بريد العميل',
+            example: 'ahmed@example.com',
+          },
+          loyalty_points: {
+            type: 'number',
+            description: 'نقاط الولاء',
+            example: '150',
+          },
+          loyalty_tier: {
+            type: 'string',
+            description: 'درجة الولاء',
+            example: 'ذهبي',
+          },
+          total_purchases: {
+            type: 'number',
+            description: 'إجمالي المشتريات',
+            example: '2500.00',
+          },
         });
         break;
 
       case 'accounting':
         Object.assign(variables, {
-          journal_number: { type: 'string', description: 'رقم القيد', example: 'JRN-001' },
-          account_name: { type: 'string', description: 'اسم الحساب', example: 'الصندوق' },
-          debit_amount: { type: 'number', description: 'مبلغ المدين', example: '1000.00' },
-          credit_amount: { type: 'number', description: 'مبلغ الدائن', example: '1000.00' },
-          period_name: { type: 'string', description: 'اسم الفترة', example: 'يناير 2025' },
+          journal_number: {
+            type: 'string',
+            description: 'رقم القيد',
+            example: 'JRN-001',
+          },
+          account_name: {
+            type: 'string',
+            description: 'اسم الحساب',
+            example: 'الصندوق',
+          },
+          debit_amount: {
+            type: 'number',
+            description: 'مبلغ المدين',
+            example: '1000.00',
+          },
+          credit_amount: {
+            type: 'number',
+            description: 'مبلغ الدائن',
+            example: '1000.00',
+          },
+          period_name: {
+            type: 'string',
+            description: 'اسم الفترة',
+            example: 'يناير 2025',
+          },
         });
         break;
     }
@@ -456,9 +656,13 @@ export class NotificationTemplateService {
       }
 
       return {
-        subject: template.subject ? this.processTemplate(template.subject, variables) : undefined,
+        subject: template.subject
+          ? this.processTemplate(template.subject, variables)
+          : undefined,
         content: this.processTemplate(template.content, variables),
-        htmlContent: template.htmlContent ? this.processTemplate(template.htmlContent, variables) : undefined,
+        htmlContent: template.htmlContent
+          ? this.processTemplate(template.htmlContent, variables)
+          : undefined,
       };
     } catch (error) {
       this.logger.error(`فشل في معاينة القالب: ${templateId}`, error);
@@ -489,7 +693,9 @@ export class NotificationTemplateService {
       const cloned = await this.prisma.notificationTemplate.create({
         data: {
           name: newName,
-          description: original.description ? `${original.description} (نسخة)` : 'نسخة من قالب',
+          description: original.description
+            ? `${original.description} (نسخة)`
+            : 'نسخة من قالب',
           type: original.type,
           subject: original.subject,
           content: original.content,
@@ -656,12 +862,17 @@ export class NotificationTemplateService {
 
       for (const templateData of defaultTemplates) {
         try {
-          await this.createTemplate(templateData as CreateTemplateData, 'system');
+          await this.createTemplate(
+            templateData as CreateTemplateData,
+            'system',
+          );
           this.logger.log(`تم إنشاء القالب الافتراضي: ${templateData.name}`);
         } catch (error) {
           // إذا كان القالب موجود بالفعل، تخطيه
           if (error.message.includes('القالب موجود بالفعل')) {
-            this.logger.log(`القالب موجود بالفعل، تم تخطيه: ${templateData.name}`);
+            this.logger.log(
+              `القالب موجود بالفعل، تم تخطيه: ${templateData.name}`,
+            );
           } else {
             throw error;
           }
@@ -680,7 +891,10 @@ export class NotificationTemplateService {
   /**
    * معالجة محتوى القالب
    */
-  private processTemplate(template: string, variables: TemplateVariables): string {
+  private processTemplate(
+    template: string,
+    variables: TemplateVariables,
+  ): string {
     let processed = template;
 
     // استبدال المتغيرات

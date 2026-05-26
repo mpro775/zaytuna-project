@@ -12,8 +12,11 @@ export interface AuthUser {
   id: string;
   username: string;
   email: string;
-  role: string;
+  role?: string;
+  roleId?: string;
   branch?: string;
+  branchId?: string;
+  permissions?: string[];
 }
 
 export interface LoginResponse {

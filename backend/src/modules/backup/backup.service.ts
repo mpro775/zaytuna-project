@@ -48,6 +48,8 @@ export interface BackupMetadataResponse {
   branchId?: string;
 }
 
+type BackupRuntimeMetadata = BackupMetadataResponse;
+
 export interface RestoreOptions {
   backupId: string;
   targetDatabase?: string;
@@ -58,7 +60,7 @@ export interface RestoreOptions {
 @Injectable()
 export class BackupService {
   private readonly logger = new Logger(BackupService.name);
-  private activeBackups = new Map<string, BackupMetadata>();
+  private activeBackups = new Map<string, BackupRuntimeMetadata>();
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -67,8 +69,9 @@ export class BackupService {
    */
   async createManualBackup(): Promise<BackupMetadataResponse> {
     const backupId = this.generateBackupId();
-    const metadata: BackupMetadata = {
+    const metadata: BackupRuntimeMetadata = {
       id: backupId,
+      backupId,
       timestamp: new Date(),
       type: 'manual',
       status: 'pending',
@@ -111,8 +114,9 @@ export class BackupService {
   @Cron(CronExpression.EVERY_DAY_AT_2AM)
   async createScheduledBackup() {
     const backupId = this.generateBackupId();
-    const metadata: BackupMetadata = {
+    const metadata: BackupRuntimeMetadata = {
       id: backupId,
+      backupId,
       timestamp: new Date(),
       type: 'scheduled',
       status: 'pending',
@@ -137,7 +141,6 @@ export class BackupService {
       await this.saveBackupMetadata(metadata);
       await this.cleanupOldBackups();
       this.logger.log(`تم إكمال النسخ الاحتياطي المجدول: ${backupId}`);
-
     } catch (error) {
       metadata.status = 'failed';
       metadata.error = error.message;
@@ -153,8 +156,9 @@ export class BackupService {
    */
   async createAutomaticBackup(reason: string): Promise<BackupMetadataResponse> {
     const backupId = this.generateBackupId();
-    const metadata: BackupMetadata = {
+    const metadata: BackupRuntimeMetadata = {
       id: backupId,
+      backupId,
       timestamp: new Date(),
       type: 'automatic',
       status: 'pending',
@@ -177,14 +181,19 @@ export class BackupService {
       metadata.path = result.path;
 
       await this.saveBackupMetadata(metadata);
-      this.logger.log(`تم إكمال النسخ الاحتياطي التلقائي (${reason}): ${backupId}`);
+      this.logger.log(
+        `تم إكمال النسخ الاحتياطي التلقائي (${reason}): ${backupId}`,
+      );
 
       return metadata;
     } catch (error) {
       metadata.status = 'failed';
       metadata.error = error.message;
       await this.saveBackupMetadata(metadata);
-      this.logger.error(`فشل النسخ الاحتياطي التلقائي (${reason}): ${backupId}`, error);
+      this.logger.error(
+        `فشل النسخ الاحتياطي التلقائي (${reason}): ${backupId}`,
+        error,
+      );
       throw error;
     } finally {
       this.activeBackups.delete(backupId);
@@ -195,7 +204,12 @@ export class BackupService {
    * استعادة نسخة احتياطية
    */
   async restoreBackup(options: RestoreOptions): Promise<void> {
-    const { backupId, targetDatabase, dropExisting = false, verifyOnly = false } = options;
+    const {
+      backupId,
+      targetDatabase,
+      dropExisting = false,
+      verifyOnly = false,
+    } = options;
 
     // البحث عن النسخة الاحتياطية
     const backup = await this.getBackupMetadata(backupId);
@@ -204,10 +218,14 @@ export class BackupService {
     }
 
     if (backup.status !== 'completed') {
-      throw new BadRequestException(`النسخة الاحتياطية غير جاهزة للاستعادة: ${backupId}`);
+      throw new BadRequestException(
+        `النسخة الاحتياطية غير جاهزة للاستعادة: ${backupId}`,
+      );
     }
 
-    this.logger.log(`${verifyOnly ? 'التحقق من' : 'استعادة'} النسخة الاحتياطية: ${backupId}`);
+    this.logger.log(
+      `${verifyOnly ? 'التحقق من' : 'استعادة'} النسخة الاحتياطية: ${backupId}`,
+    );
 
     try {
       if (verifyOnly) {
@@ -218,7 +236,10 @@ export class BackupService {
         this.logger.log(`تم استعادة النسخة الاحتياطية: ${backupId}`);
       }
     } catch (error) {
-      this.logger.error(`فشل ${verifyOnly ? 'التحقق من' : 'استعادة'} النسخة الاحتياطية: ${backupId}`, error);
+      this.logger.error(
+        `فشل ${verifyOnly ? 'التحقق من' : 'استعادة'} النسخة الاحتياطية: ${backupId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -242,14 +263,21 @@ export class BackupService {
       await fs.writeJson(tempPath, testData);
 
       // تشفير البيانات
-      const encryptedPath = await this.encryptFile(tempPath, `${testBackupId}_encrypted`);
+      const encryptedPath = await this.encryptFile(
+        tempPath,
+        `${testBackupId}_encrypted`,
+      );
 
       // فك التشفير والتحقق
-      const decryptedPath = await this.decryptFile(encryptedPath, `${testBackupId}_decrypted.json`);
+      const decryptedPath = await this.decryptFile(
+        encryptedPath,
+        `${testBackupId}_decrypted.json`,
+      );
       const decryptedData = await fs.readJson(decryptedPath);
 
       // التحقق من التطابق
-      const isValid = JSON.stringify(testData) === JSON.stringify(decryptedData);
+      const isValid =
+        JSON.stringify(testData) === JSON.stringify(decryptedData);
 
       // تنظيف الملفات المؤقتة
       await fs.remove(tempPath);
@@ -287,7 +315,7 @@ export class BackupService {
         take: 100,
       });
 
-      return backups.map(backup => ({
+      return backups.map((backup) => ({
         id: backup.id,
         backupId: backup.backupId,
         timestamp: backup.timestamp,
@@ -301,8 +329,12 @@ export class BackupService {
         path: backup.path,
         databaseVersion: backup.databaseVersion || undefined,
         schemaVersion: backup.schemaVersion || undefined,
-        recordCount: backup.recordCount ? Number(backup.recordCount) : undefined,
-        compressionRatio: backup.compressionRatio ? Number(backup.compressionRatio) : undefined,
+        recordCount: backup.recordCount
+          ? Number(backup.recordCount)
+          : undefined,
+        compressionRatio: backup.compressionRatio
+          ? Number(backup.compressionRatio)
+          : undefined,
         startedAt: backup.startedAt || undefined,
         completedAt: backup.completedAt || undefined,
         restoredAt: backup.restoredAt || undefined,
@@ -343,7 +375,7 @@ export class BackupService {
         successfulBackups: successful,
         failedBackups: failed,
         lastBackup: stats._max.timestamp,
-        totalSize: stats._sum.size || 0,
+        totalSize: Number(stats._sum.size || 0),
         activeBackups: this.activeBackups.size,
       };
     } catch (error) {
@@ -359,7 +391,9 @@ export class BackupService {
     try {
       const backup = await this.getBackupMetadata(backupId);
       if (!backup) {
-        throw new NotFoundException(`النسخة الاحتياطية غير موجودة: ${backupId}`);
+        throw new NotFoundException(
+          `النسخة الاحتياطية غير موجودة: ${backupId}`,
+        );
       }
 
       // حذف الملف
@@ -369,7 +403,7 @@ export class BackupService {
 
       // حذف البيانات الوصفية
       await this.prisma.backupMetadata.delete({
-        where: { id: backupId },
+        where: { backupId },
       });
 
       this.logger.log(`تم حذف النسخة الاحتياطية: ${backupId}`);
@@ -381,7 +415,10 @@ export class BackupService {
 
   // الطرق الخاصة
 
-  private async performBackup(backupId: string, type: string): Promise<{
+  private async performBackup(
+    backupId: string,
+    type: string,
+  ): Promise<{
     size: number;
     checksum: string;
     duration: number;
@@ -420,7 +457,10 @@ export class BackupService {
       // حساب checksum وحجم الملف
       const fileStats = await fs.stat(backupPath);
       const fileBuffer = await fs.readFile(backupPath);
-      const checksum = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+      const checksum = crypto
+        .createHash('sha256')
+        .update(fileBuffer)
+        .digest('hex');
 
       // تشفير الملف
       await this.encryptFile(backupPath, encryptedPath.replace('.enc', ''));
@@ -446,11 +486,15 @@ export class BackupService {
   }
 
   private async performRestore(
-    backup: BackupMetadata,
+    backup: BackupRuntimeMetadata,
     targetDatabase?: string,
-    dropExisting = false
+    dropExisting = false,
   ): Promise<void> {
-    const tempPath = path.join(process.cwd(), 'temp', `restore_${backup.id}.sql`);
+    const tempPath = path.join(
+      process.cwd(),
+      'temp',
+      `restore_${backup.id}.sql`,
+    );
 
     try {
       await fs.ensureDir(path.dirname(tempPath));
@@ -482,7 +526,6 @@ export class BackupService {
       const env = { ...process.env, PGPASSWORD: dbPassword };
 
       await execAsync(restoreCommand, { env });
-
     } finally {
       // تنظيف الملف المؤقت
       if (await fs.pathExists(tempPath)) {
@@ -491,7 +534,7 @@ export class BackupService {
     }
   }
 
-  private async verifyBackup(backup: BackupMetadata): Promise<void> {
+  private async verifyBackup(backup: BackupRuntimeMetadata): Promise<void> {
     const tempPath = path.join(process.cwd(), 'temp', `verify_${backup.id}`);
 
     try {
@@ -500,12 +543,14 @@ export class BackupService {
       // فك تشفير الملف والتحقق من checksum
       const decryptedPath = await this.decryptFile(backup.path, tempPath);
       const fileBuffer = await fs.readFile(decryptedPath);
-      const calculatedChecksum = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+      const calculatedChecksum = crypto
+        .createHash('sha256')
+        .update(fileBuffer)
+        .digest('hex');
 
       if (calculatedChecksum !== backup.checksum) {
         throw new Error('Checksum غير متطابق - الملف تالف');
       }
-
     } finally {
       if (await fs.pathExists(tempPath)) {
         await fs.remove(tempPath);
@@ -513,9 +558,16 @@ export class BackupService {
     }
   }
 
-  private async encryptFile(inputPath: string, outputPath: string): Promise<string> {
+  private async encryptFile(
+    inputPath: string,
+    outputPath: string,
+  ): Promise<string> {
     const algorithm = 'aes-256-cbc';
-    const key = crypto.scryptSync(process.env.BACKUP_ENCRYPTION_KEY || 'default-key', 'salt', 32);
+    const key = crypto.scryptSync(
+      process.env.BACKUP_ENCRYPTION_KEY || 'default-key',
+      'salt',
+      32,
+    );
     const iv = crypto.randomBytes(16);
 
     const cipher = crypto.createCipheriv(algorithm, key, iv);
@@ -526,15 +578,24 @@ export class BackupService {
     output.write(iv);
 
     return new Promise((resolve, reject) => {
-      input.pipe(cipher).pipe(output)
+      input
+        .pipe(cipher)
+        .pipe(output)
         .on('finish', () => resolve(outputPath))
         .on('error', reject);
     });
   }
 
-  private async decryptFile(inputPath: string, outputPath: string): Promise<string> {
+  private async decryptFile(
+    inputPath: string,
+    outputPath: string,
+  ): Promise<string> {
     const algorithm = 'aes-256-cbc';
-    const key = crypto.scryptSync(process.env.BACKUP_ENCRYPTION_KEY || 'default-key', 'salt', 32);
+    const key = crypto.scryptSync(
+      process.env.BACKUP_ENCRYPTION_KEY || 'default-key',
+      'salt',
+      32,
+    );
 
     const input = fs.createReadStream(inputPath);
     const output = fs.createWriteStream(outputPath);
@@ -542,9 +603,10 @@ export class BackupService {
     let iv: Buffer | null = null;
 
     return new Promise((resolve, reject) => {
-      input.on('data', (chunk) => {
+      input.on('data', (chunk: Buffer | string) => {
         if (!iv) {
-          iv = chunk.slice(0, 16);
+          const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+          iv = buffer.subarray(0, 16);
           const cipher = crypto.createDecipheriv(algorithm, key, iv);
           input.pipe(cipher).pipe(output);
         }
@@ -611,7 +673,10 @@ export class BackupService {
         },
       });
     } catch (error) {
-      this.logger.error(`فشل في حفظ بيانات النسخ الاحتياطي: ${metadata.id}`, error);
+      this.logger.error(
+        `فشل في حفظ بيانات النسخ الاحتياطي: ${metadata.id}`,
+        error,
+      );
     }
   }
 
@@ -636,7 +701,10 @@ export class BackupService {
         path: backup.path,
       };
     } catch (error) {
-      this.logger.error(`فشل في الحصول على بيانات النسخ الاحتياطي: ${backupId}`, error);
+      this.logger.error(
+        `فشل في الحصول على بيانات النسخ الاحتياطي: ${backupId}`,
+        error,
+      );
       return null;
     }
   }

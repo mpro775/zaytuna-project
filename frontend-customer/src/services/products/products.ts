@@ -192,8 +192,8 @@ export const productsApi = {
    */
   async uploadProductImage(productId: string, file: File, isPrimary: boolean = false): Promise<ProductImage> {
     const formData = new FormData();
-    formData.append('image', file);
-    formData.append('isPrimary', isPrimary.toString());
+    formData.append('file', file);
+    if (isPrimary) formData.append('isPrimary', 'true');
 
     const response = await api.post<ApiResponse<ProductImage>>(`/products/${productId}/images`, formData, {
       headers: {
@@ -238,7 +238,7 @@ export const productsApi = {
     const params = new URLSearchParams();
     if (includeInactive) params.append('includeInactive', 'true');
 
-    const response = await api.get<ApiResponse<Category[]>>(`/products/categories?${params}`);
+    const response = await api.get<ApiResponse<Category[]>>(`/categories?${params}`);
     return response.data.data;
   },
 
@@ -246,7 +246,7 @@ export const productsApi = {
    * الحصول على فئة بالمعرف
    */
   async getCategory(id: string): Promise<Category> {
-    const response = await api.get<ApiResponse<Category>>(`/products/categories/${id}`);
+    const response = await api.get<ApiResponse<Category>>(`/categories/${id}`);
     return response.data.data;
   },
 
@@ -261,7 +261,7 @@ export const productsApi = {
     if (data.sortOrder !== undefined) formData.append('sortOrder', data.sortOrder.toString());
     if (data.image) formData.append('image', data.image);
 
-    const response = await api.post<ApiResponse<Category>>('/products/categories', formData, {
+    const response = await api.post<ApiResponse<Category>>('/categories', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -281,7 +281,7 @@ export const productsApi = {
     if (data.isActive !== undefined) formData.append('isActive', data.isActive.toString());
     if (data.image) formData.append('image', data.image);
 
-    const response = await api.patch<ApiResponse<Category>>(`/products/categories/${id}`, formData, {
+    const response = await api.patch<ApiResponse<Category>>(`/categories/${id}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -293,7 +293,7 @@ export const productsApi = {
    * حذف فئة
    */
   async deleteCategory(id: string): Promise<{ message: string }> {
-    const response = await api.delete<ApiResponse<{ message: string }>>(`/products/categories/${id}`);
+    const response = await api.delete<ApiResponse<{ message: string }>>(`/categories/${id}`);
     return response.data.data;
   },
 
@@ -313,8 +313,8 @@ export const productsApi = {
   /**
    * الحصول على حركات المخزون لمنتج
    */
-  async getStockMovements(productId: string, page: number = 1, limit: number = 20): Promise<any[]> {
-    const response = await api.get<ApiResponse<any[]>>(`/products/${productId}/stock-movements?page=${page}&limit=${limit}`);
+  async getStockMovements(productId: string, page: number = 1, limit: number = 20): Promise<unknown[]> {
+    const response = await api.get<ApiResponse<unknown[]>>(`/products/${productId}/stock-movements?page=${page}&limit=${limit}`);
     return response.data.data;
   },
 

@@ -65,10 +65,31 @@ export class CustomerService {
 
   // إعدادات نظام الولاء
   private readonly loyaltyTiers = {
-    bronze: { minPurchases: 0, multiplier: 1, benefits: ['خصم 2% على المشتريات'] },
-    silver: { minPurchases: 1000, multiplier: 1.5, benefits: ['خصم 5% على المشتريات', 'شحن مجاني للطلبات فوق 200 ر.س'] },
-    gold: { minPurchases: 5000, multiplier: 2, benefits: ['خصم 10% على المشتريات', 'شحن مجاني', 'دعم فني أولوية'] },
-    platinum: { minPurchases: 15000, multiplier: 2.5, benefits: ['خصم 15% على المشتريات', 'شحن مجاني', 'دعم فني أولوية', 'هدايا شهرية'] },
+    bronze: {
+      minPurchases: 0,
+      multiplier: 1,
+      benefits: ['خصم 2% على المشتريات'],
+    },
+    silver: {
+      minPurchases: 1000,
+      multiplier: 1.5,
+      benefits: ['خصم 5% على المشتريات', 'شحن مجاني للطلبات فوق 200 ر.س'],
+    },
+    gold: {
+      minPurchases: 5000,
+      multiplier: 2,
+      benefits: ['خصم 10% على المشتريات', 'شحن مجاني', 'دعم فني أولوية'],
+    },
+    platinum: {
+      minPurchases: 15000,
+      multiplier: 2.5,
+      benefits: [
+        'خصم 15% على المشتريات',
+        'شحن مجاني',
+        'دعم فني أولوية',
+        'هدايا شهرية',
+      ],
+    },
   };
 
   constructor(
@@ -79,7 +100,9 @@ export class CustomerService {
   /**
    * إنشاء عميل جديد
    */
-  async create(createCustomerDto: CreateCustomerDto): Promise<CustomerWithDetails> {
+  async create(
+    createCustomerDto: CreateCustomerDto,
+  ): Promise<CustomerWithDetails> {
     try {
       this.logger.log(`إنشاء عميل جديد: ${createCustomerDto.name}`);
 
@@ -113,7 +136,9 @@ export class CustomerService {
           address: createCustomerDto.address,
           taxNumber: createCustomerDto.taxNumber,
           creditLimit: createCustomerDto.creditLimit,
-          birthday: createCustomerDto.birthday ? new Date(createCustomerDto.birthday) : undefined,
+          birthday: createCustomerDto.birthday
+            ? new Date(createCustomerDto.birthday)
+            : undefined,
           gender: createCustomerDto.gender,
           marketingConsent: createCustomerDto.marketingConsent ?? false,
           isActive: createCustomerDto.isActive ?? true,
@@ -144,7 +169,8 @@ export class CustomerService {
     try {
       const cacheKey = `customers:${search || 'all'}:${isActive ?? 'all'}:${loyaltyTier || 'all'}`;
 
-      const cachedCustomers = await this.cacheService.get<CustomerWithDetails[]>(cacheKey);
+      const cachedCustomers =
+        await this.cacheService.get<CustomerWithDetails[]>(cacheKey);
       if (cachedCustomers) {
         return cachedCustomers;
       }
@@ -174,7 +200,7 @@ export class CustomerService {
       });
 
       const customersWithDetails = await Promise.all(
-        customers.map(customer => this.buildCustomerWithDetails(customer))
+        customers.map((customer) => this.buildCustomerWithDetails(customer)),
       );
 
       await this.cacheService.set(cacheKey, customersWithDetails, { ttl: 600 });
@@ -192,7 +218,8 @@ export class CustomerService {
   async findOne(id: string): Promise<CustomerWithDetails> {
     try {
       const cacheKey = `${this.customerCacheKey}:${id}`;
-      const cachedCustomer = await this.cacheService.get<CustomerWithDetails>(cacheKey);
+      const cachedCustomer =
+        await this.cacheService.get<CustomerWithDetails>(cacheKey);
 
       if (cachedCustomer) {
         return cachedCustomer;
@@ -220,7 +247,10 @@ export class CustomerService {
   /**
    * تحديث عميل
    */
-  async update(id: string, updateCustomerDto: UpdateCustomerDto): Promise<CustomerWithDetails> {
+  async update(
+    id: string,
+    updateCustomerDto: UpdateCustomerDto,
+  ): Promise<CustomerWithDetails> {
     try {
       this.logger.log(`تحديث العميل: ${id}`);
 
@@ -233,7 +263,10 @@ export class CustomerService {
       }
 
       // التحقق من عدم تكرار البريد الإلكتروني
-      if (updateCustomerDto.email && updateCustomerDto.email !== existingCustomer.email) {
+      if (
+        updateCustomerDto.email &&
+        updateCustomerDto.email !== existingCustomer.email
+      ) {
         const existingEmail = await this.prisma.customer.findFirst({
           where: { email: updateCustomerDto.email },
         });
@@ -244,7 +277,10 @@ export class CustomerService {
       }
 
       // التحقق من عدم تكرار رقم الهاتف
-      if (updateCustomerDto.phone && updateCustomerDto.phone !== existingCustomer.phone) {
+      if (
+        updateCustomerDto.phone &&
+        updateCustomerDto.phone !== existingCustomer.phone
+      ) {
         const existingPhone = await this.prisma.customer.findFirst({
           where: { phone: updateCustomerDto.phone },
         });
@@ -263,7 +299,9 @@ export class CustomerService {
           address: updateCustomerDto.address,
           taxNumber: updateCustomerDto.taxNumber,
           creditLimit: updateCustomerDto.creditLimit,
-          birthday: updateCustomerDto.birthday ? new Date(updateCustomerDto.birthday) : undefined,
+          birthday: updateCustomerDto.birthday
+            ? new Date(updateCustomerDto.birthday)
+            : undefined,
           gender: updateCustomerDto.gender,
           marketingConsent: updateCustomerDto.marketingConsent,
           isActive: updateCustomerDto.isActive,
@@ -303,7 +341,11 @@ export class CustomerService {
       }
 
       // التحقق من عدم وجود معاملات مرتبطة
-      if (customer.salesInvoices.length > 0 || customer.payments.length > 0 || customer.returns.length > 0) {
+      if (
+        customer.salesInvoices.length > 0 ||
+        customer.payments.length > 0 ||
+        customer.returns.length > 0
+      ) {
         throw new BadRequestException('لا يمكن حذف عميل مرتبط بمعاملات');
       }
 
@@ -323,9 +365,15 @@ export class CustomerService {
   /**
    * تحديث نقاط الولاء
    */
-  async updateLoyaltyPoints(customerId: string, pointsChange: number, reason: string): Promise<CustomerWithDetails> {
+  async updateLoyaltyPoints(
+    customerId: string,
+    pointsChange: number,
+    reason: string,
+  ): Promise<CustomerWithDetails> {
     try {
-      this.logger.log(`تحديث نقاط الولاء للعميل: ${customerId}, التغيير: ${pointsChange}`);
+      this.logger.log(
+        `تحديث نقاط الولاء للعميل: ${customerId}, التغيير: ${pointsChange}`,
+      );
 
       const customer = await this.prisma.customer.findUnique({
         where: { id: customerId },
@@ -336,7 +384,10 @@ export class CustomerService {
       }
 
       const newPoints = Math.max(0, customer.loyaltyPoints + pointsChange);
-      const newTier = this.calculateLoyaltyTier(Number(customer.totalPurchases), newPoints);
+      const newTier = this.calculateLoyaltyTier(
+        Number(customer.totalPurchases),
+        newPoints,
+      );
 
       const updatedCustomer = await this.prisma.customer.update({
         where: { id: customerId },
@@ -348,7 +399,8 @@ export class CustomerService {
 
       await this.invalidateCustomersCache();
 
-      const customerWithDetails = await this.buildCustomerWithDetails(updatedCustomer);
+      const customerWithDetails =
+        await this.buildCustomerWithDetails(updatedCustomer);
 
       this.logger.log(`تم تحديث نقاط الولاء بنجاح: ${reason}`);
       return customerWithDetails;
@@ -361,7 +413,11 @@ export class CustomerService {
   /**
    * تحديث إحصائيات العميل عند إنشاء فاتورة مبيعات
    */
-  async updateCustomerStatsOnSale(customerId: string, saleAmount: number, paymentMethod?: string): Promise<void> {
+  async updateCustomerStatsOnSale(
+    customerId: string,
+    saleAmount: number,
+    paymentMethod?: string,
+  ): Promise<void> {
     try {
       const customer = await this.prisma.customer.findUnique({
         where: { id: customerId },
@@ -385,7 +441,8 @@ export class CustomerService {
           loyaltyPoints: newPoints,
           loyaltyTier: newTier,
           lastPurchaseDate: new Date(),
-          preferredPaymentMethod: paymentMethod || customer.preferredPaymentMethod,
+          preferredPaymentMethod:
+            paymentMethod || customer.preferredPaymentMethod,
         },
       });
 
@@ -431,25 +488,33 @@ export class CustomerService {
       }
 
       const currentTier = customer.loyaltyTier;
-      const { pointsToNextTier, nextTier } = this.getNextTierInfo(currentTier, Number(customer.totalPurchases), customer.loyaltyPoints);
-      const tierBenefits = this.loyaltyTiers[currentTier as keyof typeof this.loyaltyTiers]?.benefits || [];
+      const { pointsToNextTier, nextTier } = this.getNextTierInfo(
+        currentTier,
+        Number(customer.totalPurchases),
+        customer.loyaltyPoints,
+      );
+      const tierBenefits =
+        this.loyaltyTiers[currentTier as keyof typeof this.loyaltyTiers]
+          ?.benefits || [];
 
       const recentTransactions = [
-        ...customer.salesInvoices.map(invoice => ({
+        ...customer.salesInvoices.map((invoice) => ({
           id: invoice.id,
           type: 'sale' as const,
           amount: Number(invoice.totalAmount),
           pointsEarned: Math.floor(Number(invoice.totalAmount) / 10),
           date: invoice.createdAt,
         })),
-        ...customer.returns.map(returnDoc => ({
+        ...customer.returns.map((returnDoc) => ({
           id: returnDoc.id,
           type: 'return' as const,
           amount: -Number(returnDoc.totalAmount),
           pointsEarned: 0,
           date: returnDoc.createdAt,
         })),
-      ].sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 10);
+      ]
+        .sort((a, b) => b.date.getTime() - a.date.getTime())
+        .slice(0, 10);
 
       return {
         currentTier,
@@ -459,7 +524,10 @@ export class CustomerService {
         recentTransactions,
       };
     } catch (error) {
-      this.logger.error(`فشل في الحصول على إحصائيات الولاء: ${customerId}`, error);
+      this.logger.error(
+        `فشل في الحصول على إحصائيات الولاء: ${customerId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -516,14 +584,19 @@ export class CustomerService {
           total: totalCustomers,
           active: activeCustomers,
           inactive: totalCustomers - activeCustomers,
-          totalLoyaltyPoints: Number(totalLoyaltyPoints._sum.loyaltyPoints || 0),
+          totalLoyaltyPoints: Number(
+            totalLoyaltyPoints._sum.loyaltyPoints || 0,
+          ),
           newThisMonth: newCustomersThisMonth,
         },
-        tierBreakdown: tierBreakdown.reduce((acc, tier) => {
-          acc[tier.loyaltyTier] = tier._count.id;
-          return acc;
-        }, {} as Record<string, number>),
-        topCustomers: topCustomers.map(customer => ({
+        tierBreakdown: tierBreakdown.reduce(
+          (acc, tier) => {
+            acc[tier.loyaltyTier] = tier._count.id;
+            return acc;
+          },
+          {} as Record<string, number>,
+        ),
+        topCustomers: topCustomers.map((customer) => ({
           id: customer.id,
           name: customer.name,
           totalPurchases: Number(customer.totalPurchases),
@@ -568,7 +641,10 @@ export class CustomerService {
         where.loyaltyTier = filters.loyaltyTier;
       }
 
-      if (filters?.minPurchases !== undefined || filters?.maxPurchases !== undefined) {
+      if (
+        filters?.minPurchases !== undefined ||
+        filters?.maxPurchases !== undefined
+      ) {
         where.totalPurchases = {};
         if (filters.minPurchases !== undefined) {
           where.totalPurchases.gte = filters.minPurchases;
@@ -593,7 +669,7 @@ export class CustomerService {
       });
 
       const customersWithDetails = await Promise.all(
-        customers.map(customer => this.buildCustomerWithDetails(customer))
+        customers.map((customer) => this.buildCustomerWithDetails(customer)),
       );
 
       return customersWithDetails;
@@ -608,7 +684,9 @@ export class CustomerService {
   /**
    * بناء كائن العميل مع التفاصيل
    */
-  private async buildCustomerWithDetails(customer: any): Promise<CustomerWithDetails> {
+  private async buildCustomerWithDetails(
+    customer: any,
+  ): Promise<CustomerWithDetails> {
     const [invoiceStats, paymentStats] = await Promise.all([
       this.prisma.salesInvoice.aggregate({
         where: { customerId: customer.id },
@@ -633,7 +711,9 @@ export class CustomerService {
       email: customer.email || undefined,
       address: customer.address || undefined,
       taxNumber: customer.taxNumber || undefined,
-      creditLimit: customer.creditLimit ? Number(customer.creditLimit) : undefined,
+      creditLimit: customer.creditLimit
+        ? Number(customer.creditLimit)
+        : undefined,
       loyaltyPoints: customer.loyaltyPoints,
       loyaltyTier: customer.loyaltyTier,
       totalPurchases: Number(customer.totalPurchases),
@@ -655,7 +735,10 @@ export class CustomerService {
   /**
    * حساب مستوى الولاء
    */
-  private calculateLoyaltyTier(totalPurchases: number, loyaltyPoints: number): string {
+  private calculateLoyaltyTier(
+    totalPurchases: number,
+    loyaltyPoints: number,
+  ): string {
     if (totalPurchases >= this.loyaltyTiers.platinum.minPurchases) {
       return 'platinum';
     } else if (totalPurchases >= this.loyaltyTiers.gold.minPurchases) {
@@ -670,7 +753,11 @@ export class CustomerService {
   /**
    * الحصول على معلومات المستوى التالي
    */
-  private getNextTierInfo(currentTier: string, totalPurchases: number, points: number): { pointsToNextTier: number; nextTier: string } {
+  private getNextTierInfo(
+    currentTier: string,
+    totalPurchases: number,
+    points: number,
+  ): { pointsToNextTier: number; nextTier: string } {
     const tiers = ['bronze', 'silver', 'gold', 'platinum'];
     const currentIndex = tiers.indexOf(currentTier);
 
@@ -679,7 +766,9 @@ export class CustomerService {
     }
 
     const nextTier = tiers[currentIndex + 1];
-    const nextTierMinPurchases = this.loyaltyTiers[nextTier as keyof typeof this.loyaltyTiers].minPurchases;
+    const nextTierMinPurchases =
+      this.loyaltyTiers[nextTier as keyof typeof this.loyaltyTiers]
+        .minPurchases;
 
     const pointsToNextTier = Math.max(0, nextTierMinPurchases - totalPurchases);
 
@@ -692,7 +781,9 @@ export class CustomerService {
   private async invalidateCustomersCache(): Promise<void> {
     await this.cacheService.delete(this.customersCacheKey);
 
-    const customerKeys = await this.cacheService.getKeys(`${this.customerCacheKey}:*`);
+    const customerKeys = await this.cacheService.getKeys(
+      `${this.customerCacheKey}:*`,
+    );
     for (const key of customerKeys) {
       await this.cacheService.delete(key);
     }

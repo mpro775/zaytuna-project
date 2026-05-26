@@ -1,4 +1,10 @@
-import { Injectable, Logger, Inject, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  Inject,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { PrismaService } from '../../shared/database/prisma.service';
 import { NotificationService } from './notification.service';
 import { EmailProvider } from './providers/email.provider';
@@ -79,7 +85,9 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
       // حفظ المهمة (محاكاة - في الواقع يتم حفظ في Redis أو قاعدة البيانات)
       await this.saveJob(job);
 
-      this.logger.log(`تم إضافة المهمة إلى الطابور: ${job.id} - ${notificationData.type}`);
+      this.logger.log(
+        `تم إضافة المهمة إلى الطابور: ${job.id} - ${notificationData.type}`,
+      );
     } catch (error) {
       this.logger.error('فشل في إضافة المهمة إلى الطابور', error);
       throw error;
@@ -138,13 +146,17 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
 
       job.status = 'queued';
       job.retryCount++;
-      job.nextRetryAt = new Date(Date.now() + this.calculateBackoffDelay(job.retryCount));
+      job.nextRetryAt = new Date(
+        Date.now() + this.calculateBackoffDelay(job.retryCount),
+      );
       job.lastError = undefined;
       job.updatedAt = new Date();
 
       await this.saveJob(job);
 
-      this.logger.log(`تم جدولة إعادة المحاولة للمهمة: ${jobId} (المحاولة ${job.retryCount})`);
+      this.logger.log(
+        `تم جدولة إعادة المحاولة للمهمة: ${jobId} (المحاولة ${job.retryCount})`,
+      );
     } catch (error) {
       this.logger.error(`فشل في إعادة محاولة المهمة: ${jobId}`, error);
       throw error;
@@ -277,7 +289,7 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
         }
 
         // معالجة المهمة في الخلفية
-        this.processJob(job).catch(error => {
+        this.processJob(job).catch((error) => {
           this.logger.error(`خطأ في معالجة المهمة ${job.id}`, error);
         });
       }
@@ -314,18 +326,25 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
         // جدولة إعادة المحاولة إذا لم يتم تجاوز الحد الأقصى
         if (job.retryCount < job.maxRetries) {
           job.status = 'queued';
-          job.nextRetryAt = new Date(Date.now() + this.calculateBackoffDelay(job.retryCount));
+          job.nextRetryAt = new Date(
+            Date.now() + this.calculateBackoffDelay(job.retryCount),
+          );
         }
       }
 
       await this.saveJob(job);
 
       // تحديث حالة الإشعار في قاعدة البيانات
-      await this.updateNotificationStatus(job.notificationId, job.status, result);
+      await this.updateNotificationStatus(
+        job.notificationId,
+        job.status,
+        result,
+      );
 
       const processingTime = Date.now() - startTime;
-      this.logger.log(`تمت معالجة المهمة: ${job.id} - ${job.status} (${processingTime}ms)`);
-
+      this.logger.log(
+        `تمت معالجة المهمة: ${job.id} - ${job.status} (${processingTime}ms)`,
+      );
     } catch (error) {
       this.logger.error(`فشل في معالجة المهمة: ${job.id}`, error);
 
@@ -336,7 +355,9 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
 
       if (job.retryCount < job.maxRetries) {
         job.status = 'queued';
-        job.nextRetryAt = new Date(Date.now() + this.calculateBackoffDelay(job.retryCount));
+        job.nextRetryAt = new Date(
+          Date.now() + this.calculateBackoffDelay(job.retryCount),
+        );
       }
 
       await this.saveJob(job);
@@ -442,7 +463,10 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
   }> {
     try {
       const result = await this.whatsappProvider.sendWhatsApp(
-        this.whatsappProvider.createTextMessage(data.recipientPhone, data.message)
+        this.whatsappProvider.createTextMessage(
+          data.recipientPhone,
+          data.message,
+        ),
       );
 
       return {
@@ -468,7 +492,7 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
   }> {
     try {
       // محاكاة إرسال دفع
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       return {
         success: true,

@@ -12,7 +12,11 @@ import {
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { PaymentAdapterFactory } from './adapters/payment-adapter.factory';
-import type { PaymentRequest, RefundRequest, PaymentGateway } from './payment.service';
+import type {
+  PaymentRequest,
+  RefundRequest,
+  PaymentGateway,
+} from './payment.service';
 import { Permissions } from '../../common/decorators/permissions.decorator';
 
 @Controller('payment')
@@ -27,11 +31,14 @@ export class PaymentController {
    */
   @Post('process')
   @Permissions('payment.create')
-  async processPayment(
-    @Body() request: PaymentRequest,
-  ) {
+  async processPayment(@Body() request: PaymentRequest) {
     // TODO: Get user from JWT token
-    return this.paymentService.processPayment(request, 'user_123', '127.0.0.1', 'Test Agent');
+    return this.paymentService.processPayment(
+      request,
+      'user_123',
+      '127.0.0.1',
+      'Test Agent',
+    );
   }
 
   /**
@@ -39,9 +46,7 @@ export class PaymentController {
    */
   @Post('refund')
   @Permissions('payment.refund')
-  async processRefund(
-    @Body() refundRequest: RefundRequest,
-  ) {
+  async processRefund(@Body() refundRequest: RefundRequest) {
     // TODO: Get user from JWT token
     return this.paymentService.processRefund(refundRequest, 'user_123');
   }
@@ -106,7 +111,9 @@ export class PaymentController {
   @Permissions('payment.read')
   async getAvailableGateways() {
     const gateways = this.adapterFactory.getAvailableGateways();
-    const gatewayInfo = gateways.map(gateway => this.adapterFactory.getGatewayInfo(gateway));
+    const gatewayInfo = gateways.map((gateway) =>
+      this.adapterFactory.getGatewayInfo(gateway),
+    );
 
     return {
       gateways: gatewayInfo,
@@ -134,9 +141,7 @@ export class PaymentController {
    */
   @Post('create-link')
   @Permissions('payment.create')
-  async createPaymentLink(
-    @Body() request: PaymentRequest,
-  ) {
+  async createPaymentLink(@Body() request: PaymentRequest) {
     try {
       const adapter = this.adapterFactory.getAdapter(request.gateway as any);
 
@@ -161,9 +166,7 @@ export class PaymentController {
    */
   @Post('create-qr')
   @Permissions('payment.create')
-  async createPaymentQR(
-    @Body() request: PaymentRequest,
-  ) {
+  async createPaymentQR(@Body() request: PaymentRequest) {
     try {
       const adapter = this.adapterFactory.getAdapter(request.gateway as any);
 
@@ -192,7 +195,10 @@ export class PaymentController {
     @Param('gateway') gateway: PaymentGateway,
     @Param('currency') currency: string,
   ) {
-    const isSupported = this.adapterFactory.isCurrencySupported(gateway, currency);
+    const isSupported = this.adapterFactory.isCurrencySupported(
+      gateway,
+      currency,
+    );
 
     return {
       gateway,
@@ -226,7 +232,9 @@ export class PaymentController {
   @Permissions('payment.read')
   async getGatewaysForCurrency(@Param('currency') currency: string) {
     const gateways = this.adapterFactory.getGatewaysForCurrency(currency);
-    const gatewayInfo = gateways.map(gateway => this.adapterFactory.getGatewayInfo(gateway));
+    const gatewayInfo = gateways.map((gateway) =>
+      this.adapterFactory.getGatewayInfo(gateway),
+    );
 
     return {
       currency: currency.toUpperCase(),
@@ -242,7 +250,9 @@ export class PaymentController {
   @Permissions('payment.read')
   async getGatewaysForMethod(@Param('method') method: string) {
     const gateways = this.adapterFactory.getGatewaysForMethod(method);
-    const gatewayInfo = gateways.map(gateway => this.adapterFactory.getGatewayInfo(gateway));
+    const gatewayInfo = gateways.map((gateway) =>
+      this.adapterFactory.getGatewayInfo(gateway),
+    );
 
     return {
       method,
@@ -257,7 +267,8 @@ export class PaymentController {
   @Post('reconcile')
   @Permissions('payment.admin')
   async reconcileTransactions(
-    @Body() body: {
+    @Body()
+    body: {
       gateway: PaymentGateway;
       startDate: string;
       endDate: string;
@@ -266,7 +277,11 @@ export class PaymentController {
     const startDate = new Date(body.startDate);
     const endDate = new Date(body.endDate);
 
-    return this.paymentService.reconcileTransactions(body.gateway, startDate, endDate);
+    return this.paymentService.reconcileTransactions(
+      body.gateway,
+      startDate,
+      endDate,
+    );
   }
 
   /**

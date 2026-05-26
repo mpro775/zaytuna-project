@@ -40,7 +40,8 @@ export class CustomerController {
     @Query('loyaltyTier') loyaltyTier?: string,
     @Query('limit') limit?: number,
   ) {
-    const active = isActive === 'true' ? true : isActive === 'false' ? false : undefined;
+    const active =
+      isActive === 'true' ? true : isActive === 'false' ? false : undefined;
     return this.customerService.findAll(
       search,
       active,
@@ -65,9 +66,18 @@ export class CustomerController {
   ) {
     const filters = {
       loyaltyTier,
-      minPurchases: minPurchases ? parseFloat(minPurchases.toString()) : undefined,
-      maxPurchases: maxPurchases ? parseFloat(maxPurchases.toString()) : undefined,
-      hasMarketingConsent: hasMarketingConsent === 'true' ? true : hasMarketingConsent === 'false' ? false : undefined,
+      minPurchases: minPurchases
+        ? parseFloat(minPurchases.toString())
+        : undefined,
+      maxPurchases: maxPurchases
+        ? parseFloat(maxPurchases.toString())
+        : undefined,
+      hasMarketingConsent:
+        hasMarketingConsent === 'true'
+          ? true
+          : hasMarketingConsent === 'false'
+            ? false
+            : undefined,
       gender,
     };
 
@@ -93,7 +103,10 @@ export class CustomerController {
   @Patch(':id')
   @Permissions('customers.update')
   @HttpCode(HttpStatus.OK)
-  update(@Param('id') id: string, @Body() updateCustomerDto: UpdateCustomerDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateCustomerDto: UpdateCustomerDto,
+  ) {
     return this.customerService.update(id, updateCustomerDto);
   }
 

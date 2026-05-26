@@ -16,15 +16,15 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(username: string, password: string): Promise<AuthenticatedUser> {
+  async validate(
+    username: string,
+    password: string,
+  ): Promise<AuthenticatedUser> {
     try {
       // البحث عن المستخدم بالـ username أو الـ email
       const user = await this.prisma.user.findFirst({
         where: {
-          OR: [
-            { username: username },
-            { email: username },
-          ],
+          OR: [{ username: username }, { email: username }],
         },
         include: {
           role: {
@@ -80,7 +80,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       this.logger.log(`تم تسجيل دخول المستخدم: ${user.username}`);
 
       return authenticatedUser;
-
     } catch (error) {
       this.logger.error('فشل في المصادقة المحلية:', error);
       if (error instanceof UnauthorizedException) {

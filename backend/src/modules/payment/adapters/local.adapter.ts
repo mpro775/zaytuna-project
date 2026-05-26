@@ -1,5 +1,10 @@
 import { BasePaymentAdapter, PaymentConfig } from './base-payment.adapter';
-import { PaymentRequest, PaymentResponse, RefundRequest, RefundResponse } from '../payment.service';
+import {
+  PaymentRequest,
+  PaymentResponse,
+  RefundRequest,
+  RefundResponse,
+} from '../payment.service';
 
 export class LocalAdapter extends BasePaymentAdapter {
   constructor(config: PaymentConfig) {
@@ -49,7 +54,10 @@ export class LocalAdapter extends BasePaymentAdapter {
     }
   }
 
-  async processRefund(transactionId: string, refundRequest: RefundRequest): Promise<RefundResponse> {
+  async processRefund(
+    transactionId: string,
+    refundRequest: RefundRequest,
+  ): Promise<RefundResponse> {
     try {
       // الاسترداد المحلي (إعادة النقود أو إلغاء الشيك)
 

@@ -1,4 +1,13 @@
-import { IsNotEmpty, IsString, IsOptional, IsBoolean, IsEmail, IsDateString, IsNumber, Min } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsEmail,
+  IsDateString,
+  IsNumber,
+  Min,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreateCustomerDto {
@@ -25,7 +34,7 @@ export class CreateCustomerDto {
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'حد الائتمان يجب أن يكون رقم' })
   @Min(0, { message: 'حد الائتمان يجب أن يكون موجب' })
-  @Transform(({ value }) => value ? parseFloat(value) : undefined)
+  @Transform(({ value }) => (value ? parseFloat(value) : undefined))
   creditLimit?: number;
 
   @IsOptional()

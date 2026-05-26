@@ -69,13 +69,15 @@ export class OfflineService {
       await this.cacheService.set(
         `offline_session:${sessionId}`,
         session,
-        { ttl: this.maxOfflineHours * 60 * 60 } // بالثواني
+        { ttl: this.maxOfflineHours * 60 * 60 }, // بالثواني
       );
 
       // تحديث قائمة جلسات الجهاز
       await this.addDeviceSession(deviceId, sessionId);
 
-      this.logger.log(`تم إنشاء جلسة offline: ${sessionId} للجهاز: ${deviceId}`);
+      this.logger.log(
+        `تم إنشاء جلسة offline: ${sessionId} للجهاز: ${deviceId}`,
+      );
 
       return session;
     } catch (error) {
@@ -97,16 +99,15 @@ export class OfflineService {
       session.lastActivity = new Date();
 
       // التحقق من انتهاء الجلسة
-      const hoursDiff = (Date.now() - session.startedAt.getTime()) / (1000 * 60 * 60);
+      const hoursDiff =
+        (Date.now() - session.startedAt.getTime()) / (1000 * 60 * 60);
       if (hoursDiff > session.maxOfflineHours) {
         session.status = 'expired';
       }
 
-      await this.cacheService.set(
-        `offline_session:${sessionId}`,
-        session,
-        { ttl: session.maxOfflineHours * 60 * 60 }
-      );
+      await this.cacheService.set(`offline_session:${sessionId}`, session, {
+        ttl: session.maxOfflineHours * 60 * 60,
+      });
     } catch (error) {
       this.logger.error(`فشل في تحديث نشاط الجلسة ${sessionId}`, error);
       throw error;
@@ -141,7 +142,9 @@ export class OfflineService {
    */
   async getOfflineSession(sessionId: string): Promise<OfflineSession | null> {
     try {
-      return await this.cacheService.get<OfflineSession>(`offline_session:${sessionId}`);
+      return await this.cacheService.get<OfflineSession>(
+        `offline_session:${sessionId}`,
+      );
     } catch (error) {
       this.logger.error(`فشل في جلب جلسة offline ${sessionId}`, error);
       return null;
@@ -164,7 +167,8 @@ export class OfflineService {
       }
 
       // التحقق من المهلة الزمنية
-      const hoursDiff = (Date.now() - session.startedAt.getTime()) / (1000 * 60 * 60);
+      const hoursDiff =
+        (Date.now() - session.startedAt.getTime()) / (1000 * 60 * 60);
       if (hoursDiff > session.maxOfflineHours) {
         session.status = 'expired';
         await this.cacheService.set(`offline_session:${sessionId}`, session);
@@ -192,9 +196,13 @@ export class OfflineService {
       }
 
       const defaultEntities = [
-        'Product', 'ProductVariant', 'Category',
-        'Customer', 'Supplier',
-        'StockItem', 'Warehouse',
+        'Product',
+        'ProductVariant',
+        'Category',
+        'Customer',
+        'Supplier',
+        'StockItem',
+        'Warehouse',
       ];
 
       const syncEntities = entities || defaultEntities;
@@ -202,7 +210,10 @@ export class OfflineService {
 
       // جلب البيانات لكل كيان
       for (const entity of syncEntities) {
-        packageData[entity] = await this.getEntityDataForOffline(entity, session);
+        packageData[entity] = await this.getEntityDataForOffline(
+          entity,
+          session,
+        );
       }
 
       const timestamp = new Date();
@@ -234,7 +245,10 @@ export class OfflineService {
 
       return dataPackage;
     } catch (error) {
-      this.logger.error(`فشل في إنشاء حزمة البيانات للجلسة ${sessionId}`, error);
+      this.logger.error(
+        `فشل في إنشاء حزمة البيانات للجلسة ${sessionId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -284,7 +298,9 @@ export class OfflineService {
       // تحديث نشاط الجلسة
       await this.updateSessionActivity(sessionId);
 
-      this.logger.log(`تم حفظ ${savedChanges} تغيير من وضع offline للجلسة: ${sessionId}`);
+      this.logger.log(
+        `تم حفظ ${savedChanges} تغيير من وضع offline للجلسة: ${sessionId}`,
+      );
 
       return {
         sessionId,
@@ -293,7 +309,10 @@ export class OfflineService {
         errors,
       };
     } catch (error) {
-      this.logger.error(`فشل في حفظ التغييرات من وضع offline للجلسة ${sessionId}`, error);
+      this.logger.error(
+        `فشل في حفظ التغييرات من وضع offline للجلسة ${sessionId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -303,7 +322,10 @@ export class OfflineService {
    */
   async getDeviceSessions(deviceId: string): Promise<OfflineSession[]> {
     try {
-      const sessionIds = await this.cacheService.get<string[]>(`device_sessions:${deviceId}`) || [];
+      const sessionIds =
+        (await this.cacheService.get<string[]>(
+          `device_sessions:${deviceId}`,
+        )) || [];
       const sessions: OfflineSession[] = [];
 
       for (const sessionId of sessionIds) {
@@ -379,33 +401,57 @@ export class OfflineService {
   /**
    * إضافة جلسة للجهاز
    */
-  private async addDeviceSession(deviceId: string, sessionId: string): Promise<void> {
+  private async addDeviceSession(
+    deviceId: string,
+    sessionId: string,
+  ): Promise<void> {
     try {
-      const sessions = await this.cacheService.get<string[]>(`device_sessions:${deviceId}`) || [];
+      const sessions =
+        (await this.cacheService.get<string[]>(
+          `device_sessions:${deviceId}`,
+        )) || [];
       sessions.push(sessionId);
       await this.cacheService.set(`device_sessions:${deviceId}`, sessions);
     } catch (error) {
-      this.logger.error(`فشل في إضافة جلسة ${sessionId} للجهاز ${deviceId}`, error);
+      this.logger.error(
+        `فشل في إضافة جلسة ${sessionId} للجهاز ${deviceId}`,
+        error,
+      );
     }
   }
 
   /**
    * إزالة جلسة من الجهاز
    */
-  private async removeDeviceSession(deviceId: string, sessionId: string): Promise<void> {
+  private async removeDeviceSession(
+    deviceId: string,
+    sessionId: string,
+  ): Promise<void> {
     try {
-      const sessions = await this.cacheService.get<string[]>(`device_sessions:${deviceId}`) || [];
-      const filteredSessions = sessions.filter(id => id !== sessionId);
-      await this.cacheService.set(`device_sessions:${deviceId}`, filteredSessions);
+      const sessions =
+        (await this.cacheService.get<string[]>(
+          `device_sessions:${deviceId}`,
+        )) || [];
+      const filteredSessions = sessions.filter((id) => id !== sessionId);
+      await this.cacheService.set(
+        `device_sessions:${deviceId}`,
+        filteredSessions,
+      );
     } catch (error) {
-      this.logger.error(`فشل في إزالة جلسة ${sessionId} من الجهاز ${deviceId}`, error);
+      this.logger.error(
+        `فشل في إزالة جلسة ${sessionId} من الجهاز ${deviceId}`,
+        error,
+      );
     }
   }
 
   /**
    * جلب بيانات الكيان للعمل offline
    */
-  private async getEntityDataForOffline(entity: string, session: OfflineSession): Promise<any[]> {
+  private async getEntityDataForOffline(
+    entity: string,
+    session: OfflineSession,
+  ): Promise<any[]> {
     try {
       const modelName = this.getModelName(entity);
       const where: any = {};
@@ -531,12 +577,15 @@ export class OfflineService {
 
       // حفظ في الكاش كقائمة انتظار
       const queueKey = `offline_queue:${sessionId}`;
-      const queue = await this.cacheService.get<any[]>(queueKey) || [];
+      const queue = (await this.cacheService.get<any[]>(queueKey)) || [];
       queue.push(queuedChange);
 
       await this.cacheService.set(queueKey, queue, { ttl: 7 * 24 * 60 * 60 }); // أسبوع
     } catch (error) {
-      this.logger.error(`فشل في حفظ التغيير في قائمة الانتظار ${sessionId}`, error);
+      this.logger.error(
+        `فشل في حفظ التغيير في قائمة الانتظار ${sessionId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -562,16 +611,16 @@ export class OfflineService {
    */
   private getModelName(entity: string): string {
     const modelMap: Record<string, string> = {
-      'Product': 'product',
-      'ProductVariant': 'productVariant',
-      'Category': 'category',
-      'Customer': 'customer',
-      'SalesInvoice': 'salesInvoice',
-      'Payment': 'payment',
-      'Supplier': 'supplier',
-      'PurchaseInvoice': 'purchaseInvoice',
-      'StockItem': 'stockItem',
-      'Warehouse': 'warehouse',
+      Product: 'product',
+      ProductVariant: 'productVariant',
+      Category: 'category',
+      Customer: 'customer',
+      SalesInvoice: 'salesInvoice',
+      Payment: 'payment',
+      Supplier: 'supplier',
+      PurchaseInvoice: 'purchaseInvoice',
+      StockItem: 'stockItem',
+      Warehouse: 'warehouse',
     };
 
     return modelMap[entity] || entity.toLowerCase();

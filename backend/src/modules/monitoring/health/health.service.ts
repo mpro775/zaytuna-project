@@ -24,7 +24,10 @@ export interface SystemHealth {
 @Injectable()
 export class HealthService {
   private readonly logger = new Logger(HealthService.name);
-  private readonly healthChecks = new Map<string, () => Promise<HealthCheckResult>>();
+  private readonly healthChecks = new Map<
+    string,
+    () => Promise<HealthCheckResult>
+  >();
 
   constructor(
     private readonly configService: ConfigService,
@@ -98,7 +101,10 @@ export class HealthService {
       const startTime = Date.now();
       try {
         const fs = require('fs/promises');
-        const uploadDir = this.configService.get<string>('UPLOAD_DIR', './uploads');
+        const uploadDir = this.configService.get<string>(
+          'UPLOAD_DIR',
+          './uploads',
+        );
 
         // فحص وجود مجلد الرفع
         await fs.access(uploadDir);
@@ -221,13 +227,13 @@ export class HealthService {
             error: error.message,
           });
         }
-      }
+      },
     );
 
     await Promise.all(checkPromises);
 
     // تحديد الحالة العامة
-    const statuses = Array.from(results.values()).map(r => r.status);
+    const statuses = Array.from(results.values()).map((r) => r.status);
     let overallStatus: 'healthy' | 'unhealthy' | 'warning' = 'healthy';
 
     if (statuses.includes('unhealthy')) {
@@ -242,19 +248,39 @@ export class HealthService {
       duration: Date.now() - startTime,
       details: {
         totalChecks: results.size,
-        passed: statuses.filter(s => s === 'healthy').length,
-        warnings: statuses.filter(s => s === 'warning').length,
-        failed: statuses.filter(s => s === 'unhealthy').length,
+        passed: statuses.filter((s) => s === 'healthy').length,
+        warnings: statuses.filter((s) => s === 'warning').length,
+        failed: statuses.filter((s) => s === 'unhealthy').length,
       },
     };
 
     return {
       overall,
       components: {
-        database: results.get('database') || { status: 'unhealthy', timestamp: new Date(), duration: 0, error: 'Check not found' },
-        cache: results.get('cache') || { status: 'unhealthy', timestamp: new Date(), duration: 0, error: 'Check not found' },
-        storage: results.get('storage') || { status: 'unhealthy', timestamp: new Date(), duration: 0, error: 'Check not found' },
-        external: results.get('external') || { status: 'unhealthy', timestamp: new Date(), duration: 0, error: 'Check not found' },
+        database: results.get('database') || {
+          status: 'unhealthy',
+          timestamp: new Date(),
+          duration: 0,
+          error: 'Check not found',
+        },
+        cache: results.get('cache') || {
+          status: 'unhealthy',
+          timestamp: new Date(),
+          duration: 0,
+          error: 'Check not found',
+        },
+        storage: results.get('storage') || {
+          status: 'unhealthy',
+          timestamp: new Date(),
+          duration: 0,
+          error: 'Check not found',
+        },
+        external: results.get('external') || {
+          status: 'unhealthy',
+          timestamp: new Date(),
+          duration: 0,
+          error: 'Check not found',
+        },
       },
     };
   }
@@ -412,9 +438,13 @@ export class HealthService {
       // فحص الاتصال الخارجي
       const https = require('https');
       await new Promise((resolve, reject) => {
-        const req = https.request('https://www.google.com', { method: 'HEAD' }, (res) => {
-          resolve(res);
-        });
+        const req = https.request(
+          'https://www.google.com',
+          { method: 'HEAD' },
+          (res) => {
+            resolve(res);
+          },
+        );
         req.on('error', reject);
         req.setTimeout(5000, () => reject(new Error('Timeout')));
         req.end();
@@ -447,7 +477,10 @@ export class HealthService {
   /**
    * تشغيل فحص صحة مخصص
    */
-  async runCustomCheck(name: string, checkFn: () => Promise<any>): Promise<HealthCheckResult> {
+  async runCustomCheck(
+    name: string,
+    checkFn: () => Promise<any>,
+  ): Promise<HealthCheckResult> {
     const startTime = Date.now();
     try {
       const result = await checkFn();

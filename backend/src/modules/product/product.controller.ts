@@ -9,15 +9,22 @@ import {
   HttpCode,
   HttpStatus,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Permissions } from '../../common/decorators/permissions.decorator';
+import { StorageService } from '../storage/storage.service';
 
 @Controller('products')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+    private readonly storageService: StorageService,
+  ) {}
 
   /**
    * إنشاء منتج جديد
@@ -66,6 +73,29 @@ export class ProductController {
   @Permissions('products.read')
   findOne(@Param('id') id: string) {
     return this.productService.findOne(id);
+  }
+
+  @Post(':id/images')
+  @UseInterceptors(FileInterceptor('file'))
+  @Permissions('products.update')
+  uploadImage(
+    @Param('id') id: string,
+    @UploadedFile() file: any,
+    @Query('userId') userId?: string,
+  ) {
+    return this.storageService.attachProductImage(id, file, userId);
+  }
+
+  @Get(':id/images')
+  @Permissions('products.read')
+  listImages(@Param('id') id: string) {
+    return this.storageService.listProductImages(id);
+  }
+
+  @Delete(':id/images/:fileId')
+  @Permissions('products.update')
+  deleteImage(@Param('fileId') fileId: string) {
+    return this.storageService.deleteFile(fileId);
   }
 
   /**

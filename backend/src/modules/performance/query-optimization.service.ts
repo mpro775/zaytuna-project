@@ -29,7 +29,11 @@ export class QueryOptimizationService {
   /**
    * تسجيل مقاييس الاستعلام
    */
-  recordQueryMetrics(query: string, duration: number, optimization: string[] = []) {
+  recordQueryMetrics(
+    query: string,
+    duration: number,
+    optimization: string[] = [],
+  ) {
     const metrics: QueryMetrics = {
       query,
       duration,
@@ -53,7 +57,11 @@ export class QueryOptimizationService {
   /**
    * تحسين استعلام المبيعات مع المنتجات والعملاء
    */
-  async getOptimizedSalesWithRelations(branchId?: string, limit = 50, offset = 0) {
+  async getOptimizedSalesWithRelations(
+    branchId?: string,
+    limit = 50,
+    offset = 0,
+  ) {
     const startTime = Date.now();
 
     const sales = await this.prisma.salesInvoice.findMany({
@@ -118,7 +126,7 @@ export class QueryOptimizationService {
         'Use proper indexing on branchId, createdAt',
         'Limit result set size',
         'Use cursor-based pagination for large datasets',
-      ]
+      ],
     );
 
     return sales;
@@ -127,12 +135,16 @@ export class QueryOptimizationService {
   /**
    * تحسين استعلام المخزون مع المنتجات
    */
-  async getOptimizedInventoryWithProducts(warehouseId?: string, lowStockOnly = false) {
+  async getOptimizedInventoryWithProducts(
+    warehouseId?: string,
+    lowStockOnly = false,
+  ) {
     const startTime = Date.now();
 
     const where: any = {};
     if (warehouseId) where.warehouseId = warehouseId;
-    if (lowStockOnly) where.quantity = { lte: this.prisma.stockItem.fields.minStock };
+    if (lowStockOnly)
+      where.quantity = { lte: this.prisma.stockItem.fields.minStock };
 
     const inventory = await this.prisma.stockItem.findMany({
       where,
@@ -177,10 +189,7 @@ export class QueryOptimizationService {
           },
         },
       },
-      orderBy: [
-        { warehouseId: 'asc' },
-        { quantity: 'asc' },
-      ],
+      orderBy: [{ warehouseId: 'asc' }, { quantity: 'asc' }],
     });
 
     const duration = Date.now() - startTime;
@@ -192,7 +201,7 @@ export class QueryOptimizationService {
         'Use composite indexes on warehouseId, quantity',
         'Filter at database level for low stock',
         'Order by indexed columns',
-      ]
+      ],
     );
 
     return inventory;
@@ -201,7 +210,11 @@ export class QueryOptimizationService {
   /**
    * تحسين استعلام التقارير المجمعة
    */
-  async getOptimizedSalesReport(branchId: string, startDate: Date, endDate: Date) {
+  async getOptimizedSalesReport(
+    branchId: string,
+    startDate: Date,
+    endDate: Date,
+  ) {
     const startTime = Date.now();
 
     // استخدام raw query للأداء الأمثل في التقارير المجمعة
@@ -232,7 +245,7 @@ export class QueryOptimizationService {
         'Group by date for daily summaries',
         'Index on branch_id, created_at, status',
         'Avoid N+1 queries with JOINs',
-      ]
+      ],
     );
 
     return report;
@@ -241,7 +254,11 @@ export class QueryOptimizationService {
   /**
    * تحسين البحث في المنتجات
    */
-  async searchProductsOptimized(searchTerm: string, categoryId?: string, limit = 20) {
+  async searchProductsOptimized(
+    searchTerm: string,
+    categoryId?: string,
+    limit = 20,
+  ) {
     const startTime = Date.now();
 
     const products = await this.prisma.product.findMany({
@@ -296,7 +313,7 @@ export class QueryOptimizationService {
         'Limit result set size',
         'Include stock information efficiently',
         'Order by relevance and recency',
-      ]
+      ],
     );
 
     return products;
@@ -326,10 +343,7 @@ export class QueryOptimizationService {
           take: 5, // آخر 5 فواتير فقط
         },
       },
-      orderBy: [
-        { lastPurchaseDate: 'desc' },
-        { totalPurchases: 'desc' },
-      ],
+      orderBy: [{ lastPurchaseDate: 'desc' }, { totalPurchases: 'desc' }],
       take: limit,
     });
 
@@ -342,7 +356,7 @@ export class QueryOptimizationService {
         'Limit nested relations to recent items',
         'Order by indexed columns (lastPurchaseDate, totalPurchases)',
         'Use pagination for large datasets',
-      ]
+      ],
     );
 
     return customers;
@@ -353,12 +367,15 @@ export class QueryOptimizationService {
    */
   getPerformanceReport(): PerformanceReport {
     const totalQueries = this.queryMetrics.length;
-    const slowQueries = this.queryMetrics.filter(m => m.slowQuery).length;
-    const totalDuration = this.queryMetrics.reduce((sum, m) => sum + m.duration, 0);
+    const slowQueries = this.queryMetrics.filter((m) => m.slowQuery).length;
+    const totalDuration = this.queryMetrics.reduce(
+      (sum, m) => sum + m.duration,
+      0,
+    );
     const averageDuration = totalQueries > 0 ? totalDuration / totalQueries : 0;
 
     const slowestQueries = [...this.queryMetrics]
-      .filter(m => m.slowQuery)
+      .filter((m) => m.slowQuery)
       .sort((a, b) => b.duration - a.duration)
       .slice(0, 10);
 
@@ -384,18 +401,24 @@ export class QueryOptimizationService {
 
   private generateOptimizationSuggestions(): string[] {
     const suggestions: string[] = [];
-    const slowQueryCount = this.queryMetrics.filter(m => m.slowQuery).length;
+    const slowQueryCount = this.queryMetrics.filter((m) => m.slowQuery).length;
 
     if (slowQueryCount > 10) {
       suggestions.push('فحص الاستعلامات البطيئة وتحسين الفهارس');
     }
 
-    const avgDuration = this.queryMetrics.reduce((sum, m) => sum + m.duration, 0) / this.queryMetrics.length;
+    const avgDuration =
+      this.queryMetrics.reduce((sum, m) => sum + m.duration, 0) /
+      this.queryMetrics.length;
     if (avgDuration > 500) {
       suggestions.push('تحسين متوسط وقت الاستعلامات (>500ms)');
     }
 
-    if (this.queryMetrics.some(m => m.query.includes('findMany') && !m.query.includes('take'))) {
+    if (
+      this.queryMetrics.some(
+        (m) => m.query.includes('findMany') && !m.query.includes('take'),
+      )
+    ) {
       suggestions.push('إضافة حدود للاستعلامات غير المحدودة');
     }
 

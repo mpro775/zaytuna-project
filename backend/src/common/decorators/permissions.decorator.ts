@@ -81,35 +81,48 @@ export class PermissionChecker {
    * التحقق من أن الـ endpoint عام
    */
   isPublic(context: any): boolean {
-    return this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]) ?? false;
+    return (
+      this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+        context.getHandler(),
+        context.getClass(),
+      ]) ?? false
+    );
   }
 
   /**
    * التحقق من وجود صلاحيات مطلوبة
    */
-  hasRequiredPermissions(requiredPermissions: string[], userPermissions: string[]): boolean {
+  hasRequiredPermissions(
+    requiredPermissions: string[],
+    userPermissions: string[],
+  ): boolean {
     if (!requiredPermissions || requiredPermissions.length === 0) {
       return true; // لا توجد صلاحيات مطلوبة
     }
 
-    return requiredPermissions.some(requiredPerm =>
-      userPermissions.some(userPerm => this.matchesPermission(userPerm, requiredPerm))
+    return requiredPermissions.some((requiredPerm) =>
+      userPermissions.some((userPerm) =>
+        this.matchesPermission(userPerm, requiredPerm),
+      ),
     );
   }
 
   /**
    * التحقق من تطابق الصلاحية (يدعم wildcards)
    */
-  private matchesPermission(userPermission: string, requiredPermission: string): boolean {
+  private matchesPermission(
+    userPermission: string,
+    requiredPermission: string,
+  ): boolean {
     if (userPermission === '*' || userPermission === '*.*') return true;
     if (userPermission === requiredPermission) return true;
 
     if (userPermission.endsWith('.*')) {
       const prefix = userPermission.slice(0, -2);
-      return requiredPermission === prefix || requiredPermission.startsWith(`${prefix}.`);
+      return (
+        requiredPermission === prefix ||
+        requiredPermission.startsWith(`${prefix}.`)
+      );
     }
 
     return false;

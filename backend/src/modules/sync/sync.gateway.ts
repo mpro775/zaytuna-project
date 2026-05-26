@@ -27,7 +27,9 @@ interface AuthenticatedSocket extends Socket {
   },
   namespace: '/sync',
 })
-export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+export class SyncGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
@@ -64,7 +66,9 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
       this.connectedClients.set(client.id, client);
 
-      this.logger.log(`Client connected: ${client.id} (User: ${userId}, Device: ${deviceId})`);
+      this.logger.log(
+        `Client connected: ${client.id} (User: ${userId}, Device: ${deviceId})`,
+      );
 
       // إرسال تأكيد الاتصال
       client.emit('connected', {
@@ -75,7 +79,6 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
       // إرسال البيانات الأولية
       await this.sendInitialData(client);
-
     } catch (error) {
       this.logger.error('Connection error:', error);
       client.disconnect();
@@ -140,7 +143,8 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
    */
   @SubscribeMessage('request_update')
   async handleRequestUpdate(
-    @MessageBody() data: { entity: string; entityId?: string; lastSyncTime?: string },
+    @MessageBody()
+    data: { entity: string; entityId?: string; lastSyncTime?: string },
     @ConnectedSocket() client: AuthenticatedSocket,
   ) {
     try {
@@ -157,7 +161,6 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         changes,
         timestamp: new Date(),
       });
-
     } catch (error) {
       this.logger.error('Failed to send data update:', error);
       client.emit('error', {
@@ -170,7 +173,12 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   /**
    * إرسال تحديثات لجميع المشتركين
    */
-  async broadcastUpdate(entity: string, entityId: string | null, data: any, userId?: string) {
+  async broadcastUpdate(
+    entity: string,
+    entityId: string | null,
+    data: any,
+    userId?: string,
+  ) {
     const roomName = entityId ? `${entity}:${entityId}` : entity;
 
     // إرسال للمشتركين في الغرفة المحددة
@@ -200,17 +208,20 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
    * إرسال إشعار لمستخدم محدد
    */
   async sendNotificationToUser(userId: string, notification: any) {
-    const userClients = Array.from(this.connectedClients.values())
-      .filter(client => client.userId === userId);
+    const userClients = Array.from(this.connectedClients.values()).filter(
+      (client) => client.userId === userId,
+    );
 
-    userClients.forEach(client => {
+    userClients.forEach((client) => {
       client.emit('notification', {
         ...notification,
         timestamp: new Date(),
       });
     });
 
-    this.logger.log(`Sent notification to ${userClients.length} clients for user ${userId}`);
+    this.logger.log(
+      `Sent notification to ${userClients.length} clients for user ${userId}`,
+    );
   }
 
   /**
@@ -257,7 +268,6 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
           timestamp: new Date(),
         });
       }
-
     } catch (error) {
       this.logger.error('Failed to send initial data:', error);
     }
@@ -275,12 +285,14 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       timestamp: new Date(),
     };
 
-    clients.forEach(client => {
+    clients.forEach((client) => {
       if (client.branchId) {
-        stats.connectionsByBranch[client.branchId] = (stats.connectionsByBranch[client.branchId] || 0) + 1;
+        stats.connectionsByBranch[client.branchId] =
+          (stats.connectionsByBranch[client.branchId] || 0) + 1;
       }
       if (client.userId) {
-        stats.connectionsByUser[client.userId] = (stats.connectionsByUser[client.userId] || 0) + 1;
+        stats.connectionsByUser[client.userId] =
+          (stats.connectionsByUser[client.userId] || 0) + 1;
       }
     });
 
