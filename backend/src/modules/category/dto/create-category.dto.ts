@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString, IsOptional, IsUUID, IsBoolean, MaxLength } from 'class-validator';
+import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
+import { IsNotEmpty, IsString, IsOptional, IsBoolean, MaxLength } from 'class-validator';
 
 export class CreateCategoryDto {
   @IsNotEmpty({ message: 'اسم الفئة مطلوب' })
@@ -11,7 +12,7 @@ export class CreateCategoryDto {
   description?: string;
 
   @IsOptional()
-  @IsUUID('4', { message: 'معرف الفئة الأب غير صحيح' })
+  @IsEntityId()
   parentId?: string;
 
   @IsOptional()

@@ -1,4 +1,5 @@
-import { IsOptional, IsString, IsNumber, IsBoolean, IsUUID, Min } from 'class-validator';
+import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
+import { IsOptional, IsString, IsNumber, IsBoolean, Min } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class UpdateProductDto {
@@ -19,7 +20,7 @@ export class UpdateProductDto {
   sku?: string;
 
   @IsOptional()
-  @IsUUID('4', { message: 'معرف الفئة غير صحيح' })
+  @IsEntityId()
   categoryId?: string;
 
   @IsOptional()
@@ -35,7 +36,7 @@ export class UpdateProductDto {
   costPrice?: number;
 
   @IsOptional()
-  @IsUUID('4', { message: 'معرف الضريبة غير صحيح' })
+  @IsEntityId()
   taxId?: string;
 
   @IsOptional()

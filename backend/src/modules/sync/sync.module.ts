@@ -1,16 +1,10 @@
-import { Module, forwardRef } from '@nestjs/common';
-import { SyncService } from './sync.service';
+import { Module } from '@nestjs/common';
 import { SyncController } from './sync.controller';
-import { SyncGateway } from './sync.gateway';
-import { OfflineService } from './offline.service';
-import { PrismaService } from '../../shared/database/prisma.service';
-import { CacheService } from '../../shared/cache/cache.service';
-import { AuditModule } from '../audit/audit.module';
+import { SyncService } from './sync.service';
 
 @Module({
-  imports: [forwardRef(() => AuditModule)],
   controllers: [SyncController],
-  providers: [SyncService, SyncGateway, OfflineService, PrismaService, CacheService],
-  exports: [SyncService, SyncGateway, OfflineService],
+  providers: [SyncService],
+  exports: [SyncService],
 })
 export class SyncModule {}

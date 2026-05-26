@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString, IsOptional, IsEmail, IsUUID, IsBoolean, MaxLength } from 'class-validator';
+import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
+import { IsNotEmpty, IsString, IsOptional, IsEmail, IsBoolean, MaxLength } from 'class-validator';
 
 export class CreateBranchDto {
   @IsNotEmpty({ message: 'اسم الفرع مطلوب' })
@@ -25,11 +26,11 @@ export class CreateBranchDto {
   email?: string;
 
   @IsNotEmpty({ message: 'معرف الشركة مطلوب' })
-  @IsUUID('4', { message: 'معرف الشركة غير صحيح' })
+  @IsEntityId()
   companyId: string;
 
   @IsOptional()
-  @IsUUID('4', { message: 'معرف المدير غير صحيح' })
+  @IsEntityId()
   managerId?: string;
 
   @IsOptional()

@@ -16,14 +16,14 @@ datasource db {
 
 // معلومات الشركة
 model Company {
-  id          String   @id @default(cuid()) @db.VarChar(50)
-  name        String   @db.VarChar(255)
-  description String?  @db.Text
-  address     String?  @db.Text
-  phone       String?  @db.VarChar(50)
-  email       String?  @db.VarChar(255)
-  taxNumber   String?  @db.VarChar(100)
-  isActive    Boolean  @default(true)
+  id          String  @id @default(cuid()) @db.VarChar(50)
+  name        String  @db.VarChar(255)
+  description String? @db.Text
+  address     String? @db.Text
+  phone       String? @db.VarChar(50)
+  email       String? @db.VarChar(255)
+  taxNumber   String? @db.VarChar(100)
+  isActive    Boolean @default(true)
 
   branches Branch[]
 
@@ -35,32 +35,33 @@ model Company {
 
 // الفروع
 model Branch {
-  id          String   @id @default(cuid()) @db.VarChar(50)
-  name        String   @db.VarChar(255)
-  code        String   @unique @db.VarChar(50)
-  address     String?  @db.Text
-  phone       String?  @db.VarChar(50)
-  email       String?  @db.VarChar(255)
-  managerId   String?  @db.VarChar(50)
-  companyId   String   @db.VarChar(50)
-  isActive    Boolean  @default(true)
+  id        String  @id @default(cuid()) @db.VarChar(50)
+  name      String  @db.VarChar(255)
+  code      String  @unique @db.VarChar(50)
+  address   String? @db.Text
+  phone     String? @db.VarChar(50)
+  email     String? @db.VarChar(255)
+  managerId String? @db.VarChar(50)
+  companyId String  @db.VarChar(50)
+  isActive  Boolean @default(true)
 
-  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  users       User[]
-  warehouses  Warehouse[]
-  managers    User[]    @relation("BranchManager")
-  salesInvoices SalesInvoice[]
-  auditLogs   AuditLog[] // سجلات التدقيق
-  syncBatches SyncBatch[] // دفعات المزامنة
+  company             Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  users               User[]
+  warehouses          Warehouse[]
+  managers            User[]               @relation("BranchManager")
+  salesInvoices       SalesInvoice[]
+  auditLogs           AuditLog[] // سجلات التدقيق
+  syncBatches         SyncBatch[] // دفعات المزامنة
   paymentTransactions PaymentTransaction[] // معاملات الدفع
-  notifications Notification[] // الإشعارات
-  files File[] // الملفات
+  notifications       Notification[] // الإشعارات
+  files               File[] // الملفات
+  backupMetadata      BackupMetadata[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("branches")
   @@index([companyId])
+  @@map("branches")
 }
 
 // المخازن
@@ -75,36 +76,36 @@ model Warehouse {
   branchId  String  @db.VarChar(50)
   isActive  Boolean @default(true)
 
-  branch Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  manager User? @relation(fields: [managerId], references: [id], onDelete: SetNull)
+  branch  Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  manager User?  @relation(fields: [managerId], references: [id], onDelete: SetNull)
 
-  stockItems StockItem[]
-  stockMovements StockMovement[]
-  salesInvoices SalesInvoice[]
-  salesInvoiceLines SalesInvoiceLine[]
-  returns Return[]
-  returnLines ReturnLine[]
-  purchaseOrders PurchaseOrder[]
-  purchaseInvoices PurchaseInvoice[]
+  stockItems           StockItem[]
+  stockMovements       StockMovement[]
+  salesInvoices        SalesInvoice[]
+  salesInvoiceLines    SalesInvoiceLine[]
+  returns              Return[]
+  returnLines          ReturnLine[]
+  purchaseOrders       PurchaseOrder[]
+  purchaseInvoices     PurchaseInvoice[]
   purchaseInvoiceLines PurchaseInvoiceLine[]
-  auditLogs AuditLog[] // سجلات التدقيق
+  auditLogs            AuditLog[] // سجلات التدقيق
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("warehouses")
   @@index([branchId])
   @@index([managerId])
+  @@map("warehouses")
 }
 
 // الأدوار والصلاحيات
 model Role {
-  id          String   @id @default(cuid()) @db.VarChar(50)
-  name        String   @unique @db.VarChar(100)
-  description String?  @db.Text
-  permissions Json     @default("[]")
+  id           String  @id @default(cuid()) @db.VarChar(50)
+  name         String  @unique @db.VarChar(100)
+  description  String? @db.Text
+  permissions  Json    @default("[]")
   isSystemRole Boolean @default(false)
-  isActive    Boolean  @default(true)
+  isActive     Boolean @default(true)
 
   users User[]
 
@@ -116,138 +117,141 @@ model Role {
 
 // المستخدمون والمصادقة
 model User {
-  id                String    @id @default(cuid()) @db.VarChar(50)
-  username          String    @unique @db.VarChar(100)
-  email             String    @unique @db.VarChar(255)
-  phone             String?   @db.VarChar(50)
-  passwordHash      String    @db.VarChar(255)
-  isActive          Boolean   @default(true)
-  lastLoginAt       DateTime?
-  branchId          String?   @db.VarChar(50)
-  roleId            String    @db.VarChar(50)
-  twoFactorEnabled  Boolean   @default(false)
-  twoFactorSecret   String?   @db.VarChar(255)
-  biometricEnabled  Boolean   @default(false)
+  id               String    @id @default(cuid()) @db.VarChar(50)
+  username         String    @unique @db.VarChar(100)
+  email            String    @unique @db.VarChar(255)
+  phone            String?   @db.VarChar(50)
+  passwordHash     String    @db.VarChar(255)
+  isActive         Boolean   @default(true)
+  lastLoginAt      DateTime?
+  branchId         String?   @db.VarChar(50)
+  roleId           String    @db.VarChar(50)
+  twoFactorEnabled Boolean   @default(false)
+  twoFactorSecret  String?   @db.VarChar(255)
+  biometricEnabled Boolean   @default(false)
 
-  branch Branch? @relation(fields: [branchId], references: [id])
-  role   Role    @relation(fields: [roleId], references: [id])
-  managedWarehouses Warehouse[]
-  managedBranches   Branch[]   @relation("BranchManager")
-  salesInvoices     SalesInvoice[] // ككاشير
-  payments          Payment[]      // كمعالج للمدفوعات
-  returns           Return[]       // كمعالج للمرتجعات
-  purchaseOrders    PurchaseOrder[] // كطالب لأوامر الشراء
-  purchaseInvoices  PurchaseInvoice[] // كمستلم للفواتير
-  purchasePayments  PurchasePayment[] // كمعالج لمدفوعات المشتريات
-  journalEntries    JournalEntry[] // كمنشئ للقيود اليومية
-  auditLogs         AuditLog[] // سجلات التدقيق
-  syncBatches       SyncBatch[] // دفعات المزامنة
-  paymentTransactions PaymentTransaction[] // معاملات الدفع
-  sentNotifications Notification[] @relation("NotificationSender") // الإشعارات المرسلة
-  notificationPreferences NotificationPreference[] // تفضيلات الإشعارات
+  branch                       Branch?                  @relation(fields: [branchId], references: [id])
+  role                         Role                     @relation(fields: [roleId], references: [id])
+  managedWarehouses            Warehouse[]
+  managedBranches              Branch[]                 @relation("BranchManager")
+  salesInvoices                SalesInvoice[] // ككاشير
+  payments                     Payment[] // كمعالج للمدفوعات
+  returns                      Return[] // كمعالج للمرتجعات
+  purchaseOrders               PurchaseOrder[] // كطالب لأوامر الشراء
+  purchaseInvoices             PurchaseInvoice[] // كمستلم للفواتير
+  purchasePayments             PurchasePayment[] // كمعالج لمدفوعات المشتريات
+  journalEntries               JournalEntry[] // كمنشئ للقيود اليومية
+  auditLogs                    AuditLog[] // سجلات التدقيق
+  syncBatches                  SyncBatch[] // دفعات المزامنة
+  paymentTransactions          PaymentTransaction[] // معاملات الدفع
+  sentNotifications            Notification[]           @relation("NotificationSender") // الإشعارات المرسلة
+  notificationPreferences      NotificationPreference[] // تفضيلات الإشعارات
   createdNotificationTemplates NotificationTemplate[] // قوالب الإشعارات التي أنشأها
-  uploadedFiles File[] @relation("FileUploader") // الملفات المرفوعة
-  modifiedFileVersions FileVersion[] @relation("FileVersionModifier") // إصدارات الملفات المعدلة
-  createdBuckets StorageBucket[] @relation("BucketCreator") // الحاويات التي أنشأها
+  uploadedFiles                File[]                   @relation("FileUploader") // الملفات المرفوعة
+  modifiedFileVersions         FileVersion[]            @relation("FileVersionModifier") // إصدارات الملفات المعدلة
+  createdBuckets               StorageBucket[]          @relation("BucketCreator") // الحاويات التي أنشأها
+  syncDevices                  SyncDevice[]
+  createdBackups               BackupMetadata[]         @relation("BackupCreator")
+  restoredBackups              BackupMetadata[]         @relation("BackupRestorer")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("users")
   @@index([branchId])
   @@index([roleId])
   @@index([email])
+  @@map("users")
 }
 
 // المنتجات والفئات
 model Category {
-  id          String   @id @default(cuid()) @db.VarChar(50)
-  name        String   @db.VarChar(255)
-  description String?  @db.Text
-  parentId    String?  @db.VarChar(50)
-  imageUrl    String?  @db.Text
-  isActive    Boolean  @default(true)
+  id          String  @id @default(cuid()) @db.VarChar(50)
+  name        String  @db.VarChar(255)
+  description String? @db.Text
+  parentId    String? @db.VarChar(50)
+  imageUrl    String? @db.Text
+  isActive    Boolean @default(true)
 
-  parent   Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
   children Category[] @relation("CategoryHierarchy")
   products Product[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("categories")
   @@index([parentId])
+  @@map("categories")
 }
 
 model Product {
-  id          String   @id @default(cuid()) @db.VarChar(50)
-  name        String   @db.VarChar(255)
-  description String?  @db.Text
-  barcode     String?  @unique @db.VarChar(100)
-  sku         String?  @unique @db.VarChar(100)
-  categoryId  String   @db.VarChar(50)
-  basePrice   Decimal  @db.Decimal(10, 2)
-  costPrice   Decimal? @db.Decimal(10, 2)
-  taxId       String?  @db.VarChar(50)
-  isActive    Boolean  @default(true)
-  trackInventory Boolean @default(true)
+  id             String   @id @default(cuid()) @db.VarChar(50)
+  name           String   @db.VarChar(255)
+  description    String?  @db.Text
+  barcode        String?  @unique @db.VarChar(100)
+  sku            String?  @unique @db.VarChar(100)
+  categoryId     String   @db.VarChar(50)
+  basePrice      Decimal  @db.Decimal(10, 2)
+  costPrice      Decimal? @db.Decimal(10, 2)
+  taxId          String?  @db.VarChar(50)
+  isActive       Boolean  @default(true)
+  trackInventory Boolean  @default(true)
   reorderPoint   Int?     @default(0)
-  imageUrl    String?  @db.Text
+  imageUrl       String?  @db.Text
 
-  category      Category      @relation(fields: [categoryId], references: [id])
-  tax           Tax?          @relation(fields: [taxId], references: [id])
-  variants      ProductVariant[]
+  category           Category            @relation(fields: [categoryId], references: [id])
+  tax                Tax?                @relation(fields: [taxId], references: [id])
+  variants           ProductVariant[]
   purchaseOrderLines PurchaseOrderLine[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("products")
   @@index([categoryId])
   @@index([barcode])
   @@index([sku])
+  @@map("products")
 }
 
 model ProductVariant {
-  id          String   @id @default(cuid()) @db.VarChar(50)
-  productId   String   @db.VarChar(50)
-  name        String   @db.VarChar(255)
-  sku         String?  @unique @db.VarChar(100)
-  barcode     String?  @unique @db.VarChar(100)
-  price       Decimal? @db.Decimal(10, 2)
-  costPrice   Decimal? @db.Decimal(10, 2)
-  weight      Decimal? @db.Decimal(8, 3)
-  dimensions  Json?    // {length, width, height}
-  attributes  Json?    // {color, size, material, etc}
-  imageUrl    String?  @db.Text
-  isActive    Boolean  @default(true)
+  id         String   @id @default(cuid()) @db.VarChar(50)
+  productId  String   @db.VarChar(50)
+  name       String   @db.VarChar(255)
+  sku        String?  @unique @db.VarChar(100)
+  barcode    String?  @unique @db.VarChar(100)
+  price      Decimal? @db.Decimal(10, 2)
+  costPrice  Decimal? @db.Decimal(10, 2)
+  weight     Decimal? @db.Decimal(8, 3)
+  dimensions Json? // {length, width, height}
+  attributes Json? // {color, size, material, etc}
+  imageUrl   String?  @db.Text
+  isActive   Boolean  @default(true)
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  stockItems StockItem[]
-  stockMovements StockMovement[]
-  salesInvoiceLines SalesInvoiceLine[]
-  returnLines ReturnLine[]
+  product              Product               @relation(fields: [productId], references: [id], onDelete: Cascade)
+  stockItems           StockItem[]
+  stockMovements       StockMovement[]
+  salesInvoiceLines    SalesInvoiceLine[]
+  returnLines          ReturnLine[]
   purchaseInvoiceLines PurchaseInvoiceLine[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("product_variants")
   @@index([productId])
   @@index([sku])
   @@index([barcode])
+  @@map("product_variants")
 }
 
 // عناصر المخزون
 model StockItem {
-  id                String  @id @default(cuid()) @db.VarChar(50)
-  warehouseId       String  @db.VarChar(50)
-  productVariantId  String  @db.VarChar(50)
-  quantity          Decimal @db.Decimal(10, 3)
-  minStock          Decimal @default(0) @db.Decimal(10, 3)
-  maxStock          Decimal @default(1000) @db.Decimal(10, 3)
+  id               String  @id @default(cuid()) @db.VarChar(50)
+  warehouseId      String  @db.VarChar(50)
+  productVariantId String  @db.VarChar(50)
+  quantity         Decimal @db.Decimal(10, 3)
+  minStock         Decimal @default(0) @db.Decimal(10, 3)
+  maxStock         Decimal @default(1000) @db.Decimal(10, 3)
 
-  warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  warehouse      Warehouse      @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
   productVariant ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
 
   movements StockMovement[]
@@ -256,7 +260,6 @@ model StockItem {
   updatedAt DateTime @updatedAt
 
   @@unique([warehouseId, productVariantId])
-  @@map("stock_items")
   @@index([warehouseId])
   @@index([productVariantId])
   @@index([warehouseId, productVariantId])
@@ -264,31 +267,32 @@ model StockItem {
   @@index([minStock])
   @@index([warehouseId, quantity])
   @@index([productVariantId, warehouseId, quantity])
-
+  @@map("stock_items")
+}
 
 // حركات المخزون
 model StockMovement {
-  id                String   @id @default(cuid()) @db.VarChar(50)
-  warehouseId       String   @db.VarChar(50)
-  productVariantId  String   @db.VarChar(50)
-  movementType      String   @db.VarChar(50) // in, out, adjustment, transfer
-  quantity          Decimal  @db.Decimal(10, 3)
-  referenceType     String?  @db.VarChar(50) // sales, purchase, adjustment, transfer
-  referenceId       String?  @db.VarChar(50)
-  reason            String?  @db.Text
-  performedBy       String?  @db.VarChar(50) // User ID
+  id               String  @id @default(cuid()) @db.VarChar(50)
+  warehouseId      String  @db.VarChar(50)
+  productVariantId String  @db.VarChar(50)
+  movementType     String  @db.VarChar(50) // in, out, adjustment, transfer
+  quantity         Decimal @db.Decimal(10, 3)
+  referenceType    String? @db.VarChar(50) // sales, purchase, adjustment, transfer
+  referenceId      String? @db.VarChar(50)
+  reason           String? @db.Text
+  performedBy      String? @db.VarChar(50) // User ID
 
-  warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  warehouse      Warehouse      @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
   productVariant ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
-  stockItem StockItem @relation(fields: [warehouseId, productVariantId], references: [warehouseId, productVariantId], onDelete: Cascade)
+  stockItem      StockItem      @relation(fields: [warehouseId, productVariantId], references: [warehouseId, productVariantId], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 
-  @@map("stock_movements")
   @@index([warehouseId])
   @@index([productVariantId])
   @@index([referenceType])
   @@index([referenceId])
+  @@map("stock_movements")
 }
 
 // العملاء والعملات والضرائب
@@ -302,65 +306,101 @@ model Customer {
   creditLimit Decimal? @db.Decimal(10, 2)
 
   // نظام الولاء
-  loyaltyPoints         Int      @default(0)
-  loyaltyTier          String   @default("bronze") @db.VarChar(20) // bronze, silver, gold, platinum
-  totalPurchases       Decimal  @default(0) @db.Decimal(12, 2)
-  lastPurchaseDate     DateTime?
-  preferredPaymentMethod String? @db.VarChar(50)
+  loyaltyPoints          Int       @default(0)
+  loyaltyTier            String    @default("bronze") @db.VarChar(20) // bronze, silver, gold, platinum
+  totalPurchases         Decimal   @default(0) @db.Decimal(12, 2)
+  lastPurchaseDate       DateTime?
+  preferredPaymentMethod String?   @db.VarChar(50)
 
   // معلومات شخصية إضافية
-  birthday             DateTime?
-  gender               String?  @db.VarChar(10) // male, female, other
-  marketingConsent     Boolean  @default(false)
+  birthday         DateTime?
+  gender           String?   @db.VarChar(10) // male, female, other
+  marketingConsent Boolean   @default(false)
 
-  isActive    Boolean  @default(true)
+  isActive Boolean @default(true)
 
-  salesInvoices SalesInvoice[]
-  payments      Payment[]
-  returns       Return[]
-  creditNotes   CreditNote[]
+  salesInvoices       SalesInvoice[]
+  payments            Payment[]
+  returns             Return[]
+  creditNotes         CreditNote[]
   paymentTransactions PaymentTransaction[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("customers")
   @@index([email])
   @@index([phone])
   @@index([loyaltyTier])
   @@index([lastPurchaseDate])
+  @@map("customers")
 }
 
 model Currency {
-  id          String   @id @default(cuid()) @db.VarChar(50)
-  code        String   @unique @db.VarChar(10)
-  name        String   @db.VarChar(255)
-  symbol      String?  @db.VarChar(10)
-  exchangeRate Decimal @db.Decimal(10, 6)
-  isBase      Boolean  @default(false)
-  isActive    Boolean  @default(true)
+  id            String  @id @default(cuid()) @db.VarChar(50)
+  code          String  @unique @db.VarChar(10)
+  name          String  @db.VarChar(255)
+  symbol        String? @db.VarChar(10)
+  decimalPlaces Int     @default(2)
+  exchangeRate  Decimal @default(1) @db.Decimal(18, 8)
+  isBase        Boolean @default(false)
+  isDefault     Boolean @default(false)
+  isActive      Boolean @default(true)
 
-  salesInvoices SalesInvoice[]
-  payments      Payment[]
-  returns       Return[]
-  creditNotes   CreditNote[]
+  salesInvoices    SalesInvoice[]
+  payments         Payment[]
+  returns          Return[]
+  creditNotes      CreditNote[]
   purchaseInvoices PurchaseInvoice[]
   purchasePayments PurchasePayment[]
+  ratesFrom        ExchangeRate[]    @relation("ExchangeRateFrom")
+  ratesTo          ExchangeRate[]    @relation("ExchangeRateTo")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("currencies")
   @@index([code])
+  @@map("currencies")
+}
+
+model ExchangeRate {
+  id             String   @id @default(cuid()) @db.VarChar(50)
+  fromCurrencyId String   @db.VarChar(50)
+  toCurrencyId   String   @db.VarChar(50)
+  rate           Decimal  @db.Decimal(18, 8)
+  effectiveAt    DateTime
+  source         String?  @db.VarChar(50)
+  notes          String?  @db.Text
+  createdBy      String?  @db.VarChar(50)
+  createdAt      DateTime @default(now())
+
+  fromCurrency Currency @relation("ExchangeRateFrom", fields: [fromCurrencyId], references: [id])
+  toCurrency   Currency @relation("ExchangeRateTo", fields: [toCurrencyId], references: [id])
+
+  @@index([fromCurrencyId, toCurrencyId, effectiveAt])
+  @@map("exchange_rates")
+}
+
+model AppSetting {
+  id        String   @id @default(cuid()) @db.VarChar(50)
+  scope     String   @db.VarChar(50)
+  scopeId   String?  @db.VarChar(50)
+  key       String   @db.VarChar(120)
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([scope, scopeId, key])
+  @@index([scope, scopeId])
+  @@map("app_settings")
 }
 
 model Tax {
-  id          String   @id @default(cuid()) @db.VarChar(50)
-  name        String   @db.VarChar(255)
-  rate        Decimal  @db.Decimal(5, 2)
-  isActive    Boolean  @default(true)
+  id       String  @id @default(cuid()) @db.VarChar(50)
+  name     String  @db.VarChar(255)
+  rate     Decimal @db.Decimal(5, 2)
+  isActive Boolean @default(true)
 
-  products     Product[]
+  products      Product[]
   salesInvoices SalesInvoice[]
 
   createdAt DateTime @default(now())
@@ -371,42 +411,47 @@ model Tax {
 
 // فواتير المبيعات والمدفوعات
 model SalesInvoice {
-  id              String   @id @default(cuid()) @db.VarChar(50)
-  invoiceNumber   String   @unique @db.VarChar(50)
-  branchId        String   @db.VarChar(50)
-  customerId      String?  @db.VarChar(50)
-  cashierId       String   @db.VarChar(50)
-  warehouseId     String   @db.VarChar(50)
+  id            String  @id @default(cuid()) @db.VarChar(50)
+  invoiceNumber String  @unique @db.VarChar(50)
+  branchId      String  @db.VarChar(50)
+  customerId    String? @db.VarChar(50)
+  cashierId     String  @db.VarChar(50)
+  warehouseId   String  @db.VarChar(50)
 
-  subtotal        Decimal  @db.Decimal(10, 2)
-  taxAmount       Decimal  @default(0) @db.Decimal(10, 2)
-  discountAmount  Decimal  @default(0) @db.Decimal(10, 2)
-  totalAmount     Decimal  @db.Decimal(10, 2)
+  subtotal       Decimal @db.Decimal(10, 2)
+  taxAmount      Decimal @default(0) @db.Decimal(10, 2)
+  discountAmount Decimal @default(0) @db.Decimal(10, 2)
+  totalAmount    Decimal @db.Decimal(10, 2)
 
-  currencyId      String   @db.VarChar(50)
-  taxId           String?  @db.VarChar(50)
+  currencyId         String  @db.VarChar(50)
+  exchangeRate       Decimal @default(1) @db.Decimal(18, 8)
+  baseCurrencyId     String? @db.VarChar(50)
+  baseSubtotal       Decimal @default(0) @db.Decimal(18, 2)
+  baseTaxAmount      Decimal @default(0) @db.Decimal(18, 2)
+  baseDiscountAmount Decimal @default(0) @db.Decimal(18, 2)
+  baseTotalAmount    Decimal @default(0) @db.Decimal(18, 2)
+  taxId              String? @db.VarChar(50)
 
-  status          String   @default("draft") @db.VarChar(50) // draft, confirmed, cancelled, refunded
-  paymentStatus   String   @default("pending") @db.VarChar(50) // pending, partial, paid, refunded
+  status        String @default("draft") @db.VarChar(50) // draft, confirmed, cancelled, refunded
+  paymentStatus String @default("pending") @db.VarChar(50) // pending, partial, paid, refunded
 
-  notes           String?  @db.Text
-  dueDate         DateTime?
+  notes   String?   @db.Text
+  dueDate DateTime?
 
-  branch          Branch       @relation(fields: [branchId], references: [id])
-  customer        Customer?    @relation(fields: [customerId], references: [id])
-  cashier         User         @relation(fields: [cashierId], references: [id])
-  warehouse       Warehouse    @relation(fields: [warehouseId], references: [id])
-  currency        Currency     @relation(fields: [currencyId], references: [id])
-  tax             Tax?         @relation(fields: [taxId], references: [id])
+  branch    Branch    @relation(fields: [branchId], references: [id])
+  customer  Customer? @relation(fields: [customerId], references: [id])
+  cashier   User      @relation(fields: [cashierId], references: [id])
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+  currency  Currency  @relation(fields: [currencyId], references: [id])
+  tax       Tax?      @relation(fields: [taxId], references: [id])
 
-  lines           SalesInvoiceLine[]
-  payments        Payment[]
-  returns         Return[]
+  lines    SalesInvoiceLine[]
+  payments Payment[]
+  returns  Return[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("sales_invoices")
   @@index([branchId])
   @@index([customerId])
   @@index([cashierId])
@@ -419,93 +464,96 @@ model SalesInvoice {
   @@index([createdAt, status])
   @@index([branchId, createdAt])
   @@index([invoiceNumber, branchId])
+  @@map("sales_invoices")
 }
 
 model SalesInvoiceLine {
-  id              String   @id @default(cuid()) @db.VarChar(50)
-  salesInvoiceId  String   @db.VarChar(50)
-  productVariantId String  @db.VarChar(50)
-  warehouseId     String   @db.VarChar(50)
+  id               String @id @default(cuid()) @db.VarChar(50)
+  salesInvoiceId   String @db.VarChar(50)
+  productVariantId String @db.VarChar(50)
+  warehouseId      String @db.VarChar(50)
 
-  quantity        Decimal  @db.Decimal(10, 3)
-  unitPrice       Decimal  @db.Decimal(10, 2)
-  discountAmount  Decimal  @default(0) @db.Decimal(10, 2)
-  taxAmount       Decimal  @default(0) @db.Decimal(10, 2)
-  lineTotal       Decimal  @db.Decimal(10, 2)
+  quantity       Decimal @db.Decimal(10, 3)
+  unitPrice      Decimal @db.Decimal(10, 2)
+  discountAmount Decimal @default(0) @db.Decimal(10, 2)
+  taxAmount      Decimal @default(0) @db.Decimal(10, 2)
+  lineTotal      Decimal @db.Decimal(10, 2)
 
-  salesInvoice    SalesInvoice   @relation(fields: [salesInvoiceId], references: [id], onDelete: Cascade)
-  productVariant  ProductVariant @relation(fields: [productVariantId], references: [id])
-  warehouse       Warehouse      @relation(fields: [warehouseId], references: [id])
+  salesInvoice   SalesInvoice   @relation(fields: [salesInvoiceId], references: [id], onDelete: Cascade)
+  productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
+  warehouse      Warehouse      @relation(fields: [warehouseId], references: [id])
 
   createdAt DateTime @default(now())
 
-  @@map("sales_invoice_lines")
   @@index([salesInvoiceId])
   @@index([productVariantId])
   @@index([warehouseId])
+  @@map("sales_invoice_lines")
 }
 
 model Payment {
-  id              String   @id @default(cuid()) @db.VarChar(50)
-  salesInvoiceId  String?  @db.VarChar(50)
-  customerId      String?  @db.VarChar(50)
-  currencyId      String   @db.VarChar(50)
+  id             String  @id @default(cuid()) @db.VarChar(50)
+  salesInvoiceId String? @db.VarChar(50)
+  customerId     String? @db.VarChar(50)
+  currencyId     String  @db.VarChar(50)
 
-  amount          Decimal  @db.Decimal(10, 2)
-  paymentMethod   String   @db.VarChar(50) // cash, card, bank_transfer, check, digital_wallet
-  referenceNumber String?  @db.VarChar(100)
-  notes           String?  @db.Text
+  amount          Decimal @db.Decimal(10, 2)
+  exchangeRate    Decimal @default(1) @db.Decimal(18, 8)
+  baseCurrencyId  String? @db.VarChar(50)
+  baseAmount      Decimal @default(0) @db.Decimal(18, 2)
+  paymentMethod   String  @db.VarChar(50) // cash, card, bank_transfer, check, digital_wallet
+  referenceNumber String? @db.VarChar(100)
+  notes           String? @db.Text
 
-  paymentDate     DateTime @default(now())
-  processedBy     String?  @db.VarChar(50) // User ID
+  paymentDate DateTime @default(now())
+  processedBy String?  @db.VarChar(50) // User ID
 
-  salesInvoice    SalesInvoice? @relation(fields: [salesInvoiceId], references: [id])
-  customer        Customer?     @relation(fields: [customerId], references: [id])
-  currency        Currency      @relation(fields: [currencyId], references: [id])
-  processor       User?         @relation(fields: [processedBy], references: [id])
+  salesInvoice SalesInvoice? @relation(fields: [salesInvoiceId], references: [id])
+  customer     Customer?     @relation(fields: [customerId], references: [id])
+  currency     Currency      @relation(fields: [currencyId], references: [id])
+  processor    User?         @relation(fields: [processedBy], references: [id])
 
-  @@map("payments")
   @@index([salesInvoiceId])
   @@index([customerId])
   @@index([currencyId])
   @@index([paymentMethod])
+  @@map("payments")
 }
 
 // المرتجعات وإشعارات الدائن
 model Return {
-  id              String   @id @default(cuid()) @db.VarChar(50)
-  returnNumber    String   @unique @db.VarChar(50)
-  salesInvoiceId  String   @db.VarChar(50)
-  customerId      String?  @db.VarChar(50)
-  cashierId       String   @db.VarChar(50)
-  warehouseId     String   @db.VarChar(50)
+  id             String  @id @default(cuid()) @db.VarChar(50)
+  returnNumber   String  @unique @db.VarChar(50)
+  salesInvoiceId String  @db.VarChar(50)
+  customerId     String? @db.VarChar(50)
+  cashierId      String  @db.VarChar(50)
+  warehouseId    String  @db.VarChar(50)
 
-  subtotal        Decimal  @db.Decimal(10, 2)
-  taxAmount       Decimal  @default(0) @db.Decimal(10, 2)
-  discountAmount  Decimal  @default(0) @db.Decimal(10, 2)
-  totalAmount     Decimal  @db.Decimal(10, 2)
+  subtotal       Decimal @db.Decimal(10, 2)
+  taxAmount      Decimal @default(0) @db.Decimal(10, 2)
+  discountAmount Decimal @default(0) @db.Decimal(10, 2)
+  totalAmount    Decimal @db.Decimal(10, 2)
 
-  currencyId      String   @db.VarChar(50)
-  reason          String   @db.Text
+  currencyId String @db.VarChar(50)
+  reason     String @db.Text
 
-  status          String   @default("draft") @db.VarChar(50) // draft, confirmed, cancelled, refunded
-  refundStatus    String   @default("pending") @db.VarChar(50) // pending, partial, refunded
+  status       String @default("draft") @db.VarChar(50) // draft, confirmed, cancelled, refunded
+  refundStatus String @default("pending") @db.VarChar(50) // pending, partial, refunded
 
-  notes           String?  @db.Text
+  notes String? @db.Text
 
-  salesInvoice    SalesInvoice @relation(fields: [salesInvoiceId], references: [id])
-  customer        Customer?    @relation(fields: [customerId], references: [id])
-  cashier         User         @relation(fields: [cashierId], references: [id])
-  warehouse       Warehouse    @relation(fields: [warehouseId], references: [id])
-  currency        Currency     @relation(fields: [currencyId], references: [id])
+  salesInvoice SalesInvoice @relation(fields: [salesInvoiceId], references: [id])
+  customer     Customer?    @relation(fields: [customerId], references: [id])
+  cashier      User         @relation(fields: [cashierId], references: [id])
+  warehouse    Warehouse    @relation(fields: [warehouseId], references: [id])
+  currency     Currency     @relation(fields: [currencyId], references: [id])
 
-  lines           ReturnLine[]
-  creditNotes     CreditNote[]
+  lines       ReturnLine[]
+  creditNotes CreditNote[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("returns")
   @@index([salesInvoiceId])
   @@index([customerId])
   @@index([cashierId])
@@ -513,246 +561,256 @@ model Return {
   @@index([status])
   @@index([refundStatus])
   @@index([returnNumber])
+  @@map("returns")
 }
 
 model ReturnLine {
-  id              String   @id @default(cuid()) @db.VarChar(50)
-  returnId        String   @db.VarChar(50)
-  productVariantId String  @db.VarChar(50)
-  warehouseId     String   @db.VarChar(50)
+  id               String @id @default(cuid()) @db.VarChar(50)
+  returnId         String @db.VarChar(50)
+  productVariantId String @db.VarChar(50)
+  warehouseId      String @db.VarChar(50)
 
-  quantity        Decimal  @db.Decimal(10, 3)
-  unitPrice       Decimal  @db.Decimal(10, 2)
-  discountAmount  Decimal  @default(0) @db.Decimal(10, 2)
-  taxAmount       Decimal  @default(0) @db.Decimal(10, 2)
-  lineTotal       Decimal  @db.Decimal(10, 2)
+  quantity       Decimal @db.Decimal(10, 3)
+  unitPrice      Decimal @db.Decimal(10, 2)
+  discountAmount Decimal @default(0) @db.Decimal(10, 2)
+  taxAmount      Decimal @default(0) @db.Decimal(10, 2)
+  lineTotal      Decimal @db.Decimal(10, 2)
 
-  reason          String?  @db.Text
+  reason String? @db.Text
 
-  return          Return       @relation(fields: [returnId], references: [id], onDelete: Cascade)
-  productVariant  ProductVariant @relation(fields: [productVariantId], references: [id])
-  warehouse       Warehouse    @relation(fields: [warehouseId], references: [id])
+  return         Return         @relation(fields: [returnId], references: [id], onDelete: Cascade)
+  productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
+  warehouse      Warehouse      @relation(fields: [warehouseId], references: [id])
 
   createdAt DateTime @default(now())
 
-  @@map("return_lines")
   @@index([returnId])
   @@index([productVariantId])
   @@index([warehouseId])
+  @@map("return_lines")
 }
 
 model CreditNote {
-  id              String   @id @default(cuid()) @db.VarChar(50)
+  id               String  @id @default(cuid()) @db.VarChar(50)
   creditNoteNumber String  @unique @db.VarChar(50)
-  returnId        String   @db.VarChar(50)
-  customerId      String?  @db.VarChar(50)
-  currencyId      String   @db.VarChar(50)
+  returnId         String  @db.VarChar(50)
+  customerId       String? @db.VarChar(50)
+  currencyId       String  @db.VarChar(50)
 
-  amount          Decimal  @db.Decimal(10, 2)
-  remainingAmount Decimal  @db.Decimal(10, 2)
+  amount          Decimal @db.Decimal(10, 2)
+  remainingAmount Decimal @db.Decimal(10, 2)
 
-  status          String   @default("active") @db.VarChar(50) // active, used, expired, cancelled
-  expiryDate      DateTime?
+  status     String    @default("active") @db.VarChar(50) // active, used, expired, cancelled
+  expiryDate DateTime?
 
-  notes           String?  @db.Text
+  notes String? @db.Text
 
-  return          Return     @relation(fields: [returnId], references: [id])
-  customer        Customer?  @relation(fields: [customerId], references: [id])
-  currency        Currency   @relation(fields: [currencyId], references: [id])
+  return   Return    @relation(fields: [returnId], references: [id])
+  customer Customer? @relation(fields: [customerId], references: [id])
+  currency Currency  @relation(fields: [currencyId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("credit_notes")
   @@index([returnId])
   @@index([customerId])
   @@index([currencyId])
   @@index([status])
   @@index([creditNoteNumber])
+  @@map("credit_notes")
 }
 
 // الموردين وأوامر وفواتير المشتريات
 model Supplier {
-  id          String   @id @default(cuid()) @db.VarChar(50)
-  name        String   @db.VarChar(255)
-  contactName String?  @db.VarChar(255)
-  phone       String?  @db.VarChar(50)
-  email       String?  @db.VarChar(255)
-  address     String?  @db.Text
-  taxNumber   String?  @db.VarChar(100)
+  id           String  @id @default(cuid()) @db.VarChar(50)
+  name         String  @db.VarChar(255)
+  contactName  String? @db.VarChar(255)
+  phone        String? @db.VarChar(50)
+  email        String? @db.VarChar(255)
+  address      String? @db.Text
+  taxNumber    String? @db.VarChar(100)
   paymentTerms String? @db.VarChar(255) // شروط الدفع
-  isActive    Boolean  @default(true)
+  isActive     Boolean @default(true)
 
-  purchaseOrders   PurchaseOrder[]
-  purchaseInvoices PurchaseInvoice[]
-  purchasePayments PurchasePayment[]
+  purchaseOrders      PurchaseOrder[]
+  purchaseInvoices    PurchaseInvoice[]
+  purchasePayments    PurchasePayment[]
   paymentTransactions PaymentTransaction[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("suppliers")
   @@index([email])
   @@index([phone])
+  @@map("suppliers")
 }
 
 model PurchaseOrder {
-  id              String   @id @default(cuid()) @db.VarChar(50)
-  orderNumber     String   @unique @db.VarChar(50)
-  supplierId      String   @db.VarChar(50)
-  warehouseId     String   @db.VarChar(50)
-  requestedBy     String   @db.VarChar(50) // User ID
+  id          String @id @default(cuid()) @db.VarChar(50)
+  orderNumber String @unique @db.VarChar(50)
+  supplierId  String @db.VarChar(50)
+  warehouseId String @db.VarChar(50)
+  requestedBy String @db.VarChar(50) // User ID
 
-  expectedDate    DateTime?
-  notes           String?  @db.Text
+  expectedDate DateTime?
+  notes        String?   @db.Text
 
-  status          String   @default("draft") @db.VarChar(50) // draft, approved, ordered, received, cancelled
+  status String @default("draft") @db.VarChar(50) // draft, approved, ordered, received, cancelled
 
-  supplier        Supplier   @relation(fields: [supplierId], references: [id])
-  warehouse       Warehouse  @relation(fields: [warehouseId], references: [id])
-  requester       User       @relation(fields: [requestedBy], references: [id])
+  supplier  Supplier  @relation(fields: [supplierId], references: [id])
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+  requester User      @relation(fields: [requestedBy], references: [id])
 
-  lines           PurchaseOrderLine[]
+  lines            PurchaseOrderLine[]
   purchaseInvoices PurchaseInvoice[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("purchase_orders")
   @@index([supplierId])
   @@index([warehouseId])
   @@index([status])
   @@index([orderNumber])
+  @@map("purchase_orders")
 }
 
 model PurchaseOrderLine {
-  id              String   @id @default(cuid()) @db.VarChar(50)
-  purchaseOrderId String   @db.VarChar(50)
-  productId       String   @db.VarChar(50)
+  id              String @id @default(cuid()) @db.VarChar(50)
+  purchaseOrderId String @db.VarChar(50)
+  productId       String @db.VarChar(50)
 
-  quantity        Decimal  @db.Decimal(10, 3)
-  unitCost        Decimal  @db.Decimal(10, 2)
+  quantity Decimal @db.Decimal(10, 3)
+  unitCost Decimal @db.Decimal(10, 2)
 
   receivedQuantity Decimal @default(0) @db.Decimal(10, 3)
 
-  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
-  product         Product       @relation(fields: [productId], references: [id])
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  product       Product       @relation(fields: [productId], references: [id])
 
   createdAt DateTime @default(now())
 
-  @@map("purchase_order_lines")
   @@index([purchaseOrderId])
   @@index([productId])
+  @@map("purchase_order_lines")
 }
 
 model PurchaseInvoice {
-  id              String   @id @default(cuid()) @db.VarChar(50)
-  invoiceNumber   String   @unique @db.VarChar(50)
-  supplierId      String   @db.VarChar(50)
-  warehouseId     String   @db.VarChar(50)
-  receivedBy      String   @db.VarChar(50) // User ID
-  purchaseOrderId String?  @db.VarChar(50)
+  id              String  @id @default(cuid()) @db.VarChar(50)
+  invoiceNumber   String  @unique @db.VarChar(50)
+  supplierId      String  @db.VarChar(50)
+  warehouseId     String  @db.VarChar(50)
+  receivedBy      String  @db.VarChar(50) // User ID
+  purchaseOrderId String? @db.VarChar(50)
 
-  subtotal        Decimal  @db.Decimal(10, 2)
-  taxAmount       Decimal  @default(0) @db.Decimal(10, 2)
-  discountAmount  Decimal  @default(0) @db.Decimal(10, 2)
-  totalAmount     Decimal  @db.Decimal(10, 2)
+  subtotal       Decimal @db.Decimal(10, 2)
+  taxAmount      Decimal @default(0) @db.Decimal(10, 2)
+  discountAmount Decimal @default(0) @db.Decimal(10, 2)
+  totalAmount    Decimal @db.Decimal(10, 2)
 
-  currencyId      String   @db.VarChar(50)
+  currencyId         String  @db.VarChar(50)
+  exchangeRate       Decimal @default(1) @db.Decimal(18, 8)
+  baseCurrencyId     String? @db.VarChar(50)
+  baseSubtotal       Decimal @default(0) @db.Decimal(18, 2)
+  baseTaxAmount      Decimal @default(0) @db.Decimal(18, 2)
+  baseDiscountAmount Decimal @default(0) @db.Decimal(18, 2)
+  baseTotalAmount    Decimal @default(0) @db.Decimal(18, 2)
 
-  invoiceDate     DateTime @default(now())
-  dueDate         DateTime?
+  invoiceDate DateTime  @default(now())
+  dueDate     DateTime?
 
-  status          String   @default("draft") @db.VarChar(50) // draft, received, approved, paid, cancelled
-  paymentStatus   String   @default("pending") @db.VarChar(50) // pending, partial, paid
+  status        String @default("draft") @db.VarChar(50) // draft, received, approved, paid, cancelled
+  paymentStatus String @default("pending") @db.VarChar(50) // pending, partial, paid
 
-  notes           String?  @db.Text
+  notes String? @db.Text
 
-  supplier        Supplier        @relation(fields: [supplierId], references: [id])
-  warehouse       Warehouse       @relation(fields: [warehouseId], references: [id])
-  receiver        User            @relation(fields: [receivedBy], references: [id])
-  purchaseOrder   PurchaseOrder?  @relation(fields: [purchaseOrderId], references: [id])
-  currency        Currency        @relation(fields: [currencyId], references: [id])
+  supplier      Supplier       @relation(fields: [supplierId], references: [id])
+  warehouse     Warehouse      @relation(fields: [warehouseId], references: [id])
+  receiver      User           @relation(fields: [receivedBy], references: [id])
+  purchaseOrder PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
+  currency      Currency       @relation(fields: [currencyId], references: [id])
 
-  lines           PurchaseInvoiceLine[]
-  payments        PurchasePayment[]
+  lines    PurchaseInvoiceLine[]
+  payments PurchasePayment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("purchase_invoices")
   @@index([supplierId])
   @@index([warehouseId])
   @@index([purchaseOrderId])
   @@index([status])
   @@index([paymentStatus])
   @@index([invoiceNumber])
+  @@map("purchase_invoices")
 }
 
 model PurchaseInvoiceLine {
-  id                String   @id @default(cuid()) @db.VarChar(50)
-  purchaseInvoiceId String   @db.VarChar(50)
-  productVariantId  String   @db.VarChar(50)
-  warehouseId       String   @db.VarChar(50)
+  id                String @id @default(cuid()) @db.VarChar(50)
+  purchaseInvoiceId String @db.VarChar(50)
+  productVariantId  String @db.VarChar(50)
+  warehouseId       String @db.VarChar(50)
 
-  quantity          Decimal  @db.Decimal(10, 3)
-  unitCost          Decimal  @db.Decimal(10, 2)
-  discountAmount    Decimal  @default(0) @db.Decimal(10, 2)
-  taxAmount         Decimal  @default(0) @db.Decimal(10, 2)
-  lineTotal         Decimal  @db.Decimal(10, 2)
+  quantity       Decimal @db.Decimal(10, 3)
+  unitCost       Decimal @db.Decimal(10, 2)
+  discountAmount Decimal @default(0) @db.Decimal(10, 2)
+  taxAmount      Decimal @default(0) @db.Decimal(10, 2)
+  lineTotal      Decimal @db.Decimal(10, 2)
 
-  purchaseInvoice   PurchaseInvoice @relation(fields: [purchaseInvoiceId], references: [id], onDelete: Cascade)
-  productVariant    ProductVariant  @relation(fields: [productVariantId], references: [id])
-  warehouse         Warehouse       @relation(fields: [warehouseId], references: [id])
+  purchaseInvoice PurchaseInvoice @relation(fields: [purchaseInvoiceId], references: [id], onDelete: Cascade)
+  productVariant  ProductVariant  @relation(fields: [productVariantId], references: [id])
+  warehouse       Warehouse       @relation(fields: [warehouseId], references: [id])
 
   createdAt DateTime @default(now())
 
-  @@map("purchase_invoice_lines")
   @@index([purchaseInvoiceId])
   @@index([productVariantId])
   @@index([warehouseId])
+  @@map("purchase_invoice_lines")
 }
 
 model PurchasePayment {
-  id                String   @id @default(cuid()) @db.VarChar(50)
-  purchaseInvoiceId String   @db.VarChar(50)
-  supplierId        String   @db.VarChar(50)
-  currencyId        String   @db.VarChar(50)
+  id                String @id @default(cuid()) @db.VarChar(50)
+  purchaseInvoiceId String @db.VarChar(50)
+  supplierId        String @db.VarChar(50)
+  currencyId        String @db.VarChar(50)
 
-  amount            Decimal  @db.Decimal(10, 2)
-  paymentMethod     String   @db.VarChar(50) // cash, bank_transfer, check, credit_card
-  referenceNumber   String?  @db.VarChar(100)
-  notes             String?  @db.Text
+  amount          Decimal @db.Decimal(10, 2)
+  exchangeRate    Decimal @default(1) @db.Decimal(18, 8)
+  baseCurrencyId  String? @db.VarChar(50)
+  baseAmount      Decimal @default(0) @db.Decimal(18, 2)
+  paymentMethod   String  @db.VarChar(50) // cash, bank_transfer, check, credit_card
+  referenceNumber String? @db.VarChar(100)
+  notes           String? @db.Text
 
-  paymentDate       DateTime @default(now())
-  processedBy       String?  @db.VarChar(50) // User ID
+  paymentDate DateTime @default(now())
+  processedBy String?  @db.VarChar(50) // User ID
 
-  purchaseInvoice   PurchaseInvoice @relation(fields: [purchaseInvoiceId], references: [id])
-  supplier          Supplier        @relation(fields: [supplierId], references: [id])
-  currency          Currency        @relation(fields: [currencyId], references: [id])
-  processor         User?           @relation(fields: [processedBy], references: [id])
+  purchaseInvoice PurchaseInvoice @relation(fields: [purchaseInvoiceId], references: [id])
+  supplier        Supplier        @relation(fields: [supplierId], references: [id])
+  currency        Currency        @relation(fields: [currencyId], references: [id])
+  processor       User?           @relation(fields: [processedBy], references: [id])
 
-  @@map("purchase_payments")
   @@index([purchaseInvoiceId])
   @@index([supplierId])
   @@index([currencyId])
   @@index([paymentMethod])
+  @@map("purchase_payments")
 }
 
 // النظام المحاسبي الأساسي
 model GLAccount {
-  id          String   @id @default(cuid()) @db.VarChar(50)
-  accountCode String   @unique @db.VarChar(20) // رقم الحساب
-  name        String   @db.VarChar(255)
-  description String?  @db.Text
-  accountType String   @db.VarChar(50) // asset, liability, equity, revenue, expense
+  id          String  @id @default(cuid()) @db.VarChar(50)
+  accountCode String  @unique @db.VarChar(20) // رقم الحساب
+  name        String  @db.VarChar(255)
+  description String? @db.Text
+  accountType String  @db.VarChar(50) // asset, liability, equity, revenue, expense
 
-  parentId    String?  @db.VarChar(50)
-  parent      GLAccount? @relation("GLAccountHierarchy", fields: [parentId], references: [id])
-  children    GLAccount[] @relation("GLAccountHierarchy")
+  parentId String?     @db.VarChar(50)
+  parent   GLAccount?  @relation("GLAccountHierarchy", fields: [parentId], references: [id])
+  children GLAccount[] @relation("GLAccountHierarchy")
 
-  isActive    Boolean  @default(true)
-  isSystem    Boolean  @default(false) // حساب نظامي لا يمكن حذفه
+  isActive Boolean @default(true)
+  isSystem Boolean @default(false) // حساب نظامي لا يمكن حذفه
 
   // الأرصدة
   debitBalance  Decimal @default(0) @db.Decimal(15, 2)
@@ -765,75 +823,75 @@ model GLAccount {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("gl_accounts")
   @@index([accountCode])
   @@index([accountType])
   @@index([parentId])
+  @@map("gl_accounts")
 }
 
 model JournalEntry {
-  id              String   @id @default(cuid()) @db.VarChar(50)
-  entryNumber     String   @unique @db.VarChar(20) // رقم القيد
-  entryDate       DateTime @default(now())
-  description     String   @db.Text
-  referenceType   String?  @db.VarChar(50) // sale, purchase, payment, adjustment, etc
-  referenceId     String?  @db.VarChar(50) // ID المرجع
-  sourceModule    String?  @db.VarChar(50) // sales, purchasing, inventory, etc
+  id            String   @id @default(cuid()) @db.VarChar(50)
+  entryNumber   String   @unique @db.VarChar(20) // رقم القيد
+  entryDate     DateTime @default(now())
+  description   String   @db.Text
+  referenceType String?  @db.VarChar(50) // sale, purchase, payment, adjustment, etc
+  referenceId   String?  @db.VarChar(50) // ID المرجع
+  sourceModule  String?  @db.VarChar(50) // sales, purchasing, inventory, etc
 
-  status          String   @default("draft") @db.VarChar(20) // draft, posted, reversed
-  isSystem        Boolean  @default(false) // قيد تم إنشاؤه تلقائياً
+  status   String  @default("draft") @db.VarChar(20) // draft, posted, reversed
+  isSystem Boolean @default(false) // قيد تم إنشاؤه تلقائياً
 
-  totalDebit      Decimal  @default(0) @db.Decimal(15, 2)
-  totalCredit     Decimal  @default(0) @db.Decimal(15, 2)
+  totalDebit  Decimal @default(0) @db.Decimal(15, 2)
+  totalCredit Decimal @default(0) @db.Decimal(15, 2)
 
-  createdBy       String?  @db.VarChar(50) // User ID
-  creator         User?    @relation(fields: [createdBy], references: [id])
+  createdBy String? @db.VarChar(50) // User ID
+  creator   User?   @relation(fields: [createdBy], references: [id])
 
-  lines           JournalEntryLine[]
+  lines JournalEntryLine[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("journal_entries")
   @@index([entryNumber])
   @@index([entryDate])
   @@index([referenceType])
   @@index([referenceId])
   @@index([status])
   @@index([sourceModule])
+  @@map("journal_entries")
 }
 
 model JournalEntryLine {
-  id              String   @id @default(cuid()) @db.VarChar(50)
-  journalEntryId  String   @db.VarChar(50)
-  lineNumber      Int      @default(1)
+  id             String @id @default(cuid()) @db.VarChar(50)
+  journalEntryId String @db.VarChar(50)
+  lineNumber     Int    @default(1)
 
   // حساب المدين
-  debitAccountId  String   @db.VarChar(50)
-  debitAccount    GLAccount @relation("DebitAccount", fields: [debitAccountId], references: [id])
+  debitAccountId String    @db.VarChar(50)
+  debitAccount   GLAccount @relation("DebitAccount", fields: [debitAccountId], references: [id])
 
   // حساب الدائن
-  creditAccountId String   @db.VarChar(50)
+  creditAccountId String    @db.VarChar(50)
   creditAccount   GLAccount @relation("CreditAccount", fields: [creditAccountId], references: [id])
 
   // المبلغ
-  amount          Decimal  @db.Decimal(15, 2)
-  description     String?  @db.Text
+  amount      Decimal @db.Decimal(15, 2)
+  description String? @db.Text
 
   // المرجع
-  referenceType   String?  @db.VarChar(50)
-  referenceId     String?  @db.VarChar(50)
+  referenceType String? @db.VarChar(50)
+  referenceId   String? @db.VarChar(50)
 
-  journalEntry    JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  journalEntry JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 
-  @@map("journal_entry_lines")
   @@index([journalEntryId])
   @@index([debitAccountId])
   @@index([creditAccountId])
   @@index([referenceType])
   @@index([referenceId])
+  @@map("journal_entry_lines")
 }
 
 // =============================================================================
@@ -842,63 +900,62 @@ model JournalEntryLine {
 
 // سجلات التدقيق
 model AuditLog {
-  id              String   @id @default(cuid()) @db.VarChar(50)
+  id String @id @default(cuid()) @db.VarChar(50)
 
   // المستخدم الذي قام بالعملية
-  userId          String?  @db.VarChar(50)
-  user            User?    @relation(fields: [userId], references: [id])
+  userId String? @db.VarChar(50)
+  user   User?   @relation(fields: [userId], references: [id])
 
   // نوع العملية
-  action          String   @db.VarChar(50) // CREATE, READ, UPDATE, DELETE, LOGIN, LOGOUT, etc
+  action String @db.VarChar(50) // CREATE, READ, UPDATE, DELETE, LOGIN, LOGOUT, etc
 
   // الكيان المُعدّل
-  entity          String   @db.VarChar(100) // Product, Sale, Customer, etc
+  entity String @db.VarChar(100) // Product, Sale, Customer, etc
 
   // معرف الكيان
-  entityId        String   @db.VarChar(50)
+  entityId String @db.VarChar(50)
 
   // الفرع (إن وجد)
-  branchId        String?  @db.VarChar(50)
-  branch          Branch?  @relation(fields: [branchId], references: [id])
+  branchId String? @db.VarChar(50)
+  branch   Branch? @relation(fields: [branchId], references: [id])
 
   // المخزن (إن وجد)
-  warehouseId     String?  @db.VarChar(50)
-  warehouse       Warehouse? @relation(fields: [warehouseId], references: [id])
+  warehouseId String?    @db.VarChar(50)
+  warehouse   Warehouse? @relation(fields: [warehouseId], references: [id])
 
   // تفاصيل العملية
-  details         Json?    // بيانات إضافية عن العملية
-  oldValues       Json?    // القيم القديمة (لعمليات التحديث والحذف)
-  newValues       Json?    // القيم الجديدة (لعمليات الإنشاء والتحديث)
+  details   Json? // بيانات إضافية عن العملية
+  oldValues Json? // القيم القديمة (لعمليات التحديث والحذف)
+  newValues Json? // القيم الجديدة (لعمليات الإنشاء والتحديث)
 
   // معلومات النظام
-  ipAddress       String?  @db.VarChar(45)  // IPv4 أو IPv6
-  userAgent       String?  @db.Text
-  sessionId       String?  @db.VarChar(100)
+  ipAddress String? @db.VarChar(45) // IPv4 أو IPv6
+  userAgent String? @db.Text
+  sessionId String? @db.VarChar(100)
 
   // حالة العملية
-  success         Boolean  @default(true)
-  errorMessage    String?  @db.Text
+  success      Boolean @default(true)
+  errorMessage String? @db.Text
 
   // تصنيف العملية
-  severity        String   @default("info") @db.VarChar(20) // info, warning, error, critical
-  category        String   @default("business") @db.VarChar(50) // business, security, system, audit
+  severity String @default("info") @db.VarChar(20) // info, warning, error, critical
+  category String @default("business") @db.VarChar(50) // business, security, system, audit
 
   // المراجع
-  referenceType   String?  @db.VarChar(50) // sale, purchase, payment, etc
-  referenceId     String?  @db.VarChar(50)
+  referenceType String? @db.VarChar(50) // sale, purchase, payment, etc
+  referenceId   String? @db.VarChar(50)
 
   // الوحدة النظامية
-  module          String?  @db.VarChar(50) // sales, inventory, accounting, etc
+  module String? @db.VarChar(50) // sales, inventory, accounting, etc
 
   // وقت العملية
-  timestamp       DateTime @default(now())
+  timestamp DateTime @default(now())
 
   // معلومات إضافية للبحث والفلترة
-  searchableText  String?  @db.Text // نص قابل للبحث يحتوي على معلومات مهمة
+  searchableText String? @db.Text // نص قابل للبحث يحتوي على معلومات مهمة
 
   createdAt DateTime @default(now())
 
-  @@map("audit_logs")
   @@index([userId])
   @@index([action])
   @@index([entity])
@@ -918,59 +975,59 @@ model AuditLog {
   @@index([userId, timestamp])
   @@index([module, timestamp])
   @@index([category, severity, timestamp])
+  @@map("audit_logs")
 }
 
 // دفعات المزامنة
 model SyncBatch {
-  id              String   @id @default(cuid()) @db.VarChar(50)
+  id String @id @default(cuid()) @db.VarChar(50)
 
   // معلومات الدفعة
-  batchId         String   @unique @db.VarChar(100) // معرف فريد للدفعة
-  deviceId        String   @db.VarChar(100) // معرف الجهاز المُرسل
-  branchId        String?  @db.VarChar(50)
-  branch          Branch?  @relation(fields: [branchId], references: [id])
+  batchId  String  @unique @db.VarChar(100) // معرف فريد للدفعة
+  deviceId String  @db.VarChar(100) // معرف الجهاز المُرسل
+  branchId String? @db.VarChar(50)
+  branch   Branch? @relation(fields: [branchId], references: [id])
 
   // نوع المزامنة
-  syncType        String   @db.VarChar(50) // full, incremental, changes_only
-  direction       String   @db.VarChar(20) // upload, download, bidirectional
+  syncType  String @db.VarChar(50) // full, incremental, changes_only
+  direction String @db.VarChar(20) // upload, download, bidirectional
 
   // حالة المزامنة
-  status          String   @default("pending") @db.VarChar(20) // pending, processing, completed, failed, conflicted
+  status String @default("pending") @db.VarChar(20) // pending, processing, completed, failed, conflicted
 
   // إحصائيات الدفعة
-  totalRecords    Int      @default(0)
-  processedRecords Int     @default(0)
-  failedRecords   Int      @default(0)
-  conflictedRecords Int    @default(0)
+  totalRecords      Int @default(0)
+  processedRecords  Int @default(0)
+  failedRecords     Int @default(0)
+  conflictedRecords Int @default(0)
 
   // بيانات المزامنة
-  changes         Json?    // التغييرات المُرسلة
-  conflicts       Json?    // التعارضات المكتشفة
-  resolution      Json?    // كيفية حل التعارضات
+  changes    Json? // التغييرات المُرسلة
+  conflicts  Json? // التعارضات المكتشفة
+  resolution Json? // كيفية حل التعارضات
 
   // معلومات إضافية
-  metadata        Json?    // بيانات إضافية للمزامنة
-  errorMessage    String?  @db.Text
+  metadata     Json? // بيانات إضافية للمزامنة
+  errorMessage String? @db.Text
 
   // الطوابع الزمنية
-  createdAt       DateTime @default(now())
-  startedAt       DateTime?
-  completedAt     DateTime?
-  lastSyncAt      DateTime?
+  createdAt   DateTime  @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  lastSyncAt  DateTime?
 
   // معلومات الإصدار
-  clientVersion   String?  @db.VarChar(50)
-  serverVersion   String?  @db.VarChar(50)
+  clientVersion String? @db.VarChar(50)
+  serverVersion String? @db.VarChar(50)
 
   // الأولوية والإعادة
-  priority        Int      @default(0)
-  retryCount      Int      @default(0)
-  maxRetries      Int      @default(3)
+  priority   Int @default(0)
+  retryCount Int @default(0)
+  maxRetries Int @default(3)
 
-  createdBy       String?  @db.VarChar(50) // User ID
-  creator         User?    @relation(fields: [createdBy], references: [id])
+  createdBy String? @db.VarChar(50) // User ID
+  creator   User?   @relation(fields: [createdBy], references: [id])
 
-  @@map("sync_batches")
   @@index([batchId])
   @@index([deviceId])
   @@index([branchId])
@@ -979,74 +1036,110 @@ model SyncBatch {
   @@index([direction])
   @@index([createdAt])
   @@index([lastSyncAt])
+  @@map("sync_batches")
+}
+
+model SyncDevice {
+  id         String    @id @default(cuid()) @db.VarChar(50)
+  deviceId   String    @unique @db.VarChar(120)
+  userId     String    @db.VarChar(50)
+  name       String?   @db.VarChar(255)
+  platform   String?   @db.VarChar(50)
+  lastSeenAt DateTime?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("sync_devices")
+}
+
+model SyncOperation {
+  id             String    @id @default(cuid()) @db.VarChar(50)
+  deviceId       String?   @db.VarChar(120)
+  userId         String?   @db.VarChar(50)
+  entityType     String    @db.VarChar(80)
+  entityId       String?   @db.VarChar(50)
+  operation      String    @db.VarChar(30)
+  payload        Json
+  idempotencyKey String?   @unique @db.VarChar(120)
+  status         String    @default("pending") @db.VarChar(30)
+  error          String?   @db.Text
+  createdAt      DateTime  @default(now())
+  appliedAt      DateTime?
+
+  @@index([deviceId, status])
+  @@index([entityType, entityId])
+  @@map("sync_operations")
 }
 
 // معاملات الدفع
 model PaymentTransaction {
-  id              String   @id @default(cuid()) @db.VarChar(50)
+  id String @id @default(cuid()) @db.VarChar(50)
 
   // معلومات المعاملة الأساسية
-  transactionId   String   @unique @db.VarChar(100) // معرف المعاملة من بوابة الدفع
-  invoiceId       String   @db.VarChar(50) // ربط بفاتورة المبيعات أو المشتريات
-  invoiceType     String   @db.VarChar(20) // sales, purchase
+  transactionId String @unique @db.VarChar(100) // معرف المعاملة من بوابة الدفع
+  invoiceId     String @db.VarChar(50) // ربط بفاتورة المبيعات أو المشتريات
+  invoiceType   String @db.VarChar(20) // sales, purchase
 
   // معلومات العميل والفرع
-  branchId        String?  @db.VarChar(50)
-  branch          Branch?  @relation(fields: [branchId], references: [id])
-  customerId      String?  @db.VarChar(50)
-  customer        Customer? @relation(fields: [customerId], references: [id])
-  supplierId      String?  @db.VarChar(50)
-  supplier        Supplier? @relation(fields: [supplierId], references: [id])
+  branchId   String?   @db.VarChar(50)
+  branch     Branch?   @relation(fields: [branchId], references: [id])
+  customerId String?   @db.VarChar(50)
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  supplierId String?   @db.VarChar(50)
+  supplier   Supplier? @relation(fields: [supplierId], references: [id])
 
   // معلومات الدفع
-  gateway         String   @db.VarChar(50) // stripe, paypal, tap, local
-  method          String   @db.VarChar(50) // card, wallet, bank_transfer, cash
-  currency        String   @db.VarChar(3)  // SAR, USD, EUR
-  amount          Decimal  @default(0) @db.Decimal(15, 2)
-  fee             Decimal  @default(0) @db.Decimal(15, 2) // رسوم البوابة
+  gateway  String  @db.VarChar(50) // stripe, paypal, tap, local
+  method   String  @db.VarChar(50) // card, wallet, bank_transfer, cash
+  currency String  @db.VarChar(3) // SAR, USD, EUR
+  amount   Decimal @default(0) @db.Decimal(15, 2)
+  fee      Decimal @default(0) @db.Decimal(15, 2) // رسوم البوابة
 
   // حالة المعاملة
-  status          String   @default("pending") @db.VarChar(20) // pending, processing, completed, failed, cancelled, refunded, partially_refunded
+  status String @default("pending") @db.VarChar(20) // pending, processing, completed, failed, cancelled, refunded, partially_refunded
 
   // معلومات البطاقة/المحفظة (مشفرة)
-  cardLast4       String?  @db.VarChar(4)
-  cardBrand       String?  @db.VarChar(20)
-  walletProvider  String?  @db.VarChar(50)
+  cardLast4      String? @db.VarChar(4)
+  cardBrand      String? @db.VarChar(20)
+  walletProvider String? @db.VarChar(50)
 
   // معلومات إضافية
-  description     String?  @db.Text
-  metadata        Json?    // بيانات إضافية من البوابة
-  gatewayResponse Json?    // استجابة البوابة الكاملة
+  description     String? @db.Text
+  metadata        Json? // بيانات إضافية من البوابة
+  gatewayResponse Json? // استجابة البوابة الكاملة
 
   // معلومات الأمان
-  ipAddress       String?  @db.VarChar(45)
-  userAgent       String?  @db.Text
+  ipAddress String? @db.VarChar(45)
+  userAgent String? @db.Text
 
   // معلومات المستخدم
-  processedBy     String?  @db.VarChar(50) // User ID
-  processor       User?    @relation(fields: [processedBy], references: [id])
+  processedBy String? @db.VarChar(50) // User ID
+  processor   User?   @relation(fields: [processedBy], references: [id])
 
   // الطوابع الزمنية
-  createdAt       DateTime @default(now())
-  processedAt     DateTime?
-  completedAt     DateTime?
-  refundedAt      DateTime?
+  createdAt   DateTime  @default(now())
+  processedAt DateTime?
+  completedAt DateTime?
+  refundedAt  DateTime?
 
   // معلومات الاسترداد
-  refundAmount    Decimal  @default(0) @db.Decimal(15, 2)
-  refundReason    String?  @db.Text
-  refundMetadata  Json?
+  refundAmount   Decimal @default(0) @db.Decimal(15, 2)
+  refundReason   String? @db.Text
+  refundMetadata Json?
 
   // معلومات التسوية
-  settledAt       DateTime?
-  settlementAmount Decimal @default(0) @db.Decimal(15, 2)
-  settlementFee   Decimal  @default(0) @db.Decimal(15, 2)
+  settledAt        DateTime?
+  settlementAmount Decimal   @default(0) @db.Decimal(15, 2)
+  settlementFee    Decimal   @default(0) @db.Decimal(15, 2)
 
   // المراجع الخارجية
-  externalId      String?  @db.VarChar(100) // معرف خارجي من البوابة
-  batchId         String?  @db.VarChar(100) // معرف دفعة المعالجة
+  externalId String? @db.VarChar(100) // معرف خارجي من البوابة
+  batchId    String? @db.VarChar(100) // معرف دفعة المعالجة
 
-  @@map("payment_transactions")
   @@index([transactionId])
   @@index([invoiceId])
   @@index([invoiceType])
@@ -1059,74 +1152,74 @@ model PaymentTransaction {
   @@index([createdAt])
   @@index([processedAt])
   @@index([completedAt])
+  @@map("payment_transactions")
 }
 
 // الإشعارات والرسائل
 model Notification {
-  id              String   @id @default(cuid()) @db.VarChar(50)
+  id String @id @default(cuid()) @db.VarChar(50)
 
   // معلومات الإشعار الأساسية
-  title           String   @db.VarChar(255)
-  message         String   @db.Text
-  type            String   @db.VarChar(50) // email, sms, whatsapp, push, in_app
+  title   String @db.VarChar(255)
+  message String @db.Text
+  type    String @db.VarChar(50) // email, sms, whatsapp, push, in_app
 
   // المستلم
-  recipientId     String?  @db.VarChar(50) // User ID أو Customer ID أو Supplier ID
-  recipientType   String   @db.VarChar(20) // user, customer, supplier, admin
-  recipientEmail  String?  @db.VarChar(255)
-  recipientPhone  String?  @db.VarChar(50)
+  recipientId    String? @db.VarChar(50) // User ID أو Customer ID أو Supplier ID
+  recipientType  String  @db.VarChar(20) // user, customer, supplier, admin
+  recipientEmail String? @db.VarChar(255)
+  recipientPhone String? @db.VarChar(50)
 
   // حالة الإشعار
-  status          String   @default("pending") @db.VarChar(20) // pending, sent, delivered, failed, cancelled
+  status String @default("pending") @db.VarChar(20) // pending, sent, delivered, failed, cancelled
 
   // معلومات الإرسال
-  provider        String?  @db.VarChar(50) // twilio, sendgrid, whatsapp_business, firebase
-  providerMessageId String? @db.VarChar(100) // معرف الرسالة من مزود الخدمة
-  sentAt          DateTime?
-  deliveredAt     DateTime?
-  failedAt        DateTime?
+  provider          String?   @db.VarChar(50) // twilio, sendgrid, whatsapp_business, firebase
+  providerMessageId String?   @db.VarChar(100) // معرف الرسالة من مزود الخدمة
+  sentAt            DateTime?
+  deliveredAt       DateTime?
+  failedAt          DateTime?
 
   // معلومات الأولوية والجدولة
-  priority        String   @default("normal") @db.VarChar(20) // low, normal, high, urgent
-  scheduledAt     DateTime?
-  expiresAt       DateTime?
+  priority    String    @default("normal") @db.VarChar(20) // low, normal, high, urgent
+  scheduledAt DateTime?
+  expiresAt   DateTime?
 
   // معلومات إضافية
-  templateId      String?  @db.VarChar(50) // ربط بقالب الإشعار
-  template        NotificationTemplate? @relation(fields: [templateId], references: [id])
+  templateId String?               @db.VarChar(50) // ربط بقالب الإشعار
+  template   NotificationTemplate? @relation(fields: [templateId], references: [id])
 
   // البيانات الديناميكية للقالب
-  data            Json?    // البيانات المستخدمة في القالب
+  data Json? // البيانات المستخدمة في القالب
 
   // معلومات الاستجابة والتفاعل
-  responseData    Json?    // استجابة مزود الخدمة
-  clickedAt       DateTime?
-  readAt          DateTime?
+  responseData Json? // استجابة مزود الخدمة
+  clickedAt    DateTime?
+  readAt       DateTime?
 
   // معلومات النظام
-  module          String?  @db.VarChar(50) // sales, inventory, payment, audit
-  event           String?  @db.VarChar(50) // invoice_created, payment_received, stock_low
-  referenceId     String?  @db.VarChar(50) // معرف الكيان المرتبط
-  referenceType   String?  @db.VarChar(50) // sales_invoice, payment_transaction, etc
+  module        String? @db.VarChar(50) // sales, inventory, payment, audit
+  event         String? @db.VarChar(50) // invoice_created, payment_received, stock_low
+  referenceId   String? @db.VarChar(50) // معرف الكيان المرتبط
+  referenceType String? @db.VarChar(50) // sales_invoice, payment_transaction, etc
 
   // معلومات المرسل
-  sentBy          String?  @db.VarChar(50) // User ID
-  sender          User?    @relation("NotificationSender", fields: [sentBy], references: [id])
+  sentBy String? @db.VarChar(50) // User ID
+  sender User?   @relation("NotificationSender", fields: [sentBy], references: [id])
 
   // معلومات الفرع
-  branchId        String?  @db.VarChar(50)
-  branch          Branch?  @relation(fields: [branchId], references: [id])
+  branchId String? @db.VarChar(50)
+  branch   Branch? @relation(fields: [branchId], references: [id])
 
   // محاولات الإرسال
-  retryCount      Int      @default(0)
-  maxRetries      Int      @default(3)
-  lastError       String?  @db.Text
+  retryCount Int     @default(0)
+  maxRetries Int     @default(3)
+  lastError  String? @db.Text
 
   // الطوابع الزمنية
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@map("notifications")
   @@index([recipientId])
   @@index([recipientType])
   @@index([status])
@@ -1138,142 +1231,143 @@ model Notification {
   @@index([event])
   @@index([createdAt])
   @@index([sentAt])
+  @@map("notifications")
 }
 
 // قوالب الإشعارات
 model NotificationTemplate {
-  id              String   @id @default(cuid()) @db.VarChar(50)
+  id String @id @default(cuid()) @db.VarChar(50)
 
   // معلومات القالب الأساسية
-  name            String   @unique @db.VarChar(100)
-  description     String?  @db.Text
-  type            String   @db.VarChar(50) // email, sms, whatsapp, push, in_app
+  name        String  @unique @db.VarChar(100)
+  description String? @db.Text
+  type        String  @db.VarChar(50) // email, sms, whatsapp, push, in_app
 
   // محتوى القالب
-  subject         String?  @db.VarChar(255) // للإيميل والدفع
-  content         String   @db.Text // المحتوى الرئيسي
-  htmlContent     String?  @db.Text // للإيميل (HTML)
+  subject     String? @db.VarChar(255) // للإيميل والدفع
+  content     String  @db.Text // المحتوى الرئيسي
+  htmlContent String? @db.Text // للإيميل (HTML)
 
   // المتغيرات المتاحة
-  variables       Json?    // قائمة المتغيرات المتاحة في القالب
+  variables Json? // قائمة المتغيرات المتاحة في القالب
 
   // إعدادات القالب
-  isActive        Boolean  @default(true)
-  isDefault       Boolean  @default(false) // القالب الافتراضي لنوع الحدث
+  isActive  Boolean @default(true)
+  isDefault Boolean @default(false) // القالب الافتراضي لنوع الحدث
 
   // معلومات اللغة والتوطين
-  language        String   @default("ar") @db.VarChar(10)
-  locale          String   @default("ar-SA") @db.VarChar(10)
+  language String @default("ar") @db.VarChar(10)
+  locale   String @default("ar-SA") @db.VarChar(10)
 
   // معلومات الحدث المرتبط
-  event           String   @db.VarChar(50) // نوع الحدث (invoice_created, payment_received)
-  module          String   @db.VarChar(50) // الوحدة (sales, inventory, payment)
+  event  String @db.VarChar(50) // نوع الحدث (invoice_created, payment_received)
+  module String @db.VarChar(50) // الوحدة (sales, inventory, payment)
 
   // إعدادات الإرسال
-  priority        String   @default("normal") @db.VarChar(20)
-  channels        Json?    // القنوات المسموحة ['email', 'sms', 'whatsapp']
+  priority String @default("normal") @db.VarChar(20)
+  channels Json? // القنوات المسموحة ['email', 'sms', 'whatsapp']
 
   // معلومات النظام
-  createdBy       String?  @db.VarChar(50) // User ID
-  creator         User?    @relation(fields: [createdBy], references: [id])
+  createdBy String? @db.VarChar(50) // User ID
+  creator   User?   @relation(fields: [createdBy], references: [id])
 
   // الإشعارات المستخدمة لهذا القالب
-  notifications   Notification[]
+  notifications Notification[]
 
   // الطوابع الزمنية
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@map("notification_templates")
   @@index([name])
   @@index([type])
   @@index([event])
   @@index([module])
   @@index([language])
   @@index([isActive])
+  @@map("notification_templates")
 }
 
 // تفضيلات الإشعارات للمستخدمين
 model NotificationPreference {
-  id              String   @id @default(cuid()) @db.VarChar(50)
+  id String @id @default(cuid()) @db.VarChar(50)
 
   // المستخدم المالك
-  userId          String   @db.VarChar(50)
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.VarChar(50)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // نوع الإشعار
-  notificationType String  @db.VarChar(50) // email, sms, whatsapp, push, in_app
-  event            String  @db.VarChar(50) // نوع الحدث
+  notificationType String @db.VarChar(50) // email, sms, whatsapp, push, in_app
+  event            String @db.VarChar(50) // نوع الحدث
 
   // التفضيلات
-  enabled         Boolean  @default(true)
-  frequency       String   @default("immediate") @db.VarChar(20) // immediate, daily, weekly, monthly
-  quietHoursStart String?  @db.VarChar(5) // وقت بدء الهدوء (HH:MM)
-  quietHoursEnd   String?  @db.VarChar(5) // وقت نهاية الهدوء (HH:MM)
+  enabled         Boolean @default(true)
+  frequency       String  @default("immediate") @db.VarChar(20) // immediate, daily, weekly, monthly
+  quietHoursStart String? @db.VarChar(5) // وقت بدء الهدوء (HH:MM)
+  quietHoursEnd   String? @db.VarChar(5) // وقت نهاية الهدوء (HH:MM)
 
   // الطوابع الزمنية
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, notificationType, event])
-  @@map("notification_preferences")
   @@index([userId])
   @@index([notificationType])
   @@index([event])
   @@index([enabled])
+  @@map("notification_preferences")
 }
 
 // نظام التخزين والملفات
 model File {
-  id              String   @id @default(cuid()) @db.VarChar(50)
+  id String @id @default(cuid()) @db.VarChar(50)
 
   // معلومات الملف الأساسية
-  originalName    String   @db.VarChar(255) // الاسم الأصلي للملف
-  filename        String   @db.VarChar(255) // الاسم المحفوظ
-  mimeType        String   @db.VarChar(100) // نوع MIME
-  size            BigInt   // حجم الملف بالبايت
-  extension       String   @db.VarChar(10) // امتداد الملف
+  originalName String @db.VarChar(255) // الاسم الأصلي للملف
+  filename     String @db.VarChar(255) // الاسم المحفوظ
+  mimeType     String @db.VarChar(100) // نوع MIME
+  size         BigInt // حجم الملف بالبايت
+  extension    String @db.VarChar(10) // امتداد الملف
 
   // مسار التخزين
-  path            String   @db.VarChar(500) // المسار الكامل للملف
-  url             String?  @db.VarChar(1000) // رابط الوصول للملف
-  bucket          String   @db.VarChar(100) // اسم الحاوية/المجلد
-  storageProvider String   @default("local") @db.VarChar(50) // local, s3, gcs, azure
+  path            String  @db.VarChar(500) // المسار الكامل للملف
+  key             String  @default("") @db.VarChar(500)
+  url             String? @db.VarChar(1000) // رابط الوصول للملف
+  bucket          String  @db.VarChar(100) // اسم الحاوية/المجلد
+  storageProvider String  @default("local") @db.VarChar(50) // local, s3, gcs, azure
 
   // تصنيف الملف
-  category        String   @db.VarChar(50) // invoice, receipt, image, document, avatar, etc
-  entityType      String?  @db.VarChar(50) // sales_invoice, product, user, etc
-  entityId        String?  @db.VarChar(50) // معرف الكيان المرتبط
+  category   String  @db.VarChar(50) // invoice, receipt, image, document, avatar, etc
+  entityType String? @db.VarChar(50) // sales_invoice, product, user, etc
+  entityId   String? @db.VarChar(50) // معرف الكيان المرتبط
 
   // معلومات إضافية
-  metadata        Json?    // بيانات إضافية (أبعاد الصورة، إلخ)
-  checksum        String?  @db.VarChar(128) // MD5 أو SHA256 للتحقق من سلامة الملف
-  thumbnailPath   String?  @db.VarChar(500) // مسار الصورة المصغرة
+  metadata      Json? // بيانات إضافية (أبعاد الصورة، إلخ)
+  checksum      String? @db.VarChar(128) // MD5 أو SHA256 للتحقق من سلامة الملف
+  thumbnailPath String? @db.VarChar(500) // مسار الصورة المصغرة
 
   // إعدادات الوصول
-  isPublic        Boolean  @default(false) // هل الملف عام أم خاص
-  accessToken     String?  @unique @db.VarChar(100) // رمز الوصول للملفات الخاصة
-  expiresAt       DateTime? // تاريخ انتهاء صلاحية الرابط
+  isPublic    Boolean   @default(false) // هل الملف عام أم خاص
+  accessToken String?   @unique @db.VarChar(100) // رمز الوصول للملفات الخاصة
+  expiresAt   DateTime? // تاريخ انتهاء صلاحية الرابط
 
   // معلومات الرفع
-  uploadedBy      String?  @db.VarChar(50) // User ID
-  uploader        User?    @relation("FileUploader", fields: [uploadedBy], references: [id])
+  uploadedBy String? @db.VarChar(50) // User ID
+  uploader   User?   @relation("FileUploader", fields: [uploadedBy], references: [id])
 
   // معلومات الفرع
-  branchId        String?  @db.VarChar(50)
-  branch          Branch?  @relation(fields: [branchId], references: [id])
+  branchId String? @db.VarChar(50)
+  branch   Branch? @relation(fields: [branchId], references: [id])
 
   // إصدارات الملف
-  versions        FileVersion[]
+  versions FileVersion[]
 
   // سجل الوصول
-  accessLogs      FileAccess[]
+  accessLogs FileAccess[]
 
   // الطوابع الزمنية
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@map("files")
   @@index([category])
   @@index([entityType])
   @@index([entityId])
@@ -1282,177 +1376,177 @@ model File {
   @@index([isPublic])
   @@index([expiresAt])
   @@index([createdAt])
+  @@map("files")
 }
 
 // إصدارات الملفات
 model FileVersion {
-  id              String   @id @default(cuid()) @db.VarChar(50)
+  id String @id @default(cuid()) @db.VarChar(50)
 
   // الملف الأصلي
-  fileId          String   @db.VarChar(50)
-  file            File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId String @db.VarChar(50)
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
 
   // معلومات الإصدار
-  version         Int      // رقم الإصدار
-  originalName    String   @db.VarChar(255)
-  filename        String   @db.VarChar(255)
-  mimeType        String   @db.VarChar(100)
-  size            BigInt
-  path            String   @db.VarChar(500)
-  url             String?  @db.VarChar(1000)
-  checksum        String?  @db.VarChar(128)
+  version      Int // رقم الإصدار
+  originalName String  @db.VarChar(255)
+  filename     String  @db.VarChar(255)
+  mimeType     String  @db.VarChar(100)
+  size         BigInt
+  path         String  @db.VarChar(500)
+  url          String? @db.VarChar(1000)
+  checksum     String? @db.VarChar(128)
 
   // معلومات التعديل
-  modifiedBy      String?  @db.VarChar(50) // User ID
-  modifier        User?    @relation("FileVersionModifier", fields: [modifiedBy], references: [id])
+  modifiedBy String? @db.VarChar(50) // User ID
+  modifier   User?   @relation("FileVersionModifier", fields: [modifiedBy], references: [id])
 
   // سبب التعديل
-  changeReason    String?  @db.Text
+  changeReason String? @db.Text
 
   // الطوابع الزمنية
-  createdAt       DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([fileId, version])
-  @@map("file_versions")
   @@index([fileId])
   @@index([modifiedBy])
+  @@map("file_versions")
 }
 
 // سجل الوصول للملفات
 model FileAccess {
-  id              String   @id @default(cuid()) @db.VarChar(50)
+  id String @id @default(cuid()) @db.VarChar(50)
 
   // الملف المُوصل إليه
-  fileId          String   @db.VarChar(50)
-  file            File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId String @db.VarChar(50)
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
 
   // معلومات الوصول
-  accessedBy      String?  @db.VarChar(50) // User ID أو IP
-  accessType      String   @db.VarChar(20) // view, download, upload, delete, share
-  accessMethod    String   @db.VarChar(20) // web, api, mobile
+  accessedBy   String? @db.VarChar(50) // User ID أو IP
+  accessType   String  @db.VarChar(20) // view, download, upload, delete, share
+  accessMethod String  @db.VarChar(20) // web, api, mobile
 
   // معلومات إضافية
-  ipAddress       String?  @db.VarChar(45) // IPv4 أو IPv6
-  userAgent       String?  @db.Text
-  referer         String?  @db.VarChar(500)
-  responseStatus  Int?     // رمز الاستجابة HTTP
-  metadata        Json?    // بيانات إضافية للرموز والقواعد
+  ipAddress      String? @db.VarChar(45) // IPv4 أو IPv6
+  userAgent      String? @db.Text
+  referer        String? @db.VarChar(500)
+  responseStatus Int? // رمز الاستجابة HTTP
+  metadata       Json? // بيانات إضافية للرموز والقواعد
 
   // الطوابع الزمنية
-  accessedAt      DateTime @default(now())
+  accessedAt DateTime @default(now())
 
-  @@map("file_access_logs")
   @@index([fileId])
   @@index([accessedBy])
   @@index([accessType])
   @@index([accessedAt])
+  @@map("file_access_logs")
 }
 
 // حاويات التخزين
 model StorageBucket {
-  id              String   @id @default(cuid()) @db.VarChar(50)
+  id String @id @default(cuid()) @db.VarChar(50)
 
   // معلومات الحاوية
-  name            String   @unique @db.VarChar(100)
-  displayName     String   @db.VarChar(255)
-  description     String?  @db.Text
+  name        String  @unique @db.VarChar(100)
+  displayName String  @db.VarChar(255)
+  description String? @db.Text
 
   // إعدادات الحاوية
-  provider        String   @db.VarChar(50) // local, s3, gcs, azure
-  region          String?  @db.VarChar(50) // منطقة السحابة
-  bucketName      String?  @db.VarChar(100) // اسم الحاوية في السحابة
-  basePath        String   @default("") @db.VarChar(500) // المسار الأساسي
+  provider   String  @db.VarChar(50) // local, s3, gcs, azure
+  region     String? @db.VarChar(50) // منطقة السحابة
+  bucketName String? @db.VarChar(100) // اسم الحاوية في السحابة
+  basePath   String  @default("") @db.VarChar(500) // المسار الأساسي
 
   // إعدادات الأمان
-  isPublic        Boolean  @default(false)
-  allowedMimeTypes String? @db.Text // أنواع MIME المسموحة (JSON array)
-  maxFileSize     BigInt? // الحد الأقصى لحجم الملف
+  isPublic          Boolean @default(false)
+  allowedMimeTypes  String? @db.Text // أنواع MIME المسموحة (JSON array)
+  maxFileSize       BigInt? // الحد الأقصى لحجم الملف
   allowedExtensions String? @db.Text // الامتدادات المسموحة (JSON array)
 
   // إعدادات النسخ الاحتياطي
-  backupEnabled   Boolean  @default(false)
-  backupProvider  String?  @db.VarChar(50)
-  backupBucket    String?  @db.VarChar(100)
+  backupEnabled  Boolean @default(false)
+  backupProvider String? @db.VarChar(50)
+  backupBucket   String? @db.VarChar(100)
 
   // إعدادات التحسين
-  imageOptimization Boolean @default(true)
+  imageOptimization  Boolean @default(true)
   generateThumbnails Boolean @default(true)
-  thumbnailSizes   Json?    // أحجام الصور المصغرة (JSON array)
+  thumbnailSizes     Json? // أحجام الصور المصغرة (JSON array)
 
   // معلومات الإدارة
-  createdBy       String?  @db.VarChar(50) // User ID
-  creator         User?    @relation("BucketCreator", fields: [createdBy], references: [id])
+  createdBy String? @db.VarChar(50) // User ID
+  creator   User?   @relation("BucketCreator", fields: [createdBy], references: [id])
 
   // إحصائيات
-  totalFiles      BigInt   @default(0)
-  totalSize       BigInt   @default(0) // إجمالي الحجم بالبايت
-  lastActivityAt  DateTime?
+  totalFiles     BigInt    @default(0)
+  totalSize      BigInt    @default(0) // إجمالي الحجم بالبايت
+  lastActivityAt DateTime?
 
   // الطوابع الزمنية
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@map("storage_buckets")
   @@index([provider])
   @@index([isPublic])
+  @@map("storage_buckets")
 }
 
 // نظام النسخ الاحتياطي
 model BackupMetadata {
-  id              String   @id @default(cuid()) @db.VarChar(50)
+  id String @id @default(cuid()) @db.VarChar(50)
 
   // معرف النسخة الاحتياطية
-  backupId        String   @unique @db.VarChar(100)
+  backupId String @unique @db.VarChar(100)
 
   // نوع النسخة الاحتياطية
-  type            String   @db.VarChar(20) // manual, scheduled, automatic
+  type String @db.VarChar(20) // manual, scheduled, automatic
 
   // حالة النسخة الاحتياطية
-  status          String   @db.VarChar(20) // pending, running, completed, failed
+  status String @db.VarChar(20) // pending, running, completed, failed
 
   // معلومات الملف
-  path            String   @db.VarChar(500) // مسار الملف المشفر
-  size            BigInt   @default(0) // حجم الملف بالبايت
-  checksum        String   @db.VarChar(128) // SHA256 checksum
-  encrypted       Boolean  @default(true) // هل الملف مشفر
+  path      String  @db.VarChar(500) // مسار الملف المشفر
+  size      BigInt  @default(0) // حجم الملف بالبايت
+  checksum  String  @db.VarChar(128) // SHA256 checksum
+  encrypted Boolean @default(true) // هل الملف مشفر
 
   // معلومات الأداء
-  duration        BigInt   @default(0) // الوقت المستغرق بالميلي ثانية
+  duration         BigInt   @default(0) // الوقت المستغرق بالميلي ثانية
   compressionRatio Decimal? @db.Decimal(5, 2) // نسبة الضغط
 
   // معلومات قاعدة البيانات
-  databaseVersion String?  @db.VarChar(50) // إصدار PostgreSQL
-  schemaVersion   String?  @db.VarChar(50) // إصدار الـ schema
+  databaseVersion String? @db.VarChar(50) // إصدار PostgreSQL
+  schemaVersion   String? @db.VarChar(50) // إصدار الـ schema
   recordCount     BigInt? // عدد السجلات المنسوخة
 
   // معلومات الخطأ (في حالة الفشل)
-  error           String?  @db.Text
-  errorDetails    Json?    // تفاصيل إضافية للخطأ
+  error        String? @db.Text
+  errorDetails Json? // تفاصيل إضافية للخطأ
 
   // معلومات التشغيل
-  startedAt       DateTime?
-  completedAt     DateTime?
-  timestamp       DateTime @default(now()) // وقت إنشاء النسخة
+  startedAt   DateTime?
+  completedAt DateTime?
+  timestamp   DateTime  @default(now()) // وقت إنشاء النسخة
 
   // معلومات الاستعادة
-  restoredAt      DateTime? // آخر مرة تم استعادة هذه النسخة
-  restoredBy      String?  @db.VarChar(50) // User ID
-  restorer        User?    @relation(fields: [restoredBy], references: [id])
+  restoredAt DateTime? // آخر مرة تم استعادة هذه النسخة
+  restoredBy String?   @db.VarChar(50) // User ID
+  restorer   User?     @relation("BackupRestorer", fields: [restoredBy], references: [id])
 
   // معلومات الإنشاء
-  createdBy       String?  @db.VarChar(50) // User ID
-  creator         User?    @relation(fields: [createdBy], references: [id])
+  createdBy String? @db.VarChar(50) // User ID
+  creator   User?   @relation("BackupCreator", fields: [createdBy], references: [id])
 
   // معلومات الفرع (إن كانت النسخة مقتصرة على فرع معين)
-  branchId        String?  @db.VarChar(50)
-  branch          Branch?  @relation(fields: [branchId], references: [id])
+  branchId String? @db.VarChar(50)
+  branch   Branch? @relation(fields: [branchId], references: [id])
 
   // إعدادات النسخة
-  includeData     Boolean  @default(true) // تضمين البيانات
-  includeSchema   Boolean  @default(true) // تضمين الـ schema
-  includeFiles    Boolean  @default(false) // تضمين الملفات المرفوعة
+  includeData   Boolean @default(true) // تضمين البيانات
+  includeSchema Boolean @default(true) // تضمين الـ schema
+  includeFiles  Boolean @default(false) // تضمين الملفات المرفوعة
 
-  @@map("backup_metadata")
   @@index([backupId])
   @@index([type])
   @@index([status])
@@ -1461,5 +1555,6 @@ model BackupMetadata {
   @@index([branchId])
   @@index([restoredAt])
   @@index([status, timestamp])
-  @@index([type, createdAt])
+  @@index([type, timestamp])
+  @@map("backup_metadata")
 }

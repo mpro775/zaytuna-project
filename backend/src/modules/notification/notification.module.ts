@@ -1,17 +1,8 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { NotificationService } from './notification.service';
 import { NotificationController } from './notification.controller';
-import { Notification, NotificationSchema } from './notification.schema';
-import { UserModule } from '../user/user.module';
+import { NotificationService } from './notification.service';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      { name: Notification.name, schema: NotificationSchema }
-    ]),
-    UserModule, // للحصول على بيانات المستخدمين
-  ],
   controllers: [NotificationController],
   providers: [NotificationService],
   exports: [NotificationService],

@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString, IsEmail, IsOptional, IsUUID, MinLength, IsPhoneNumber } from 'class-validator';
+import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
+import { IsNotEmpty, IsString, IsEmail, IsOptional, MinLength, IsPhoneNumber } from 'class-validator';
 
 export class RegisterDto {
   @IsNotEmpty({ message: 'اسم المستخدم مطلوب' })
@@ -19,10 +20,10 @@ export class RegisterDto {
   phone?: string;
 
   @IsNotEmpty({ message: 'معرف الدور مطلوب' })
-  @IsUUID('4', { message: 'معرف الدور غير صحيح' })
+  @IsEntityId()
   roleId: string;
 
   @IsOptional()
-  @IsUUID('4', { message: 'معرف الفرع غير صحيح' })
+  @IsEntityId()
   branchId?: string;
 }

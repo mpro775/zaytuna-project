@@ -1,9 +1,10 @@
-import { IsNotEmpty, IsString, IsOptional, IsNumber, IsUUID, IsBoolean, MaxLength, Min } from 'class-validator';
+import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
+import { IsNotEmpty, IsString, IsOptional, IsNumber, IsBoolean, MaxLength, Min } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 
 export class CreateProductVariantDto {
   @IsNotEmpty({ message: 'معرف المنتج مطلوب' })
-  @IsUUID('4', { message: 'معرف المنتج غير صحيح' })
+  @IsEntityId()
   productId: string;
 
   @IsNotEmpty({ message: 'اسم المتغير مطلوب' })

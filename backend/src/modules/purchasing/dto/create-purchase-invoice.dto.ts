@@ -1,9 +1,10 @@
-import { IsNotEmpty, IsString, IsOptional, IsUUID, IsArray, ValidateNested, IsDateString } from 'class-validator';
+import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
+import { IsNotEmpty, IsString, IsOptional, IsArray, ValidateNested, IsDateString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class PurchaseInvoiceLineDto {
   @IsNotEmpty({ message: 'معرف متغير المنتج مطلوب' })
-  @IsUUID('4', { message: 'معرف متغير المنتج غير صحيح' })
+  @IsEntityId()
   productVariantId: string;
 
   @IsNotEmpty({ message: 'الكمية مطلوبة' })
@@ -33,19 +34,19 @@ export class CreatePurchaseInvoiceDto {
   invoiceNumber?: string;
 
   @IsNotEmpty({ message: 'معرف المورد مطلوب' })
-  @IsUUID('4', { message: 'معرف المورد غير صحيح' })
+  @IsEntityId()
   supplierId: string;
 
   @IsNotEmpty({ message: 'معرف المخزن مطلوب' })
-  @IsUUID('4', { message: 'معرف المخزن غير صحيح' })
+  @IsEntityId()
   warehouseId: string;
 
   @IsOptional()
-  @IsUUID('4', { message: 'معرف أمر الشراء غير صحيح' })
+  @IsEntityId()
   purchaseOrderId?: string;
 
   @IsNotEmpty({ message: 'معرف العملة مطلوب' })
-  @IsUUID('4', { message: 'معرف العملة غير صحيح' })
+  @IsEntityId()
   currencyId: string;
 
   @IsNotEmpty({ message: 'تاريخ الفاتورة مطلوب' })

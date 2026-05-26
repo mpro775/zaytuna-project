@@ -1,9 +1,10 @@
-import { IsNotEmpty, IsNumber, IsString, IsUUID, IsOptional, MaxLength } from 'class-validator';
+import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
+import { IsNotEmpty, IsNumber, IsString, IsOptional, MaxLength } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreatePaymentDto {
   @IsNotEmpty({ message: 'معرف العملة مطلوب' })
-  @IsUUID('4', { message: 'معرف العملة غير صحيح' })
+  @IsEntityId()
   currencyId: string;
 
   @IsNotEmpty({ message: 'المبلغ مطلوب' })

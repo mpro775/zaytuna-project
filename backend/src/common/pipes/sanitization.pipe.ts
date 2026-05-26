@@ -1,6 +1,5 @@
 import { Injectable, PipeTransform, ArgumentMetadata } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { sanitize } from 'class-sanitizer';
 
 @Injectable()
 export class SanitizationPipe implements PipeTransform {
@@ -71,7 +70,7 @@ export class SanitizationPipe implements PipeTransform {
 
       for (const [key, val] of Object.entries(value)) {
         // استخدام class-sanitizer للتنظيف الإضافي
-        const sanitizedKey = sanitize(key);
+        const sanitizedKey = key.replace(/[<>"'\/]/g, '');
         const sanitizedValue = this.sanitizeValue(val, config);
 
         if (sanitizedValue !== undefined) {

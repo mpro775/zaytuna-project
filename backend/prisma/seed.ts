@@ -1,226 +1,265 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 بدء زراعة قاعدة البيانات...');
-
-  // إنشاء الشركة الأساسية
   const company = await prisma.company.upsert({
     where: { id: 'company_main' },
-    update: {},
+    update: {
+      name: 'Zaytuna Soft',
+      email: 'info@zaytuna.local',
+      phone: '+967000000000',
+      address: 'Yemen',
+    },
     create: {
       id: 'company_main',
-      name: 'شركة زيتونة للأنظمة',
-      description: 'نظام إدارة نقاط البيع المتكامل',
-      address: 'الرياض، المملكة العربية السعودية',
-      phone: '+966501234567',
-      email: 'info@zaytuna.com',
-      taxNumber: '1234567890',
-      isActive: true,
+      name: 'Zaytuna Soft',
+      email: 'info@zaytuna.local',
+      phone: '+967000000000',
+      address: 'Yemen',
+      taxNumber: 'TAX-DEV',
     },
   });
 
-  console.log('✅ تم إنشاء الشركة:', company.name);
+  const branch = await prisma.branch.upsert({
+    where: { code: 'MAIN' },
+    update: { companyId: company.id },
+    create: {
+      id: 'branch_main',
+      name: 'Main Branch',
+      code: 'MAIN',
+      address: 'Yemen',
+      companyId: company.id,
+    },
+  });
 
-  // إنشاء الفروع الأساسية
-  const branches = await Promise.all([
-    prisma.branch.upsert({
-      where: { code: 'MAIN' },
-      update: {},
-      create: {
-        id: 'branch_main',
-        name: 'الفرع الرئيسي',
-        code: 'MAIN',
-        address: 'الرياض، المملكة العربية السعودية',
-        phone: '+966501234567',
-        email: 'main@zaytuna.com',
-        companyId: company.id,
-        isActive: true,
-      },
-    }),
-    prisma.branch.upsert({
-      where: { code: 'BRANCH1' },
-      update: {},
-      create: {
-        id: 'branch_1',
-        name: 'فرع الشمالية',
-        code: 'BRANCH1',
-        address: 'الشمالية، المملكة العربية السعودية',
-        phone: '+966507654321',
-        email: 'north@zaytuna.com',
-        companyId: company.id,
-        isActive: true,
-      },
-    }),
-  ]);
+  const warehouse = await prisma.warehouse.upsert({
+    where: { code: 'WH_MAIN' },
+    update: { branchId: branch.id },
+    create: {
+      id: 'warehouse_main',
+      name: 'Main Warehouse',
+      code: 'WH_MAIN',
+      branchId: branch.id,
+    },
+  });
 
-  console.log('✅ تم إنشاء الفروع:', branches.map(b => b.name));
+  const adminPermissions = [
+    'auth.*',
+    'users.*',
+    'roles.*',
+    'permissions.*',
+    'settings.*',
+    'currencies.*',
+    'exchange-rates.*',
+    'branches.*',
+    'warehouses.*',
+    'categories.*',
+    'products.*',
+    'product-variants.*',
+    'inventory.*',
+    'customers.*',
+    'sales.*',
+    'returns.*',
+    'credit-notes.*',
+    'suppliers.*',
+    'purchasing.*',
+    'accounting.*',
+    'notifications.*',
+    'sync.*',
+    'backup.*',
+    'reporting.*',
+    'storage.*',
+    'audit.*',
+  ];
 
-  // إنشاء المخازن
-  const warehouses = await Promise.all([
-    prisma.warehouse.upsert({
-      where: { code: 'WH_MAIN' },
-      update: {},
-      create: {
-        id: 'warehouse_main',
-        name: 'المخزن الرئيسي',
-        code: 'WH_MAIN',
-        address: 'الرياض، المملكة العربية السعودية',
-        branchId: branches[0].id,
-        isActive: true,
-      },
-    }),
-    prisma.warehouse.upsert({
-      where: { code: 'WH_NORTH' },
-      update: {},
-      create: {
-        id: 'warehouse_north',
-        name: 'مخزن الشمالية',
-        code: 'WH_NORTH',
-        address: 'الشمالية، المملكة العربية السعودية',
-        branchId: branches[1].id,
-        isActive: true,
-      },
-    }),
-  ]);
+  const roleAdmin = await prisma.role.upsert({
+    where: { name: 'admin' },
+    update: { permissions: adminPermissions, isSystemRole: true, isActive: true },
+    create: {
+      id: 'role_admin',
+      name: 'admin',
+      description: 'System administrator',
+      permissions: adminPermissions,
+      isSystemRole: true,
+    },
+  });
 
-  console.log('✅ تم إنشاء المخازن:', warehouses.map(w => w.name));
+  await prisma.role.upsert({
+    where: { name: 'manager' },
+    update: { permissions: ['products.*', 'inventory.*', 'sales.*', 'reporting.read'] },
+    create: {
+      id: 'role_manager',
+      name: 'manager',
+      description: 'Branch manager',
+      permissions: ['products.*', 'inventory.*', 'sales.*', 'reporting.read'],
+    },
+  });
 
-  // إنشاء الأدوار الأساسية
-  const roles = await Promise.all([
-    prisma.role.upsert({
-      where: { name: 'super_admin' },
-      update: {},
-      create: {
-        id: 'role_super_admin',
-        name: 'super_admin',
-        description: 'مدير النظام الأعلى',
-        permissions: [
-          'system.*',
-          'users.*',
-          'roles.*',
-          'branches.*',
-          'warehouses.*',
-          'products.*',
-          'inventory.*',
-          'sales.*',
-          'purchases.*',
-          'accounting.*',
-          'reports.*',
-        ],
-        isActive: true,
-      },
-    }),
-    prisma.role.upsert({
-      where: { name: 'admin' },
-      update: {},
-      create: {
-        id: 'role_admin',
-        name: 'admin',
-        description: 'مدير الفرع',
-        permissions: [
-          'users.read',
-          'users.create',
-          'users.update',
-          'branches.read',
-          'warehouses.read',
-          'products.*',
-          'inventory.*',
-          'sales.*',
-          'purchases.*',
-          'reports.read',
-        ],
-        isActive: true,
-      },
-    }),
-    prisma.role.upsert({
-      where: { name: 'cashier' },
-      update: {},
-      create: {
-        id: 'role_cashier',
-        name: 'cashier',
-        description: 'صراف',
-        permissions: [
-          'sales.create',
-          'sales.read',
-          'products.read',
-          'inventory.read',
-        ],
-        isActive: true,
-      },
-    }),
-  ]);
+  await prisma.role.upsert({
+    where: { name: 'cashier' },
+    update: { permissions: ['products.read', 'sales.create', 'sales.read', 'customers.read'] },
+    create: {
+      id: 'role_cashier',
+      name: 'cashier',
+      description: 'Cashier',
+      permissions: ['products.read', 'sales.create', 'sales.read', 'customers.read'],
+    },
+  });
 
-  console.log('✅ تم إنشاء الأدوار:', roles.map(r => r.name));
+  const passwordHash = await bcrypt.hash('Admin@123456', 12);
+  await prisma.user.upsert({
+    where: { email: 'admin@zaytuna.local' },
+    update: { passwordHash, roleId: roleAdmin.id, branchId: branch.id, isActive: true },
+    create: {
+      id: 'user_admin',
+      username: 'admin',
+      email: 'admin@zaytuna.local',
+      passwordHash,
+      roleId: roleAdmin.id,
+      branchId: branch.id,
+    },
+  });
 
-  // إنشاء المستخدمين الأساسيين
-  const hashedPassword = await bcrypt.hash('Admin@123', 10);
+  const yer = await prisma.currency.upsert({
+    where: { code: 'YER' },
+    update: { isBase: true, isDefault: true, isActive: true, exchangeRate: '1' },
+    create: {
+      id: 'currency_yer',
+      code: 'YER',
+      name: 'Yemeni Rial',
+      symbol: 'YER',
+      decimalPlaces: 2,
+      exchangeRate: '1',
+      isBase: true,
+      isDefault: true,
+    },
+  });
+  const usd = await prisma.currency.upsert({
+    where: { code: 'USD' },
+    update: { isActive: true, exchangeRate: '530' },
+    create: {
+      id: 'currency_usd',
+      code: 'USD',
+      name: 'US Dollar',
+      symbol: '$',
+      decimalPlaces: 2,
+      exchangeRate: '530',
+    },
+  });
+  const sar = await prisma.currency.upsert({
+    where: { code: 'SAR' },
+    update: { isActive: true, exchangeRate: '141.33' },
+    create: {
+      id: 'currency_sar',
+      code: 'SAR',
+      name: 'Saudi Riyal',
+      symbol: 'SAR',
+      decimalPlaces: 2,
+      exchangeRate: '141.33',
+    },
+  });
 
-  const users = await Promise.all([
-    prisma.user.upsert({
-      where: { email: 'superadmin@zaytuna.com' },
-      update: {},
-      create: {
-        id: 'user_super_admin',
-        username: 'superadmin',
-        email: 'superadmin@zaytuna.com',
-        phone: '+966501234567',
-        passwordHash: hashedPassword,
-        branchId: branches[0].id,
-        roleId: roles[0].id,
-        isActive: true,
-        twoFactorEnabled: false,
-        biometricEnabled: false,
+  const sampleRates = [
+    [usd.id, yer.id, '530.00000000'],
+    [sar.id, yer.id, '141.33000000'],
+    [yer.id, usd.id, '0.00188679'],
+    [yer.id, sar.id, '0.00707564'],
+  ] as const;
+  for (const [fromCurrencyId, toCurrencyId, rate] of sampleRates) {
+    await prisma.exchangeRate.create({
+      data: {
+        fromCurrencyId,
+        toCurrencyId,
+        rate,
+        effectiveAt: new Date('2026-01-01T00:00:00.000Z'),
+        source: 'manual-seed-sample',
       },
-    }),
-    prisma.user.upsert({
-      where: { email: 'admin@zaytuna.com' },
-      update: {},
-      create: {
-        id: 'user_admin',
-        username: 'admin',
-        email: 'admin@zaytuna.com',
-        phone: '+966502468135',
-        passwordHash: hashedPassword,
-        branchId: branches[0].id,
-        roleId: roles[1].id,
-        isActive: true,
-        twoFactorEnabled: false,
-        biometricEnabled: false,
-      },
-    }),
-    prisma.user.upsert({
-      where: { email: 'cashier@zaytuna.com' },
-      update: {},
-      create: {
-        id: 'user_cashier',
-        username: 'cashier',
-        email: 'cashier@zaytuna.com',
-        phone: '+966508642357',
-        passwordHash: hashedPassword,
-        branchId: branches[0].id,
-        roleId: roles[2].id,
-        isActive: true,
-        twoFactorEnabled: false,
-        biometricEnabled: false,
-      },
-    }),
-  ]);
+    });
+  }
 
-  console.log('✅ تم إنشاء المستخدمين:', users.map(u => u.username));
+  const category = await prisma.category.upsert({
+    where: { id: 'category_phones' },
+    update: {},
+    create: { id: 'category_phones', name: 'Phones' },
+  });
 
-  console.log('🎉 تمت زراعة قاعدة البيانات بنجاح!');
-  console.log('\n📋 بيانات تسجيل الدخول:');
-  console.log('Super Admin: superadmin@zaytuna.com / Admin@123');
-  console.log('Admin: admin@zaytuna.com / Admin@123');
-  console.log('Cashier: cashier@zaytuna.com / Admin@123');
+  const product = await prisma.product.upsert({
+    where: { id: 'product_sample_phone' },
+    update: {},
+    create: {
+      id: 'product_sample_phone',
+      name: 'Sample Phone',
+      sku: 'PHONE-SAMPLE',
+      categoryId: category.id,
+      basePrice: '100000',
+      costPrice: '85000',
+    },
+  });
+
+  const variant = await prisma.productVariant.upsert({
+    where: { id: 'variant_sample_phone_black_128' },
+    update: {},
+    create: {
+      id: 'variant_sample_phone_black_128',
+      productId: product.id,
+      name: 'Black / 128GB',
+      sku: 'PHONE-SAMPLE-BLK-128',
+      price: '100000',
+      costPrice: '85000',
+      attributes: { color: 'black', storage: '128GB' },
+    },
+  });
+
+  await prisma.stockItem.upsert({
+    where: {
+      warehouseId_productVariantId: {
+        warehouseId: warehouse.id,
+        productVariantId: variant.id,
+      },
+    },
+    update: { quantity: '10' },
+    create: {
+      warehouseId: warehouse.id,
+      productVariantId: variant.id,
+      quantity: '10',
+    },
+  });
+
+  const accounts = [
+    ['1000', 'Assets', 'asset'],
+    ['1010', 'Cash', 'asset'],
+    ['1020', 'Inventory', 'asset'],
+    ['1030', 'Accounts Receivable', 'asset'],
+    ['2000', 'Liabilities', 'liability'],
+    ['2010', 'Accounts Payable', 'liability'],
+    ['3000', 'Equity', 'equity'],
+    ['4000', 'Revenue', 'revenue'],
+    ['4010', 'Sales Revenue', 'revenue'],
+    ['5000', 'Expenses', 'expense'],
+    ['5010', 'Cost of Goods Sold', 'expense'],
+  ] as const;
+  for (const [accountCode, name, accountType] of accounts) {
+    await prisma.gLAccount.upsert({
+      where: { accountCode },
+      update: { name, accountType, isSystem: true },
+      create: { accountCode, name, accountType, isSystem: true },
+    });
+  }
+
+  await prisma.appSetting.upsert({
+    where: { scope_scopeId_key: { scope: 'global', scopeId: '', key: 'company.defaultCurrencyId' } },
+    update: { value: yer.id },
+    create: { scope: 'global', scopeId: '', key: 'company.defaultCurrencyId', value: yer.id },
+  });
+
+  console.log('Seed completed. Admin: admin / admin@zaytuna.local / Admin@123456');
 }
 
 main()
-  .catch((e) => {
-    console.error('❌ خطأ في زراعة قاعدة البيانات:', e);
+  .catch((error) => {
+    console.error(error);
     process.exit(1);
   })
   .finally(async () => {

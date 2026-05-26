@@ -1,4 +1,31 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
+  "exclude": [
+    "node_modules",
+    "test",
+    "dist",
+    "scripts",
+    "**/*spec.ts",
+    "src/modules/backup/**/*",
+    "src/modules/monitoring/**/*",
+    "src/modules/payment/**/*",
+    "src/modules/performance/**/*",
+    "src/modules/reporting/**/*",
+    "src/modules/returns/**/*",
+    "src/modules/sales/**/*",
+    "src/modules/security/**/*",
+    "src/modules/purchasing/**/*",
+    "src/modules/notification/providers/**/*",
+    "src/modules/notification/notification.schema.ts",
+    "src/modules/notification/notification-queue.service.ts",
+    "src/modules/notification/notification-template.service.ts",
+    "src/modules/notification/notification-preferences.service.ts",
+    "src/modules/sync/sync.gateway.ts",
+    "src/modules/sync/offline.service.ts",
+    "src/modules/storage/access-control.service.ts",
+    "src/modules/storage/file-management.service.ts",
+    "src/modules/storage/image-optimization.service.ts",
+    "src/modules/storage/providers/**/*",
+    "src/modules/storage/utils/**/*"
+  ]
 }

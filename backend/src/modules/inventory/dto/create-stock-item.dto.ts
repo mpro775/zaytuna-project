@@ -1,13 +1,14 @@
-import { IsNotEmpty, IsUUID, IsOptional, IsNumber, Min } from 'class-validator';
+import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
+import { IsNotEmpty, IsOptional, IsNumber, Min } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreateStockItemDto {
   @IsNotEmpty({ message: 'معرف المخزن مطلوب' })
-  @IsUUID('4', { message: 'معرف المخزن غير صحيح' })
+  @IsEntityId()
   warehouseId: string;
 
   @IsNotEmpty({ message: 'معرف متغير المنتج مطلوب' })
-  @IsUUID('4', { message: 'معرف متغير المنتج غير صحيح' })
+  @IsEntityId()
   productVariantId: string;
 
   @IsOptional()

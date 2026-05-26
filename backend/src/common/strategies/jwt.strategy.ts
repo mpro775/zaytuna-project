@@ -77,14 +77,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         throw new UnauthorizedException('الحساب غير نشط');
       }
 
-      // التحقق من الجلسة في الكاش
-      const sessionKey = `session:${payload.sub}:${payload.iat}`;
-      const sessionData = await this.cacheService.get(sessionKey);
-
-      if (!sessionData) {
-        throw new UnauthorizedException('الجلسة منتهية الصلاحية');
-      }
-
       // تحديث نشاط المستخدم في قاعدة البيانات
       await this.updateLastLogin(user.id);
 

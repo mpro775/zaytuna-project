@@ -1,4 +1,5 @@
-import { IsOptional, IsString, IsEmail, IsUUID, IsBoolean } from 'class-validator';
+import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
+import { IsOptional, IsString, IsEmail, IsBoolean } from 'class-validator';
 
 export class UpdateWarehouseDto {
   @IsOptional()
@@ -22,7 +23,7 @@ export class UpdateWarehouseDto {
   email?: string;
 
   @IsOptional()
-  @IsUUID('4', { message: 'معرف المدير غير صحيح' })
+  @IsEntityId()
   managerId?: string;
 
   @IsOptional()

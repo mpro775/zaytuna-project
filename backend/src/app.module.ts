@@ -12,21 +12,14 @@ import { ProductModule } from './modules/product/product.module';
 import { CategoryModule } from './modules/category/category.module';
 import { ProductVariantModule } from './modules/product-variant/product-variant.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
-import { SalesModule } from './modules/sales/sales.module';
-import { ReturnsModule } from './modules/returns/returns.module';
-import { PurchasingModule } from './modules/purchasing/purchasing.module';
 import { CustomerModule } from './modules/customer/customer.module';
 import { AccountingModule } from './modules/accounting/accounting.module';
-import { ReportingModule } from './modules/reporting/reporting.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { SyncModule } from './modules/sync/sync.module';
-import { PaymentModule } from './modules/payment/payment.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { StorageModule } from './modules/storage/storage.module';
-import { MonitoringModule } from './modules/monitoring/monitoring.module';
-import { BackupModule } from './modules/backup/backup.module';
-import { SecurityModule } from './modules/security/security.module';
-import { PerformanceModule } from './modules/performance/performance.module';
+import { SettingsModule } from './modules/settings/settings.module';
+import { CurrencyModule } from './modules/currency/currency.module';
 import { CacheInterceptor } from './common/interceptors/cache.interceptor';
 import { CacheInvalidationInterceptor } from './common/interceptors/cache-invalidation.interceptor';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
@@ -47,13 +40,14 @@ import databaseConfig from './config/database.config';
 import redisConfig from './config/redis.config';
 import jwtConfig from './config/jwt.config';
 import appConfig from './config/app.config';
+import securityConfig from './config/security.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
-      load: [databaseConfig, redisConfig, jwtConfig, appConfig],
+      load: [databaseConfig, redisConfig, jwtConfig, appConfig, securityConfig],
     }),
     PrismaModule,
     CacheModule,
@@ -65,21 +59,18 @@ import appConfig from './config/app.config';
     CategoryModule,
     ProductVariantModule,
     InventoryModule,
-    SalesModule,
-    ReturnsModule,
-    PurchasingModule,
     CustomerModule,
     AccountingModule,
-    ReportingModule,
     AuditModule,
     SyncModule,
-    PaymentModule,
     NotificationModule,
     StorageModule,
-    MonitoringModule,
-    BackupModule,
-    SecurityModule,
-    PerformanceModule,
+    SettingsModule,
+    CurrencyModule,
+    // Phase 1 intentionally defers advanced runtime modules (sales workflows,
+    // purchasing workflows, payment gateways, monitoring, backup, reporting,
+    // security dashboard, and performance tooling) until their providers are
+    // stabilized. Their database/API contract is documented for Phase 2.
     ThrottlerModule.forRoot([
       {
         ttl: 60000, // 1 minute

@@ -1,4 +1,5 @@
-import { IsOptional, IsString, IsUUID, IsBoolean } from 'class-validator';
+import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
+import { IsOptional, IsString, IsBoolean } from 'class-validator';
 
 export class UpdateCategoryDto {
   @IsOptional()
@@ -10,7 +11,7 @@ export class UpdateCategoryDto {
   description?: string;
 
   @IsOptional()
-  @IsUUID('4', { message: 'معرف الفئة الأب غير صحيح' })
+  @IsEntityId()
   parentId?: string;
 
   @IsOptional()

@@ -1,9 +1,10 @@
-import { IsNotEmpty, IsString, IsOptional, IsUUID, IsArray, ValidateNested, IsDateString } from 'class-validator';
+import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
+import { IsNotEmpty, IsString, IsOptional, IsArray, ValidateNested, IsDateString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class ReturnLineDto {
   @IsNotEmpty({ message: 'معرف متغير المنتج مطلوب' })
-  @IsUUID('4', { message: 'معرف متغير المنتج غير صحيح' })
+  @IsEntityId()
   productVariantId: string;
 
   @IsNotEmpty({ message: 'الكمية مطلوبة' })
@@ -37,11 +38,11 @@ export class CreateReturnDto {
   returnNumber?: string;
 
   @IsNotEmpty({ message: 'معرف فاتورة المبيعات مطلوب' })
-  @IsUUID('4', { message: 'معرف فاتورة المبيعات غير صحيح' })
+  @IsEntityId()
   salesInvoiceId: string;
 
   @IsNotEmpty({ message: 'معرف المخزن مطلوب' })
-  @IsUUID('4', { message: 'معرف المخزن غير صحيح' })
+  @IsEntityId()
   warehouseId: string;
 
   @IsNotEmpty({ message: 'السبب مطلوب' })

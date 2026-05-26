@@ -34,6 +34,36 @@ export class AuthService {
     private readonly cacheService: CacheService,
   ) {}
 
+  async issueTokens(user: {
+    id: string;
+    username: string;
+    email: string;
+    roleId: string;
+    branchId?: string;
+    permissions?: string[];
+  }): Promise<LoginResponseDto> {
+    const tokens = await this.generateTokens(user);
+    await this.createSession(user.id, tokens.accessToken);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
+    });
+
+    return {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.roleId,
+        branch: user.branchId,
+      },
+      expiresIn: tokens.expiresIn,
+    };
+  }
+
   /**
    * تسجيل دخول المستخدم
    */

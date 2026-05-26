@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString, IsOptional, IsEmail, IsUUID, IsBoolean, MaxLength } from 'class-validator';
+import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
+import { IsNotEmpty, IsString, IsOptional, IsEmail, IsBoolean, MaxLength } from 'class-validator';
 
 export class CreateWarehouseDto {
   @IsNotEmpty({ message: 'اسم المخزن مطلوب' })
@@ -25,11 +26,11 @@ export class CreateWarehouseDto {
   email?: string;
 
   @IsNotEmpty({ message: 'معرف الفرع مطلوب' })
-  @IsUUID('4', { message: 'معرف الفرع غير صحيح' })
+  @IsEntityId()
   branchId: string;
 
   @IsOptional()
-  @IsUUID('4', { message: 'معرف المدير غير صحيح' })
+  @IsEntityId()
   managerId?: string;
 
   @IsOptional()

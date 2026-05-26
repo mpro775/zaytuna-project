@@ -1,9 +1,10 @@
-import { IsNotEmpty, IsString, IsOptional, IsUUID, IsArray, ValidateNested, IsDateString } from 'class-validator';
+import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
+import { IsNotEmpty, IsString, IsOptional, IsArray, ValidateNested, IsDateString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class SalesInvoiceLineDto {
   @IsNotEmpty({ message: 'معرف متغير المنتج مطلوب' })
-  @IsUUID('4', { message: 'معرف متغير المنتج غير صحيح' })
+  @IsEntityId()
   productVariantId: string;
 
   @IsNotEmpty({ message: 'الكمية مطلوبة' })
@@ -33,23 +34,23 @@ export class CreateSalesInvoiceDto {
   invoiceNumber?: string;
 
   @IsNotEmpty({ message: 'معرف الفرع مطلوب' })
-  @IsUUID('4', { message: 'معرف الفرع غير صحيح' })
+  @IsEntityId()
   branchId: string;
 
   @IsOptional()
-  @IsUUID('4', { message: 'معرف العميل غير صحيح' })
+  @IsEntityId()
   customerId?: string;
 
   @IsNotEmpty({ message: 'معرف المخزن مطلوب' })
-  @IsUUID('4', { message: 'معرف المخزن غير صحيح' })
+  @IsEntityId()
   warehouseId: string;
 
   @IsNotEmpty({ message: 'معرف العملة مطلوب' })
-  @IsUUID('4', { message: 'معرف العملة غير صحيح' })
+  @IsEntityId()
   currencyId: string;
 
   @IsOptional()
-  @IsUUID('4', { message: 'معرف الضريبة غير صحيح' })
+  @IsEntityId()
   taxId?: string;
 
   @IsNotEmpty({ message: 'سطور الفاتورة مطلوبة' })

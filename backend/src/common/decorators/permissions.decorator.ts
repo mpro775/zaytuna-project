@@ -104,22 +104,12 @@ export class PermissionChecker {
    * التحقق من تطابق الصلاحية (يدعم wildcards)
    */
   private matchesPermission(userPermission: string, requiredPermission: string): boolean {
-    // تطابق دقيق
-    if (userPermission === requiredPermission) {
-      return true;
-    }
+    if (userPermission === '*' || userPermission === '*.*') return true;
+    if (userPermission === requiredPermission) return true;
 
-    // دعم wildcards
-    if (requiredPermission.includes('*')) {
-      const regex = new RegExp(
-        requiredPermission.replace(/\*/g, '.*').replace(/\./g, '\\.')
-      );
-      return regex.test(userPermission);
-    }
-
-    // دعم الصلاحيات الهرمية (مثل: user.create.branch_1)
-    if (userPermission.startsWith(requiredPermission + '.')) {
-      return true;
+    if (userPermission.endsWith('.*')) {
+      const prefix = userPermission.slice(0, -2);
+      return requiredPermission === prefix || requiredPermission.startsWith(`${prefix}.`);
     }
 
     return false;

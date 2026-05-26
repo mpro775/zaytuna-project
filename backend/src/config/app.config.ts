@@ -48,6 +48,7 @@ export default registerAs('app', () => ({
 
   // إعدادات الكاش
   cache: {
+    enabled: process.env.CACHE_ENABLED === 'true',
     defaultTtl: parseInt(process.env.CACHE_DEFAULT_TTL || '300', 10),
     prefix: process.env.CACHE_PREFIX || 'zaytuna:',
   },

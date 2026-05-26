@@ -103,7 +103,7 @@ export class PrismaService
   async getConnectionStats() {
     try {
       // محاولة الحصول على معلومات الاتصال من PostgreSQL
-      const stats = await this.$queryRaw`
+      const stats = await this.$queryRaw<Array<Record<string, unknown>>>`
         SELECT
           count(*) as active_connections,
           sum(case when state = 'active' then 1 else 0 end) as active_queries,

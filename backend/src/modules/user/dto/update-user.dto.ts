@@ -1,4 +1,5 @@
-import { IsOptional, IsString, IsEmail, IsUUID, IsBoolean } from 'class-validator';
+import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
+import { IsOptional, IsString, IsEmail, IsBoolean } from 'class-validator';
 
 export class UpdateUserDto {
   @IsOptional()
@@ -14,11 +15,11 @@ export class UpdateUserDto {
   phone?: string;
 
   @IsOptional()
-  @IsUUID('4', { message: 'معرف الدور غير صحيح' })
+  @IsEntityId()
   roleId?: string;
 
   @IsOptional()
-  @IsUUID('4', { message: 'معرف الفرع غير صحيح' })
+  @IsEntityId()
   branchId?: string;
 
   @IsOptional()

@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
+import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class AdjustStockDto {
@@ -16,7 +17,7 @@ export class AdjustStockDto {
   referenceType?: string;
 
   @IsOptional()
-  @IsUUID('4', { message: 'معرف المرجع غير صحيح' })
+  @IsEntityId()
   referenceId?: string;
 
   @IsOptional()

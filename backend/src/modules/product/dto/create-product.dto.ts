@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString, IsOptional, IsNumber, IsBoolean, IsUUID, Min, MaxLength } from 'class-validator';
+import { IsEntityId } from '../../../common/decorators/entity-id.decorator';
+import { IsNotEmpty, IsString, IsOptional, IsNumber, IsBoolean, Min, MaxLength } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreateProductDto {
@@ -22,7 +23,7 @@ export class CreateProductDto {
   sku?: string;
 
   @IsNotEmpty({ message: 'معرف الفئة مطلوب' })
-  @IsUUID('4', { message: 'معرف الفئة غير صحيح' })
+  @IsEntityId()
   categoryId: string;
 
   @IsNotEmpty({ message: 'السعر الأساسي مطلوب' })
@@ -38,7 +39,7 @@ export class CreateProductDto {
   costPrice?: number;
 
   @IsOptional()
-  @IsUUID('4', { message: 'معرف الضريبة غير صحيح' })
+  @IsEntityId()
   taxId?: string;
 
   @IsOptional()
