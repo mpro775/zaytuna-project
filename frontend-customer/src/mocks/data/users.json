@@ -2,7 +2,7 @@
   {
     "id": "user-1",
     "username": "admin",
-    "email": "admin@zaytuna.com",
+    "email": "admin@zaytunsoft.com",
     "firstName": "أحمد",
     "lastName": "محمد",
     "role": "admin",
@@ -18,7 +18,7 @@
   {
     "id": "user-2",
     "username": "manager",
-    "email": "manager@zaytuna.com",
+    "email": "manager@zaytunsoft.com",
     "firstName": "فاطمة",
     "lastName": "علي",
     "role": "manager",
@@ -34,7 +34,7 @@
   {
     "id": "user-3",
     "username": "cashier",
-    "email": "cashier@zaytuna.com",
+    "email": "cashier@zaytunsoft.com",
     "firstName": "خالد",
     "lastName": "حسن",
     "role": "cashier",
@@ -50,7 +50,7 @@
   {
     "id": "user-4",
     "username": "cashier2",
-    "email": "cashier2@zaytuna.com",
+    "email": "cashier2@zaytunsoft.com",
     "firstName": "سارة",
     "lastName": "أحمد",
     "role": "cashier",
@@ -66,7 +66,7 @@
   {
     "id": "user-5",
     "username": "warehouse",
-    "email": "warehouse@zaytuna.com",
+    "email": "warehouse@zaytunsoft.com",
     "firstName": "يوسف",
     "lastName": "إبراهيم",
     "role": "warehouse_manager",

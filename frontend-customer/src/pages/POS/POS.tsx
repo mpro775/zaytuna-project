@@ -505,7 +505,7 @@ const POS: React.FC = () => {
           {/* Left Section */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main' }}>
-              زيتون POS
+              الزيتون سوفت POS
             </Typography>
 
             {/* Branch/Warehouse Info */}

@@ -1,0 +1,2678 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الابتكار لرواد الأعمال: من الفكرة إلى السوق</title>
+    <link href="https://cdn.jsdelivr.net/npm/@fontsource/tajawal@5.0.18/400.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fontsource/tajawal@5.0.18/700.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fontsource/tajawal@5.0.18/900.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+    <style>
+        :root {
+            --primary: #6C63FF;
+            --primary-dark: #5A52D5;
+            --secondary: #FF6584;
+            --accent: #00D2FF;
+            --dark: #1a1a2e;
+            --darker: #0f0f23;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --success: #28a745;
+            --warning: #ffc107;
+            --gradient-1: linear-gradient(135deg, #6C63FF 0%, #00D2FF 100%);
+            --gradient-2: linear-gradient(135deg, #FF6584 0%, #FFC107 100%);
+            --gradient-3: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            --shadow: 0 10px 40px rgba(108, 99, 255, 0.15);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: var(--light);
+            color: #333;
+            overflow-x: hidden;
+            line-height: 1.8;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 1000;
+            padding: 1rem 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+            background: rgba(26, 26, 46, 0.8);
+        }
+
+        .navbar.scrolled {
+            padding: 0.6rem 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 700;
+            transition: all 0.3s;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #fff;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            width: 28px;
+            height: 3px;
+            background: #fff;
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            background: var(--gradient-3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-particles {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: rgba(108, 99, 255, 0.6);
+            border-radius: 50%;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.6; }
+            50% { transform: translateY(-80px) translateX(40px) scale(1.3); opacity: 0.2; }
+        }
+
+        .hero-grid {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(108, 99, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(108, 99, 255, 0.05) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .hero-content {
+            text-align: center;
+            color: #fff;
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            padding: 2rem;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(108, 99, 255, 0.2);
+            border: 1px solid rgba(108, 99, 255, 0.4);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            line-height: 1.3;
+        }
+
+        .hero h1 span {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 3rem;
+            max-width: 700px;
+            margin-inline: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            padding: 1rem 2.5rem;
+            background: var(--gradient-1);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(108, 99, 255, 0.4);
+        }
+
+        .btn-secondary {
+            padding: 1rem 2.5rem;
+            background: transparent;
+            color: #fff;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .btn-secondary:hover {
+            border-color: #fff;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-15px); }
+        }
+
+        .scroll-indicator svg {
+            width: 30px;
+            height: 30px;
+            stroke: rgba(255,255,255,0.5);
+        }
+
+        /* Section Styles */
+        .section {
+            padding: 6rem 2rem;
+        }
+
+        .section-dark {
+            background: var(--darker);
+            color: #fff;
+        }
+
+        .section-gradient {
+            background: linear-gradient(180deg, var(--darker) 0%, #16213e 100%);
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            color: #fff;
+            font-size: 1.3rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            font-size: 1.15rem;
+            opacity: 0.7;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Instructor Card */
+        .instructor-card {
+            background: linear-gradient(135deg, rgba(108, 99, 255, 0.1) 0%, rgba(0, 210, 255, 0.1) 100%);
+            border: 1px solid rgba(108, 99, 255, 0.2);
+            border-radius: 24px;
+            padding: 3rem;
+            display: flex;
+            gap: 3rem;
+            align-items: center;
+            margin-bottom: 4rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .instructor-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: var(--gradient-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: #fff;
+            flex-shrink: 0;
+            border: 4px solid rgba(255,255,255,0.2);
+        }
+
+        .instructor-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .instructor-info .role {
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .instructor-info p {
+            opacity: 0.8;
+            line-height: 1.9;
+        }
+
+        .instructor-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-item .num {
+            font-size: 2rem;
+            font-weight: 900;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-item .label {
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        /* Task Cards */
+        .tasks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .task-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-1);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.4s;
+        }
+
+        .task-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .task-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(108, 99, 255, 0.4);
+            box-shadow: 0 20px 40px rgba(108, 99, 255, 0.15);
+        }
+
+        .task-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1.5rem;
+        }
+
+        .task-card:nth-child(1) .task-icon { background: linear-gradient(135deg, #6C63FF, #5A52D5); }
+        .task-card:nth-child(2) .task-icon { background: linear-gradient(135deg, #00D2FF, #0099CC); }
+        .task-card:nth-child(3) .task-icon { background: linear-gradient(135deg, #FF6584, #CC4466); }
+        .task-card:nth-child(4) .task-icon { background: linear-gradient(135deg, #28a745, #1e7e34); }
+
+        .task-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .task-card p {
+            font-size: 0.95rem;
+            opacity: 0.7;
+        }
+
+        /* Core Concept */
+        .concept-box {
+            background: linear-gradient(135deg, rgba(108, 99, 255, 0.15) 0%, rgba(0, 210, 255, 0.15) 100%);
+            border: 1px solid rgba(108, 99, 255, 0.3);
+            border-radius: 24px;
+            padding: 3rem;
+            text-align: center;
+            margin: 3rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .concept-box::before {
+            content: '💡';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            font-size: 8rem;
+            opacity: 0.05;
+        }
+
+        .concept-box .quote {
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        .concept-box .quote span {
+            color: var(--accent);
+        }
+
+        .equation-box {
+            display: inline-flex;
+            gap: 1rem;
+            align-items: center;
+            margin-top: 2rem;
+            background: rgba(255,255,255,0.1);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+        }
+
+        .equation-box .item {
+            padding: 0.5rem 1rem;
+            background: var(--gradient-1);
+            border-radius: 50px;
+            font-weight: 700;
+        }
+
+        .equation-box .plus {
+            font-size: 1.5rem;
+            opacity: 0.5;
+        }
+
+        /* Lesson Cards */
+        .lesson-card {
+            background: #fff;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 3rem;
+            transition: all 0.4s;
+        }
+
+        .lesson-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(108, 99, 255, 0.2);
+        }
+
+        .lesson-header {
+            padding: 2rem 2.5rem;
+            background: var(--gradient-3);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            cursor: pointer;
+        }
+
+        .lesson-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .lesson-header .icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .lesson-body {
+            padding: 2.5rem;
+        }
+
+        /* Info Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .info-card {
+            background: var(--light);
+            border-radius: 16px;
+            padding: 2rem;
+            border-right: 4px solid var(--primary);
+            transition: all 0.3s;
+        }
+
+        .info-card:hover {
+            transform: translateX(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .info-card h4 {
+            color: var(--primary);
+            font-size: 1.1rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-card p {
+            opacity: 0.8;
+            font-size: 0.95rem;
+        }
+
+        /* Comparison Table */
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .comp-card {
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .comp-card.good {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(40, 167, 69, 0.05) 100%);
+            border: 2px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .comp-card.bad {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(220, 53, 69, 0.05) 100%);
+            border: 2px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .comp-card h4 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .comp-card.good h4 { color: var(--success); }
+        .comp-card.bad h4 { color: #dc3545; }
+
+        .comp-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .comp-card li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .comp-card.bad li::before { content: '❌'; flex-shrink: 0; }
+        .comp-card.good li::before { content: '✅'; flex-shrink: 0; }
+
+        /* Factors Grid */
+        .factors-container {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .factor-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+            transition: all 0.3s;
+        }
+
+        .factor-item:hover {
+            background: rgba(108, 99, 255, 0.1);
+            border-color: rgba(108, 99, 255, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .factor-num {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .factor-content h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .factor-content p {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .factor-content .example {
+            margin-top: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(108, 99, 255, 0.15);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+
+        /* Strategy Matrix */
+        .matrix-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .strategy-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.4s;
+        }
+
+        .strategy-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 10px 40px rgba(108, 99, 255, 0.15);
+        }
+
+        .strategy-card .arrow {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .strategy-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .strategy-card .flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            padding: 0.4rem 1rem;
+            background: rgba(108, 99, 255, 0.2);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .flow-arrow {
+            opacity: 0.5;
+        }
+
+        .strategy-card .examples {
+            text-align: right;
+            margin-top: 1.5rem;
+        }
+
+        .strategy-card .examples li {
+            padding: 0.3rem 0;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        /* Business Model Canvas */
+        .canvas-wrapper {
+            background: rgba(255,255,255,0.03);
+            border: 2px solid rgba(108, 99, 255, 0.3);
+            border-radius: 24px;
+            padding: 2rem;
+            margin: 3rem 0;
+        }
+
+        .canvas-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: auto auto;
+            gap: 1rem;
+            min-height: 400px;
+        }
+
+        .canvas-cell {
+            background: rgba(108, 99, 255, 0.08);
+            border: 1px solid rgba(108, 99, 255, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .canvas-cell:hover {
+            background: rgba(108, 99, 255, 0.15);
+            border-color: var(--primary);
+            transform: scale(1.02);
+        }
+
+        .canvas-cell.active {
+            background: rgba(108, 99, 255, 0.25);
+            border-color: var(--primary);
+            box-shadow: 0 0 30px rgba(108, 99, 255, 0.2);
+        }
+
+        .canvas-cell .cell-num {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 28px;
+            height: 28px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 900;
+        }
+
+        .canvas-cell h4 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        .canvas-cell .cell-questions {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 0.8rem;
+        }
+
+        .canvas-cell .cell-details {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: auto;
+        }
+
+        .canvas-cell.right-side {
+            border-color: rgba(0, 210, 255, 0.3);
+            background: rgba(0, 210, 255, 0.05);
+        }
+
+        .canvas-cell.right-side h4 {
+            color: var(--accent);
+        }
+
+        .canvas-cell.left-side {
+            border-color: rgba(255, 101, 132, 0.3);
+            background: rgba(255, 101, 132, 0.05);
+        }
+
+        .canvas-cell.left-side h4 {
+            color: var(--secondary);
+        }
+
+        .canvas-divider {
+            grid-column: 1 / -1;
+            height: 2px;
+            background: var(--gradient-1);
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        .canvas-divider::after {
+            content: 'الجانب الخارجي (العملاء) ←→ الجانب الداخلي (العمليات)';
+            position: absolute;
+            top: -30px;
+            right: 0;
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        /* MVP Section */
+        .mvp-flow {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            justify-content: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .mvp-step {
+            text-align: center;
+            padding: 1.5rem;
+            background: rgba(108, 99, 255, 0.1);
+            border-radius: 16px;
+            min-width: 140px;
+            transition: all 0.3s;
+        }
+
+        .mvp-step:hover {
+            transform: translateY(-5px);
+            background: rgba(108, 99, 255, 0.2);
+        }
+
+        .mvp-step .step-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .mvp-step .step-text {
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .mvp-arrow {
+            font-size: 1.5rem;
+            opacity: 0.5;
+        }
+
+        /* Signs Grid */
+        .signs-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .sign-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .sign-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .sign-card .sign-emoji {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .sign-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .sign-card p {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        /* Iterate vs Pivot */
+        .iterate-pivot {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .ip-card {
+            border-radius: 20px;
+            padding: 2rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .ip-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ip-card.iterate h4 { color: var(--accent); }
+        .ip-card.pivot h4 { color: var(--secondary); }
+
+        /* Success Matrix */
+        .success-matrix {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+
+        .sm-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sm-row:last-child { border-bottom: none; }
+
+        .sm-cell {
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .sm-cell:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .sm-cell.winner {
+            background: rgba(40, 167, 69, 0.15);
+            border: 2px solid rgba(40, 167, 69, 0.4);
+        }
+
+        .sm-cell .sm-emoji {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .sm-cell h4 {
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .sm-cell p {
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            right: 30px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--gradient-1);
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            align-items: flex-start;
+        }
+
+        .timeline-dot {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timeline-content {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            flex: 1;
+            transition: all 0.3s;
+        }
+
+        .timeline-content:hover {
+            border-color: var(--primary);
+            background: rgba(108, 99, 255, 0.1);
+        }
+
+        .timeline-content h4 {
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        .timeline-content p {
+            font-size: 0.95rem;
+            opacity: 0.7;
+        }
+
+        /* Call to Action */
+        .cta-box {
+            background: var(--gradient-1);
+            border-radius: 24px;
+            padding: 4rem 3rem;
+            text-align: center;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+            margin: 4rem 0;
+        }
+
+        .cta-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: rotateBg 10s linear infinite;
+        }
+
+        @keyframes rotateBg {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .cta-box h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .cta-box p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            position: relative;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 4px;
+            z-index: 1001;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--gradient-1);
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--darker);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .footer-brand {
+            font-size: 1.5rem;
+            font-weight: 900;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        /* Quote Block */
+        .quote-block {
+            background: linear-gradient(135deg, rgba(108, 99, 255, 0.1) 0%, rgba(0, 210, 255, 0.1) 100%);
+            border-right: 4px solid var(--primary);
+            border-radius: 0 16px 16px 0;
+            padding: 2rem 2.5rem;
+            margin: 2rem 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            position: relative;
+        }
+
+        .quote-block::before {
+            content: '"';
+            position: absolute;
+            top: -10px;
+            right: 15px;
+            font-size: 4rem;
+            opacity: 0.15;
+            color: var(--primary);
+        }
+
+        /* Case Study */
+        .case-study {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .case-study-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .case-study-header .logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        /* Accordion */
+        .accordion-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            padding: 1.2rem 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .accordion-header:hover {
+            background: rgba(108, 99, 255, 0.1);
+        }
+
+        .accordion-header h4 {
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .accordion-icon {
+            transition: transform 0.3s;
+        }
+
+        .accordion-item.open .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        .accordion-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .accordion-item.open .accordion-body {
+            max-height: 500px;
+        }
+
+        .accordion-content {
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        .accordion-content p {
+            font-size: 0.95rem;
+            opacity: 0.7;
+            line-height: 1.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .canvas-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.2rem; }
+            .hero p { font-size: 1.1rem; }
+            .section { padding: 4rem 1.5rem; }
+            .section-header h2 { font-size: 1.8rem; }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 80%;
+                height: 100vh;
+                background: var(--darker);
+                flex-direction: column;
+                padding: 5rem 2rem;
+                transition: right 0.4s;
+            }
+
+            .nav-links.open { right: 0; }
+            .hamburger { display: flex; }
+
+            .instructor-card {
+                flex-direction: column;
+                text-align: center;
+                padding: 2rem;
+            }
+
+            .instructor-stats { justify-content: center; }
+
+            .comparison { grid-template-columns: 1fr; }
+            .matrix-container { grid-template-columns: 1fr; }
+            .signs-grid { grid-template-columns: 1fr; }
+            .iterate-pivot { grid-template-columns: 1fr; }
+
+            .canvas-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .info-grid { grid-template-columns: 1fr; }
+
+            .mvp-flow {
+                flex-direction: column;
+            }
+
+            .mvp-arrow { transform: rotate(90deg); }
+        }
+
+        @media (max-width: 480px) {
+            .canvas-grid { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 1.8rem; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+        }
+
+        /* Back to top */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 999;
+            border: none;
+            color: #fff;
+            font-size: 1.3rem;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Highlight text */
+        .highlight {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .warning { color: var(--warning); font-weight: 700; }
+        .danger { color: var(--secondary); font-weight: 700; }
+        .success { color: var(--success); font-weight: 700; }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            border-bottom: 2px dashed var(--primary);
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background: var(--dark);
+            color: #fff;
+            text-align: center;
+            border-radius: 10px;
+            padding: 0.8rem;
+            position: absolute;
+            z-index: 100;
+            bottom: 125%;
+            right: 50%;
+            transform: translateX(50%);
+            opacity: 0;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Summary Table */
+        .summary-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 0.5rem;
+        }
+
+        .summary-table th {
+            background: var(--gradient-1);
+            color: #fff;
+            padding: 1rem 1.5rem;
+            text-align: right;
+            font-weight: 700;
+        }
+
+        .summary-table th:first-child { border-radius: 0 12px 12px 0; }
+        .summary-table th:last-child { border-radius: 12px 0 0 12px; }
+
+        .summary-table td {
+            background: rgba(255,255,255,0.05);
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .summary-table td:first-child { border-radius: 0 12px 12px 0; border-right: 1px solid rgba(255,255,255,0.05); }
+        .summary-table td:last-child { border-radius: 12px 0 0 12px; border-left: 1px solid rgba(255,255,255,0.05); }
+
+        .summary-table tr td {
+            transition: all 0.3s;
+        }
+
+        .summary-table tr:hover td {
+            background: rgba(108, 99, 255, 0.1);
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.8rem 1.5rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50px;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover,
+        .tab-btn.active {
+            background: var(--gradient-1);
+            border-color: var(--primary);
+            color: #fff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Checklist */
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding: 0.8rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .checklist li .check {
+            width: 24px;
+            height: 24px;
+            background: var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">🚀 ريادة الأعمال</div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#hero" class="active">الرئيسية</a></li>
+                <li><a href="#intro">المقدمة</a></li>
+                <li><a href="#opportunities">الفرص</a></li>
+                <li><a href="#factors">الجدوى</a></li>
+                <li><a href="#strategy">الاستراتيجية</a></li>
+                <li><a href="#pmf">الملاءمة</a></li>
+                <li><a href="#bmc">نموذج العمل</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger" onclick="toggleNav()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-grid"></div>
+        <div class="hero-particles" id="particles"></div>
+        <div class="hero-content">
+            <div class="hero-badge">🎓 كورسيرا - University of Maryland</div>
+            <h1>الابتكار لرواد الأعمال<br><span>من الفكرة إلى السوق</span></h1>
+            <p>رحلة شاملة من اكتشاف الفرص الريادية إلى بناء نموذج عمل ناجح، بأسلوب عملي وتطبيقي</p>
+            <div class="hero-buttons">
+                <a href="#intro" class="btn-primary">ابدأ الرحلة 🚀</a>
+                <a href="#bmc" class="btn-secondary">نموذج العمل 🧩</a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+                <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section class="section section-dark" id="intro">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-number">0</div>
+                <h2>مقدمة الدورة</h2>
+                <p>تعرف على المدرب وفلسفة الدورة والمهام الأربعة الرئيسية</p>
+            </div>
+
+            <!-- Instructor Card -->
+            <div class="instructor-card">
+                <div class="instructor-avatar">👨‍🏫</div>
+                <div class="instructor-info">
+                    <h3>توم ميرزوا</h3>
+                    <div class="role">عضو هيئة تدريس مساعد - جامعة ماريلاند</div>
+                    <p>خبير في ريادة الأعمال والابتكار والإبداع مع أكثر من 12 عاماً من الخبرة الأكاديمية والعملية. أسس عدة مشاريع ناشئة ويعمل في مجالس إدارة شركات بمنطقة واشنطن.</p>
+                    <div class="instructor-stats">
+                        <div class="stat-item">
+                            <div class="num">+12</div>
+                            <div class="label">سنوات خبرة</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="num">+5</div>
+                            <div class="label">مشاريع ناشئة</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="num">∞</div>
+                            <div class="label">شغف بالابتكار</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Philosophy -->
+            <div class="concept-box">
+                <div class="quote">
+                    هذه الدورة <span>لن تعتمد على الكتب</span> والنظريات التقليدية<br>
+                    بل ستركز على <span>أفكار ومفاهيم وفلاتر عملية</span> لفهم وتطبيق الابتكار
+                </div>
+            </div>
+
+            <!-- 4 Tasks -->
+            <h3 style="text-align:center; font-size: 1.5rem; margin-bottom: 1rem; color: var(--accent);">المهام الأربعة الرئيسية في الدورة</h3>
+            <p style="text-align: center; opacity: 0.6; margin-bottom: 2rem;">خريطة الطريق التي ستمشي عليها</p>
+
+            <div class="tasks-grid">
+                <div class="task-card">
+                    <div class="task-icon">💎</div>
+                    <h3>تطوير عرض قيمة</h3>
+                    <p>افهم طبيعة القيمة الحقيقية التي يقدمها ابتكارك ولمن تقدمها</p>
+                </div>
+                <div class="task-card">
+                    <div class="task-icon">🔍</div>
+                    <h3>استكشاف مصادر الفرص</h3>
+                    <p>تعلم من أين تأتي بالأفكار المبتكرة: السوق، العملاء، التكنولوجيا</p>
+                </div>
+                <div class="task-card">
+                    <div class="task-icon">👥</div>
+                    <h3>تطوير الأدوار</h3>
+                    <p>حدد من سيفعل ماذا وكيف تبني فريقاً يدعم مبادرتك الابتكارية</p>
+                </div>
+                <div class="task-card">
+                    <div class="task-icon">📊</div>
+                    <h3>بناء محفظة ابتكار</h3>
+                    <p>خطة لعبة استراتيجية للاستمرار في الابتكار وتسويقه في السوق</p>
+                </div>
+            </div>
+
+            <!-- Core Innovation Concept -->
+            <div style="margin-top: 4rem;">
+                <div class="concept-box">
+                    <div class="quote">🌟 الابتكار يبدأ بـ <span>فكرة</span>... لكن <span>الناس</span> هم من يجعلونه يعيش!</div>
+                    <div class="equation-box">
+                        <span class="item">فكرة 💡</span>
+                        <span class="plus">+</span>
+                        <span class="item">فريق 👥</span>
+                        <span class="plus">+</span>
+                        <span class="item">تكيف 🔄</span>
+                        <span class="plus">=</span>
+                        <span class="item">ابتكار ناجح 🚀</span>
+                    </div>
+                </div>
+
+                <div class="info-grid" style="margin-top: 2rem;">
+                    <div class="info-card">
+                        <h4>💡 الفكرة</h4>
+                        <p>بداية كل ابتكار، لكنها وحدها لا تكفي. تحتاج لتنفيذ حقيقي.</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>👥 الناس والفريق</h4>
+                        <p>المنظمة انعكاس لشعبها. الفريق الرائع يساعد في التعبير عن إمكانات الشركة.</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>🔄 التكيف</h4>
+                        <p>التكيف مع السوق، العملاء، المنافسة، والأسواق المالية للبقاء طويلاً.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lesson 1: Opportunities -->
+    <section class="section" id="opportunities">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-number">1</div>
+                <h2>ما هي فرص ريادة الأعمال؟</h2>
+                <p>تعريف الفرص الريادية وفهم السياق العالمي الحالي</p>
+            </div>
+
+            <div class="lesson-card">
+                <div class="lesson-header">
+                    <div class="icon">🎯</div>
+                    <h3>التعريف والأساسيات</h3>
+                </div>
+                <div class="lesson-body">
+                    <div class="quote-block">
+                        فرصة ريادة الأعمال = تقديم سلع/خدمات/مواد/طرق تنظيم <strong>جديدة</strong> بسعر أعلى من تكلفة إنتاجها
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h4>📖 التعريف الكلاسيكي</h4>
+                            <p>بيع الجديد بتكلفة أكبر من الإنتاج - التركيز على الجانب التسويقي والاقتصادي</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>💡 التفسير الحديث</h4>
+                            <p>خلق معلومات جديدة + اختراع + استغلال الأسواق + الاستجابة للتحولات (Drucker)</p>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-top: 2rem; margin-bottom: 1rem; color: var(--primary);">🌍 ثورة الموارد: لماذا الآن وقت ذهبي؟</h4>
+                    
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h4>🌐 نمو الأسواق الناشئة</h4>
+                            <p>ظهور طبقة متوسطة جديدة في دول نامية = أسواق جديدة للمنتجات والخدمات</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>⚡ سرعة تبني التكنولوجيا</h4>
+                            <p>قديماً: عقود للوصول لـ 60% من السوق. حديثاً: الهواتف الذكية وصلت لـ 90% في سنوات!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case Study: Amazon -->
+            <div class="case-study">
+                <div class="case-study-header">
+                    <div class="logo" style="background: var(--gradient-2);">📦</div>
+                    <h3>دراسة حالة: أمازون (Amazon)</h3>
+                </div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot">📚</div>
+                        <div class="timeline-content">
+                            <h4>البداية: الكتب المطبوعة</h4>
+                            <p>بدأت أمازون كمتجر كتب عبر الإنترنت ورائدة في هذا المجال</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot">🎵</div>
+                        <div class="timeline-content">
+                            <h4>التطور: الموسيقى والأفلام</h4>
+                            <p>توسعت لتشمل الموسيقى على CDs وأفلام وDVDs</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot">💻</div>
+                        <div class="timeline-content">
+                            <h4>اليوم: المنتجات الرقمية</h4>
+                            <p>43% من مبيعاتها من المنتجات الرقمية - أمازون لا تنتظر بل تقود التغيير!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Difference between entrepreneurial & regular opportunities -->
+            <div class="lesson-card">
+                <div class="lesson-header" style="background: linear-gradient(135deg, #FF6584 0%, #FFC107 100%);">
+                    <div class="icon">⚡</div>
+                    <h3>الفرق بين فرصة ريادية وفرصة عمل عادية</h3>
+                </div>
+                <div class="lesson-body">
+                    <div class="comparison">
+                        <div class="comp-card good">
+                            <h4>✅ فرصة ريادية</h4>
+                            <ul>
+                                <li>علاقات جديدة وغير مؤكدة</li>
+                                <li>بيئة ديناميكية وسريعة التغير</li>
+                                <li>سباق محموم لدخول السوق</li>
+                                <li>قرارات سريعة بعواقب كبيرة</li>
+                            </ul>
+                        </div>
+                        <div class="comp-card bad">
+                            <h4>❌ فرصة عمل عادية</h4>
+                            <ul>
+                                <li>علاقات معروفة ومستقرة</li>
+                                <li>بيئة متوقعة وهادئة</li>
+                                <li>وقت كافٍ للتخطيط</li>
+                                <li>قرارات مدروسة ببطء</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="quote-block" style="margin-top: 2rem;">
+                        🎯 <strong>صنع القرار هو أساس النجاح الريادي</strong> - ستبدأ الدورة من العقلية والقرار قبل الانتقال للأدوات المالية والتسويقية
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lesson 2: Feasibility Factors -->
+    <section class="section section-dark" id="factors">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-number">2</div>
+                <h2>العوامل المؤثرة على جدوى الابتكار</h2>
+                <p>12 عامل فحص لتعرف هل فكرتك قابلة للنجاح في السوق أم لا</p>
+            </div>
+
+            <!-- Tabs for Market Attractiveness vs Market Fit -->
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="switchTab('market-attract')">📊 جاذبية السوق (6 عوامل)</button>
+                <button class="tab-btn" onclick="switchTab('market-fit')">🎯 ملاءمة السوق (6 عوامل)</button>
+                <button class="tab-btn" onclick="switchTab('matrix')">📈 مصفوفة التقييم</button>
+            </div>
+
+            <!-- Market Attractiveness -->
+            <div class="tab-content active" id="market-attract">
+                <div class="factors-container">
+                    <div class="factor-item">
+                        <div class="factor-num">1</div>
+                        <div class="factor-content">
+                            <h4>جاذبية السوق الأساسية</h4>
+                            <p>إمكانات المبيعات والأرباح لفكرة مبتكرة - ما الإيرادات والقيمة التي قد ينتجها؟</p>
+                            <span class="example">📱 مثال: هل الجيل الجديد من iPhone سيحقق مبيعات تنافسية؟</span>
+                        </div>
+                    </div>
+                    <div class="factor-item">
+                        <div class="factor-num">2</div>
+                        <div class="factor-content">
+                            <h4>إمكانات النمو</h4>
+                            <p>كم من السوق ما زال غير مُشبع؟ النمو المحتمل لاحتياجات السوق</p>
+                            <span class="example">⚠️ تحذير: سوق التابلت امتلئ بسرعة ببدائل iPad!</span>
+                        </div>
+                    </div>
+                    <div class="factor-item">
+                        <div class="factor-num">3</div>
+                        <div class="factor-content">
+                            <h4>تفاعل المنافسين</h4>
+                            <p>كم سرعة رد المنافسين على ابتكاري؟ حماية الملكية الفكرية تقلل التقليد</p>
+                            <span class="example">🛡️ الحل: براءات الاختراع تحميك من الاستجابة السريعة</span>
+                        </div>
+                    </div>
+                    <div class="factor-item">
+                        <div class="factor-num">4</div>
+                        <div class="factor-content">
+                            <h4>توزيع المخاطر</h4>
+                            <p>محفظة منتجات متنوعة = أمان أكثر. منتج واحد = مخاطرة عالية جداً</p>
+                            <span class="example">✅ مثال: Microsoft لديها مجموعة واسعة من المنتجات المتنوعة</span>
+                        </div>
+                    </div>
+                    <div class="factor-item">
+                        <div class="factor-num">5</div>
+                        <div class="factor-content">
+                            <h4>إمكانية إعادة هيكلة الصناعة</h4>
+                            <p>الابتكار الجذري قد يغير قواعد اللعبة تماماً (التدمير الإبداعي)</p>
+                            <span class="example">🔋 بطارية تشغل اللابتوب 24 ساعة = ثورة في الصناعة!</span>
+                        </div>
+                    </div>
+                    <div class="factor-item">
+                        <div class="factor-num">6</div>
+                        <div class="factor-content">
+                            <h4>القيود السياسية والاجتماعية</h4>
+                            <p>القوانين والأنظمة قد تعيق دخول السوق - عوامل خارجية مؤثرة</p>
+                            <span class="example">⚖️ مثال: مقاضاة Microsoft في الاتحاد الأوروبي بتهمة الاحتكار</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Market Fit -->
+            <div class="tab-content" id="market-fit">
+                <div class="factors-container">
+                    <div class="factor-item">
+                        <div class="factor-num">7</div>
+                        <div class="factor-content">
+                            <h4>توفر رأس المال</h4>
+                            <p>رأس المال المحدود = مرونة أقل. الشركات قد تنمو بسرعة لكن ينقذ نقدها!</p>
+                            <span class="example">💰 بدون نقد كافٍ، لا يمكنك التعافي من التكاليف العالية</span>
+                        </div>
+                    </div>
+                    <div class="factor-item">
+                        <div class="factor-num">8</div>
+                        <div class="factor-content">
+                            <h4>كفاءة التصنيع</h4>
+                            <p>القدرة على إنشاء نماذج أولية ومنتجات جديدة بسرعة وجودة</p>
+                            <span class="example">🏭 مصنع هواتف ينتج تصاميم مبتكرة بسرعة = ميزة تنافسية</span>
+                        </div>
+                    </div>
+                    <div class="factor-item">
+                        <div class="factor-num">9</div>
+                        <div class="factor-content">
+                            <h4>قنوات التوزيع</h4>
+                            <p>القدرة على الدخول المبكر والاختراق السريع للأسواق العالمية</p>
+                            <span class="example">📦 FedEx وسّع خدماته عالمياً بنظام تتبع مبتكر</span>
+                        </div>
+                    </div>
+                    <div class="factor-item">
+                        <div class="factor-num">10</div>
+                        <div class="factor-content">
+                            <h4>قدرة الدعم الفني</h4>
+                            <p>الدعم أداة لتحسين المنتج باستمرار باستخدام بيانات العملاء</p>
+                            <span class="example">🔧 Dell تستخدم بيانات العملاء لتحسين دعمها الفني</span>
+                        </div>
+                    </div>
+                    <div class="factor-item">
+                        <div class="factor-num">11</div>
+                        <div class="factor-content">
+                            <h4>الوصول للمكونات الحيوية</h4>
+                            <p>موثوقية المواد واللوازم ضرورية للإنتاج المستقر</p>
+                            <span class="example">⛓️ الاعتماد على مورد خارجي واحد = مخاطرة عالية</span>
+                        </div>
+                    </div>
+                    <div class="factor-item">
+                        <div class="factor-num">12</div>
+                        <div class="factor-content">
+                            <h4>مستوى الدعم الإداري</h4>
+                            <p>دعم الإدارة العليا = بيئة محفزة للابتكار</p>
+                            <span class="example">🌟 Google: 20% وقت الموظف لأفكاره المبتكرة</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Matrix -->
+            <div class="tab-content" id="matrix">
+                <div class="success-matrix">
+                    <div class="sm-row">
+                        <div class="sm-cell" style="grid-column: span 2; background: rgba(108, 99, 255, 0.2);">
+                            <h4 style="color: var(--accent);">مصفوفة المنتج والإدارة</h4>
+                            <p style="opacity: 0.6;">تصنيف إمكانات المنتج المبتكر حسب التعقيد</p>
+                        </div>
+                    </div>
+                    <div class="sm-row">
+                        <div class="sm-cell winner">
+                            <div class="sm-emoji">🟢</div>
+                            <h4>منطقة الشركات الناشئة</h4>
+                            <p>منتج بسيط + إدارة بسيطة</p>
+                            <p style="margin-top: 0.5rem; font-size: 0.8rem;">معظم الشركات الناشئة المثيرة تبدأ هنا</p>
+                        </div>
+                        <div class="sm-cell">
+                            <div class="sm-emoji">🔵</div>
+                            <h4>منطقة النمو</h4>
+                            <p>منتج بسيط + إدارة متطورة</p>
+                        </div>
+                    </div>
+                    <div class="sm-row">
+                        <div class="sm-cell">
+                            <div class="sm-emoji">🔴</div>
+                            <h4>منطقة الخطر</h4>
+                            <p>منتج متطور + إدارة بسيطة</p>
+                        </div>
+                        <div class="sm-cell" style="background: rgba(108, 99, 255, 0.2); border: 2px solid rgba(108, 99, 255, 0.4);">
+                            <div class="sm-emoji">🟣</div>
+                            <h4>الشركات المبتكرة</h4>
+                            <p>منتج متطور + إدارة متطورة</p>
+                            <p style="margin-top: 0.5rem; font-size: 0.8rem;">الشركات المستدامة المبتكرة تصل هنا</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quote-block" style="margin-top: 2rem;">
+                    🎯 <strong>الفحص المسبق يوفر الوقت والمال</strong> - حدد قيود النجاح قبل دخول السوق، وحسّن فكرتك قبل الإطلاق!
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lesson 3: Strategy -->
+    <section class="section section-gradient" id="strategy">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-number">3</div>
+                <h2>استراتيجية الابتكار</h2>
+                <p>دفع التكنولوجيا أم جذب السوق؟ وكيف تدمج الاثنين للنجاح</p>
+            </div>
+
+            <div class="matrix-container">
+                <!-- Tech Push -->
+                <div class="strategy-card">
+                    <div class="arrow">🚀</div>
+                    <h3>دفع التكنولوجيا (Technology Push)</h3>
+                    <p style="opacity: 0.7; margin-bottom: 1.5rem;">من الداخل → للسوق</p>
+                    <div class="flow">
+                        <span class="flow-step">بحث وتطوير</span>
+                        <span class="flow-arrow">←</span>
+                        <span class="flow-step">اختراق تقني</span>
+                        <span class="flow-arrow">←</span>
+                        <span class="flow-step">منتج</span>
+                        <span class="flow-arrow">←</span>
+                        <span class="flow-step">السوق</span>
+                    </div>
+                    <ul class="examples">
+                        <li>📱 Apple Newton (1993) - سابق لعصره</li>
+                        <li>📱 Samsung Galaxy بشاشة لمس (2012)</li>
+                    </ul>
+                </div>
+
+                <!-- Market Pull -->
+                <div class="strategy-card">
+                    <div class="arrow">🎯</div>
+                    <h3>جذب السوق (Market Pull)</h3>
+                    <p style="opacity: 0.7; margin-bottom: 1.5rem;">من السوق → للداخل</p>
+                    <div class="flow">
+                        <span class="flow-step">حاجة السوق</span>
+                        <span class="flow-arrow">←</span>
+                        <span class="flow-step">بحث عن حل</span>
+                        <span class="flow-arrow">←</span>
+                        <span class="flow-step">تطوير منتج</span>
+                        <span class="flow-arrow">←</span>
+                        <span class="flow-step">إشباع الحاجة</span>
+                    </div>
+                    <ul class="examples">
+                        <li>📷 تصغير الكاميرات الرقمية</li>
+                        <li>💻 برامج تحرير الصور</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Success Matrix -->
+            <h3 style="text-align: center; margin: 3rem 0 1.5rem; color: var(--accent);">🏆 مصفوفة النجاح: ربط التكنولوجيا بالسوق</h3>
+            <div class="success-matrix">
+                <div class="sm-row">
+                    <div class="sm-cell">
+                        <div class="sm-emoji">❌</div>
+                        <h4>فكرة ضعيفة</h4>
+                        <p>تقنية ضعيفة + حاجة ضعيفة</p>
+                    </div>
+                    <div class="sm-cell">
+                        <div class="sm-emoji">⚠️</div>
+                        <h4>فكرة محتملة</h4>
+                        <p>تقنية ضعيفة + حاجة قوية</p>
+                    </div>
+                </div>
+                <div class="sm-row">
+                    <div class="sm-cell">
+                        <div class="sm-emoji">⚠️</div>
+                        <h4>فكرة تقنية فقط</h4>
+                        <p>تقنية قوية + حاجة ضعيفة</p>
+                    </div>
+                    <div class="sm-cell winner">
+                        <div class="sm-emoji">✅</div>
+                        <h4>🏆 فائز! استثمار قوي</h4>
+                        <p>تقنية قوية + حاجة سوقية واضحة</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Loop -->
+            <div class="quote-block" style="margin-top: 2rem;">
+                🎯 <strong>الأسواق هي المحدد النهائي</strong> لنجاح أي ابتكار - سواء كان دفعاً تقنياً أو جذباً سوقياً
+            </div>
+
+            <div class="iterate-pivot">
+                <div class="ip-card iterate">
+                    <h4>🔄 كيف يُعلِم السوقُ الابتكارَ؟</h4>
+                    <ul class="checklist">
+                        <li><span class="check">1</span> اطرح تطبيقاً بسيطاً في السوق</li>
+                        <li><span class="check">2</span> راقب: من يستخدمه؟ وكيف؟</li>
+                        <li><span class="check">3</span> اكتشف المستخدم النموذجي</li>
+                        <li><span class="check">4</span> حسّن المنتج بناءً على الملاحظات</li>
+                        <li><span class="check">5</span> طوّر تطبيقات إضافية</li>
+                    </ul>
+                </div>
+                <div class="ip-card pivot">
+                    <h4>💡 كيف يُعلِم الابتكارُ السوقَ؟</h4>
+                    <ul class="checklist">
+                        <li><span class="check">1</span> اطرح تقنية جديدة (حتى لو صغيرة)</li>
+                        <li><span class="check">2</span> أظهر للناس ما هو ممكن</li>
+                        <li><span class="check">3</span> تحقق من الحاجة عبر أبحاث السوق</li>
+                        <li><span class="check">4</span> عيّن "بطل منتج" لتطوير الفكرة</li>
+                        <li><span class="check">5</span> وسّع المنتج ليلبي السوق بالكامل</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lesson 4: Product-Market Fit -->
+    <section class="section" id="pmf">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-number">4</div>
+                <h2>ملاءمة المنتج للسوق</h2>
+                <p>القلب النابض لنموذج العمل - كيف تعرف أن عملاءك يريدون منتجك حقاً؟</p>
+            </div>
+
+            <div class="concept-box" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(0, 210, 255, 0.1) 100%); border-color: rgba(40, 167, 69, 0.3);">
+                <div class="quote">
+                    🏆 <span>ملاءمة المنتج للسوق</span> = قلب نموذج العمل الناجح<br>
+                    بدونها... <span>لا يوجد عمل تجاري حقيقي!</span>
+                </div>
+            </div>
+
+            <!-- Old vs New Way -->
+            <h3 style="text-align: center; margin: 3rem 0 1.5rem; font-size: 1.5rem; color: var(--primary);">الطريقتان للبحث عن ملاءمة المنتج والسوق</h3>
+            
+            <div class="comparison">
+                <div class="comp-card bad">
+                    <h4>❌ الطريقة القديمة (السيئة)</h4>
+                    <p style="margin-bottom: 1rem; opacity: 0.7;">"ابنِ المنتج أولاً ثم ابحث عن عملاء"</p>
+                    <ul>
+                        <li>مكلف جداً ويستغرق وقتاً طويلاً</li>
+                        <li>تنفق كل الأموال مقدماً</li>
+                        <li>معظم المخاطر في النهاية</li>
+                        <li>معظم الشركات تفشل بسبب نقص العملاء</li>
+                    </ul>
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(220, 53, 69, 0.1); border-radius: 12px;">
+                        <strong style="color: #dc3545;">💸 مثال WebVan:</strong>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem;">أنفقوا +100 مليون دولار على البنية التحتية قبل أي عميل. النتيجة: لا أحد يريد الخدمة → إفلاس كامل!</p>
+                    </div>
+                </div>
+                <div class="comp-card good">
+                    <h4>✅ الطريقة الجديدة (الأفضل)</h4>
+                    <p style="margin-bottom: 1rem; opacity: 0.7;">"افهم العميل أولاً ثم ابنِ المنتج"</p>
+                    <ul>
+                        <li>تضع المخاطر في المقدمة (قبل صرف الأموال)</li>
+                        <li>تنفق الدولارات في الخلف (بعد التأكد)</li>
+                        <li>تتعلم بسرعة وتتكيّف مع السوق</li>
+                        <li>تقلل المخاطر المالية بشكل كبير</li>
+                    </ul>
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(40, 167, 69, 0.1); border-radius: 12px;">
+                        <strong style="color: var(--success);">💡 MVP:</strong>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem;">أصغر منتج قابل للحياة يحل أقل احتياجات العميل - ابدأ صغيراً وتعلم بسرعة!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MVP Flow -->
+            <h4 style="text-align: center; margin: 3rem 0 1rem; color: var(--accent);">🔄 تسلسل الطريقة الأفضل</h4>
+            <div class="mvp-flow">
+                <div class="mvp-step">
+                    <div class="step-icon">🗣️</div>
+                    <div class="step-text">اسأل العملاء</div>
+                </div>
+                <div class="mvp-arrow">←</div>
+                <div class="mvp-step">
+                    <div class="step-icon">🔍</div>
+                    <div class="step-text">افهم المشاكل</div>
+                </div>
+                <div class="mvp-arrow">←</div>
+                <div class="mvp-step">
+                    <div class="step-icon">🛠️</div>
+                    <div class="step-text">ابنِ MVP</div>
+                </div>
+                <div class="mvp-arrow">←</div>
+                <div class="mvp-step">
+                    <div class="step-icon">🧪</div>
+                    <div class="step-text">اختبر</div>
+                </div>
+                <div class="mvp-arrow">←</div>
+                <div class="mvp-step">
+                    <div class="step-icon">🔄</div>
+                    <div class="step-text">كرّر</div>
+                </div>
+            </div>
+
+            <!-- 3 Golden Signs -->
+            <h3 style="text-align: center; margin: 3rem 0 1.5rem; color: var(--primary);">🔍 كيف تعرف أن لديك "ملاءمة منتج-سوق"؟</h3>
+            <div class="signs-grid">
+                <div class="sign-card">
+                    <div class="sign-emoji">🚨</div>
+                    <h4>"يجب أن يكون"</h4>
+                    <p>العملاء يذعرون إذا تعطل خدمتك - يتصلون ويبرقون بغضب!</p>
+                </div>
+                <div class="sign-card">
+                    <div class="sign-emoji">🗣️</div>
+                    <h4>"الغمغمة"</h4>
+                    <p>الناس يحيلونك لأن منتجك "متمتم" - يتحدثون عنه مع الآخرين</p>
+                </div>
+                <div class="sign-card">
+                    <div class="sign-emoji">💰</div>
+                    <h4>"اختبار المحفظة"</h4>
+                    <p>العميل يخرج محفظته ويدفع فوراً - بدون إقناع!</p>
+                </div>
+            </div>
+
+            <!-- Get Out of Building -->
+            <div class="quote-block" style="margin-top: 3rem;">
+                🚶 <strong>القاعدة الذهبية: "اخرج من المبنى!"</strong><br><br>
+                ❌ الحقيقة ليست عندك أنت (المؤسس)<br>
+                ❌ الحقيقة ليست في مكتبك أو بين فريقك<br>
+                ✅ <strong>الحقيقة عند العميل... هو من يقرر!</strong>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lesson 5: Business Model Development -->
+    <section class="section section-dark" id="bmd">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-number">5</div>
+                <h2>كيف تطور نموذج عمل تجاري؟</h2>
+                <p>المنهجية العلمية: من التخمينات المدروسة إلى الحقائق المُختبرة</p>
+            </div>
+
+            <!-- 3 Definitions -->
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>📝 التعريف 1</h4>
+                    <p>نموذج العمل = عرض قيمة يلبي حاجة أو يحل مشكلة لشريحة العملاء</p>
+                </div>
+                <div class="info-card">
+                    <h4>📋 التعريف 2</h4>
+                    <p>نموذج العمل = خطة لدخول السوق وجذب العملاء وبيعهم والاحتفاظ بهم</p>
+                </div>
+                <div class="info-card">
+                    <h4>🏗️ التعريف 3</h4>
+                    <p>نموذج العمل = خطة لبناء المنتج/الخدمة بطريقة تقدم عرض القيمة</p>
+                </div>
+            </div>
+
+            <!-- Scientific Method -->
+            <h3 style="text-align: center; margin: 3rem 0 1.5rem; color: var(--accent);">🔬 المنهجية العلمية لنموذج العمل</h3>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot">🎲</div>
+                    <div class="timeline-content">
+                        <h4>الخطوة 1: تخمينات مدروسة</h4>
+                        <p>كل مربع في لوحة نموذج العمل يبدأ كفرضية. لا تكن عشوائياً! فكر بعمق قبل التخمين.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">🔍</div>
+                    <div class="timeline-content">
+                        <h4>الخطوة 2: اختبر وفنّد (Falsify)</h4>
+                        <p>لا يمكنك إثبات صحة الفرضية 100% لكن يمكنك إثبات خطئها! ضع فرضية ← اختبرها ← إذا فشلت ← غيّر ← كرّر</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">❤️</div>
+                    <div class="timeline-content">
+                        <h4>الخطوة 3: التركيز على القلب أولاً</h4>
+                        <p>ابدب بعرض القيمة + شريحة العملاء لأنهما قلب نموذج العمل وملاءمة المنتج-السوق</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot">🔄</div>
+                    <div class="timeline-content">
+                        <h4>الخطوة 4: تكرار أو محور (Pivot)</h4>
+                        <p>تكرار: تحسينات صغيرة. محور: تغيير جذري. استمر حتى تصل لفرضيات "لا يمكنك دحضها"!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Iterate vs Pivot -->
+            <div class="iterate-pivot">
+                <div class="ip-card iterate">
+                    <h4>🔄 التكرار (Iterate)</h4>
+                    <p style="opacity: 0.7; margin-bottom: 1rem;">تحسينات صغيرة على نفس الفكرة</p>
+                    <div style="background: rgba(0, 210, 255, 0.1); padding: 1rem; border-radius: 12px;">
+                        <strong>مثال:</strong> "العملاء يريدون النقل عن بعد لكن لشيكاغو فقط وليس للمريخ" ← حسّن النطاق
+                    </div>
+                </div>
+                <div class="ip-card pivot">
+                    <h4>🔄 المحور (Pivot)</h4>
+                    <p style="opacity: 0.7; margin-bottom: 1rem;">تغيير جذري في الافتراضات الأساسية</p>
+                    <div style="background: rgba(255, 101, 132, 0.1); padding: 1rem; border-radius: 12px;">
+                        <strong>مثال:</strong> "العملاء يخافون أن تذوب أجسادهم" ← غيّر الفكرة كلياً لمنصة حجز رحلات ذكية
+                    </div>
+                </div>
+            </div>
+
+            <div class="quote-block" style="margin-top: 2rem;">
+                ⚠️ <strong>تذكير مهم:</strong> هذه العملية لا تنتهي أبداً، حتى للشركات الناضجة! الشركات التي لا تحافظ على تطوير العملاء ستتفاجأ بتغيرات السوق.
+            </div>
+        </div>
+    </section>
+
+    <!-- Lesson 6 & 7: Business Model Canvas -->
+    <section class="section section-gradient" id="bmc">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-number">6</div>
+                <h2>لوحة نموذج الأعمال</h2>
+                <p>التسعة مربعات السحرية التي تحوّل فكرتك إلى عمل تجاري</p>
+            </div>
+
+            <div class="concept-box">
+                <div class="quote">
+                    📊 لوحة نموذج العمل = <span>وثيقة حية</span> ستتغير مع تعلمك!<br>
+                    الجانب الأيمن ← <span>يواجه العميل</span> 🎯 | الجانب الأيسر ← <span>عمليات داخلية</span> ⚙️
+                </div>
+            </div>
+
+            <!-- Canvas Grid -->
+            <div class="canvas-wrapper">
+                <div class="canvas-grid">
+                    <!-- Right Side - Customer Facing -->
+                    <div class="canvas-cell right-side" onclick="highlightCell(this)" data-cell="partners">
+                        <div class="cell-num">7</div>
+                        <h4>🤝 الشركاء الرئيسيون</h4>
+                        <div class="cell-questions">من سيساعدك؟ ما الذي تفعله بنفسك؟</div>
+                        <div class="cell-details">موردون، شركاء استراتيجيون، مستثمرون</div>
+                    </div>
+                    <div class="canvas-cell right-side" onclick="highlightCell(this)" data-cell="activities">
+                        <div class="cell-num">8</div>
+                        <h4>🛠️ الأنشطة الرئيسية</h4>
+                        <div class="cell-questions">ماذا يجب أن تفعل بنفسك؟</div>
+                        <div class="cell-details">تصنيع، تطوير برمجيات، حماية الملكية الفكرية</div>
+                    </div>
+                    <div class="canvas-cell right-side" onclick="highlightCell(this)" data-cell="resources">
+                        <div class="cell-num">9</div>
+                        <h4>📦 الموارد الرئيسية</h4>
+                        <div class="cell-questions">ما الذي تحتاجه لتنفيذ عملك؟</div>
+                        <div class="cell-details">مالي، مادي، فكري، بشري، جغرافي</div>
+                    </div>
+                    <div class="canvas-cell right-side" style="grid-column: span 2;" onclick="highlightCell(this)" data-cell="value">
+                        <div class="cell-num">2</div>
+                        <h4>💎 عرض القيمة</h4>
+                        <div class="cell-questions">ماذا يفعل منتجك لعميلك؟ ما المشكلة التي تحلها؟</div>
+                        <div class="cell-details">الميزة الفريدة التي تقدمها - الحاجة التي تشبعها</div>
+                    </div>
+
+                    <div class="canvas-cell right-side" onclick="highlightCell(this)" data-cell="segments">
+                        <div class="cell-num">1</div>
+                        <h4>🎯 شرائح العملاء</h4>
+                        <div class="cell-questions">من هم عملاؤك الأكثر أهمية؟</div>
+                        <div class="cell-details">النموذج الأولي للعميل - ما الوظيفة التي تريد إنجازها لهم؟</div>
+                    </div>
+                    <div class="canvas-cell right-side" onclick="highlightCell(this)" data-cell="channels">
+                        <div class="cell-num">3</div>
+                        <h4>🚚 القنوات</h4>
+                        <div class="cell-questions">كيف تصل لعملائك؟</div>
+                        <div class="cell-details">بيع، توزيع، دعم، إرجاع</div>
+                    </div>
+                    <div class="canvas-cell right-side" onclick="highlightCell(this)" data-cell="relationships">
+                        <div class="cell-num">4</div>
+                        <h4>❤️ علاقات العملاء</h4>
+                        <div class="cell-questions">كيف تكتسب وتحتفظ وتنمي عملاءك؟</div>
+                        <div class="cell-details">شخصية، ذاتية، مجتمع</div>
+                    </div>
+                    <div class="canvas-cell right-side" onclick="highlightCell(this)" data-cell="revenue">
+                        <div class="cell-num">5</div>
+                        <h4>💰 تدفقات الإيرادات</h4>
+                        <div class="cell-questions">كيف تكسب المال؟ من يدفع وكيف؟</div>
+                        <div class="cell-details">اشتراك، مرة واحدة، عمولة، إعلانات</div>
+                    </div>
+                    <div class="canvas-cell right-side" onclick="highlightCell(this)" data-cell="cost">
+                        <div class="cell-num">6</div>
+                        <h4>💸 هيكل التكلفة</h4>
+                        <div class="cell-questions">ما تكاليف تشغيل عملك؟</div>
+                        <div class="cell-details">ثابتة، متغيرة، تطوير - احصل على تقدير مبكر!</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed explanation -->
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <h4><span style="font-size: 1.2rem;">🎯</span> 1. شرائح العملاء (Customer Segments)</h4>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-body">
+                    <div class="accordion-content">
+                        <p><strong>أداة عملية:</strong> "النموذج الأولي للعميل" (Customer Prototype) - اصنع صورة حية لشخص يمثل عينة من عميلك</p>
+                        <p style="margin-top: 0.5rem;"><strong>أمثلة:</strong> جو السباك (رجل 35 سنة، يعمل لحسابه، مشغول) | سارة المديرة (42 سنة، تقود فريقاً، تحتاج أدوات تنظيم)</p>
+                        <p style="margin-top: 0.5rem;"><strong>السؤال الجوهري:</strong> ما الوظيفة/الوظائف التي تريد إنجازها لهم؟</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <h4><span style="font-size: 1.2rem;">💎</span> 2. عرض القيمة (Value Propositions)</h4>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-body">
+                    <div class="accordion-content">
+                        <p><strong>يجب أن يجيب على:</strong> ما المشكلة التي تحلها؟ ما الحاجة التي تشبعها؟ ما الميزة الفريدة؟</p>
+                        <p style="margin-top: 0.5rem;"><strong>مثال:</strong> أوبر: "وصل لسيارتك في 3 دقائق" ← تحل مشكلة الانتظار وعدم اليقين</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <h4><span style="font-size: 1.2rem;">🚚</span> 3. القنوات (Channels)</h4>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-body">
+                    <div class="accordion-content">
+                        <p><strong>تشمل:</strong> كيف تبيع؟ (متجر إلكتروني، مندوب، تطبيق) | كيف توزع؟ (شحن، تنزيل رقمي) | كيف تدعم؟ (دعم فني، ضمان)</p>
+                        <p style="margin-top: 0.5rem;"><strong>مهم:</strong> القناة تؤثر مباشرة على التكلفة، التجربة، والربحية!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <h4><span style="font-size: 1.2rem;">❤️</span> 4. علاقات العملاء (Customer Relationships)</h4>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-body">
+                    <div class="accordion-content">
+                        <p><strong>دورة العلاقة:</strong></p>
+                        <p>1. الاكتساب: كيف يلاحظك العميل لأول مرة؟ 📢</p>
+                        <p>2. الاحتفاظ: كيف تجعله راضياً ومخلصاً؟ ❤️</p>
+                        <p>3. النمو: كيف تجعله يشتري أكثر ويحيل آخرين؟ 📈</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <h4><span style="font-size: 1.2rem;">💰</span> 5. تدفقات الإيرادات (Revenue Streams)</h4>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-body">
+                    <div class="accordion-content">
+                        <p><strong>الأسئلة الاستراتيجية (ليست التكتيكية):</strong></p>
+                        <p>• من يدفع؟ (العميل النهائي، المعلن، طرف ثالث)</p>
+                        <p>• كيف يدفع؟ (اشتراك، مرة واحدة، عمولة)</p>
+                        <p>• ما نموذج الدفع؟ (مجاني + مميزات مدفوعة، إعلانات)</p>
+                        <p style="margin-top: 0.5rem;"><strong>⚠️ التسعير</strong> (كم يدفعون) ← قرار تكتيكي لاحق</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <h4><span style="font-size: 1.2rem;">🤝</span> 6. الشركاء الرئيسيون (Key Partners)</h4>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-body">
+                    <div class="accordion-content">
+                        <p><strong>السؤال الذهبي:</strong> "ما كفاءاتي الأساسية التي لا يفعلها أحد مثلي؟" ← افعلها أنت | باقي الأشياء ← ابحث عن شريك</p>
+                        <p style="margin-top: 0.5rem;"><strong>أنواع الشركاء:</strong> موردون | شركاء استراتيجيون | مستثمرون</p>
+                        <p><strong>العلاقة تبادلية:</strong> ما تأخذ ← وما تعطي</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <h4><span style="font-size: 1.2rem;">🛠️</span> 7. الأنشطة الرئيسية (Key Activities)</h4>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-body">
+                    <div class="accordion-content">
+                        <p><strong>القاعدة:</strong> ركّز طاقتك على ما تجيده حقاً ← واستعن بغيرك للباقي</p>
+                        <p style="margin-top: 0.5rem;"><strong>أمثلة:</strong> التصنيع | تطوير البرمجيات | حماية الملكية الفكرية | التسويق والمبيعات</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <h4><span style="font-size: 1.2rem;">📦</span> 8. الموارد الرئيسية (Key Resources)</h4>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-body">
+                    <div class="accordion-content">
+                        <div class="info-grid" style="margin-top: 0;">
+                            <div class="info-card" style="margin-bottom: 0.5rem;">
+                                <h4>💵 مالي</h4>
+                                <p>رأس المال، التدفق النقدي</p>
+                            </div>
+                            <div class="info-card" style="margin-bottom: 0.5rem;">
+                                <h4>🏢 مادي</h4>
+                                <p>مكاتب، مصانع، معدات</p>
+                            </div>
+                            <div class="info-card" style="margin-bottom: 0.5rem;">
+                                <h4>🧠 فكري</h4>
+                                <p>براءات اختراع، حقوق نشر، أسرار تجارية</p>
+                            </div>
+                            <div class="info-card" style="margin-bottom: 0.5rem;">
+                                <h4>👥 بشري</h4>
+                                <p>مواهب، خبراء، فريق مؤسس</p>
+                            </div>
+                            <div class="info-card" style="margin-bottom: 0.5rem;">
+                                <h4>🌐 جغرافي</h4>
+                                <p>مواقع استراتيجية، وصول لأسواق</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <h4><span style="font-size: 1.2rem;">💸</span> 9. هيكل التكلفة (Cost Structure)</h4>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-body">
+                    <div class="accordion-content">
+                        <p><strong>⚡ القاعدة الذهبية:</strong> "احصل على تقدير تقريبي للتكلفة مبكراً"</p>
+                        <p style="margin-top: 0.5rem;">إذا كان السعر الذي سيدفعه العميل = 10$ وتكلفة الإنتاج = 20$ ← <span class="danger">لا يوجد عمل!</span></p>
+                        <p style="margin-top: 0.5rem;"><strong>🔌 تشبيه ذكي:</strong> "الكهربائي يأتي أولاً وأخيراً في موقع البناء" ← افهم تكاليفك مبكراً، ثم حسّنها لاحقاً</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Balance concept -->
+            <div class="quote-block" style="margin-top: 3rem;">
+                🧭 <strong>النجاح = عندما يتطابق الوعد (الجانب الأيمن) مع القدرة على التنفيذ (الجانب الأيسر)!</strong>
+            </div>
+        </div>
+    </section>
+
+    <!-- Summary Section -->
+    <section class="section" id="summary">
+        <div class="container">
+            <div class="section-header">
+                <h2>📋 ملخص شامل للوحدة الأولى</h2>
+                <p>نظرة شاملة على كل ما تعلمناه في هذه الوحدة</p>
+            </div>
+
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>الدرس</th>
+                        <th>الفكرة المركزية</th>
+                        <th>السؤال المحوري</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>🎯 المقدمة</strong></td>
+                        <td>الابتكار = فكرة + فريق + تكيف</td>
+                        <td>هل فريقك قادر على التعبير عن إمكانات الابتكار؟</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🎯 فرص الريادة</strong></td>
+                        <td>الفرصة = جديد + قيمة + تنفيذ</td>
+                        <td>هل ترى ما لا يراه الآخرون؟</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🔍 جدوى الابتكار</strong></td>
+                        <td>12 عامل فحص قبل الإطلاق</td>
+                        <td>هل فكرتك قابلة للنجاح في السوق؟</td>
+                    </tr>
+                    <tr>
+                        <td><strong>⚙️ استراتيجية الابتكار</strong></td>
+                        <td>دفع تقني أم جذب سوقي؟</td>
+                        <td>من يقود ابتكارك: التكنولوجيا أم العميل؟</td>
+                    </tr>
+                    <tr>
+                        <td><strong>💡 ملاءمة المنتج-السوق</strong></td>
+                        <td>العميل أولاً، المنتج ثانياً</td>
+                        <td>هل عملائي "يجب" أن يكون لديهم حلي؟</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🏗️ تطوير نموذج العمل</strong></td>
+                        <td>فرضيات ← اختبار ← تكرار</td>
+                        <td>ما أبسط فرضية يمكنني اختبارها اليوم؟</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🧩 لوحة نموذج العمل</strong></td>
+                        <td>9 مربعات: الوعد + التنفيذ</td>
+                        <td>هل فهمت عميلي وقيمتي + قدرتي على التنفيذ؟</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- CTA -->
+            <div class="cta-box">
+                <h3>🎁 مهمتك العملية للأسبوع القادم</h3>
+                <p>حوّل "تخمين" واحد على الأقل إلى "حقيقة" مُختبرة!</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; position: relative;">
+                    <div style="background: rgba(255,255,255,0.2); padding: 1rem 1.5rem; border-radius: 12px;">
+                        ✅ املأ لوحة نموذج عمل أولية لفكرتك
+                    </div>
+                    <div style="background: rgba(255,255,255,0.2); padding: 1rem 1.5rem; border-radius: 12px;">
+                        ✅ ركّز على شرائح العملاء + عرض القيمة
+                    </div>
+                    <div style="background: rgba(255,255,255,0.2); padding: 1rem 1.5rem; border-radius: 12px;">
+                        ✅ اكتب 3 فرضيات رئيسية يمكنك اختبارها
+                    </div>
+                    <div style="background: rgba(255,255,255,0.2); padding: 1rem 1.5rem; border-radius: 12px;">
+                        ✅ تحدث مع 5 عملاء محتملين
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-brand">🚀 ريادة الأعمال: من الفكرة إلى السوق</div>
+        <p>تم إعداد هذا المحتوى التعليمي لمساعدتك في رحلة تعلمك</p>
+        <p style="margin-top: 0.5rem;">💡 تذكير: لوحة نموذج العمل وثيقة حية - ستستمر في التغيير والتحسن!</p>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()">↑</button>
+
+    <script>
+        // Progress Bar
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / docHeight) * 100;
+            document.getElementById('progressBar').style.width = scrollPercent + '%';
+
+            // Navbar
+            document.getElementById('navbar').classList.toggle('scrolled', scrollTop > 50);
+
+            // Back to Top
+            document.getElementById('backToTop').classList.toggle('visible', scrollTop > 500);
+        });
+
+        // Mobile Navigation
+        function toggleNav() {
+            document.getElementById('navLinks').classList.toggle('open');
+        }
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    document.getElementById('navLinks').classList.remove('open');
+                }
+            });
+        });
+
+        // Scroll to Top
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Tab Switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Accordion
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            const isOpen = item.classList.contains('open');
+            
+            // Close all
+            document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('open'));
+            
+            if (!isOpen) {
+                item.classList.add('open');
+            }
+        }
+
+        // Canvas Cell Highlight
+        function highlightCell(cell) {
+            document.querySelectorAll('.canvas-cell').forEach(c => c.classList.remove('active'));
+            cell.classList.add('active');
+        }
+
+        // Active Nav Link
+        const sections = document.querySelectorAll('section[id]');
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 200;
+                if (scrollY >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // GSAP Animations
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Animate sections on scroll
+        gsap.utils.toArray('.lesson-card, .task-card, .factor-item, .sign-card, .strategy-card, .timeline-item, .ip-card, .canvas-cell').forEach(el => {
+            gsap.from(el, {
+                scrollTrigger: {
+                    trigger: el,
+                    start: 'top 85%',
+                    toggleActions: 'play none none none'
+                },
+                y: 40,
+                opacity: 0,
+                duration: 0.8,
+                ease: 'power3.out'
+            });
+        });
+
+        // Particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 6 + 's';
+            particle.style.animationDuration = (4 + Math.random() * 4) + 's';
+            particlesContainer.appendChild(particle);
+        }
+    </script>
+</body>
+</html>
+

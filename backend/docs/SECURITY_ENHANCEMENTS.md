@@ -2,7 +2,7 @@
 
 ## نظرة عامة
 
-يوفر نظام التحسينات الأمنية حماية شاملة لتطبيق زيتونة POS من خلال تنفيذ أفضل الممارسات الأمنية في جميع المستويات.
+يوفر نظام التحسينات الأمنية حماية شاملة لتطبيق الزيتون سوفت POS من خلال تنفيذ أفضل الممارسات الأمنية في جميع المستويات.
 
 ## الميزات الأمنية
 
@@ -65,7 +65,7 @@ RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX=100
 
 # CORS
-CORS_ORIGIN=http://localhost:3000,http://localhost:3001,https://app.zaytuna-pos.com
+CORS_ORIGIN=http://localhost:3000,http://localhost:3001,https://app.zaytunsoft-pos.com
 
 # HTTPS
 HTTPS_ENFORCE=false

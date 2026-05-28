@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Zaytuna SaaS",
+    "name": "Zaytun Soft SaaS",
     "description": "Comprehensive Business Management System",
     "loading": "Loading...",
     "error": "An error occurred",
@@ -63,7 +63,7 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "welcome": "Welcome to Zaytuna SaaS Control Panel",
+    "welcome": "Welcome to Zaytun Soft SaaS Control Panel",
     "description": "This is the main page of the business management system",
     "error": "Error loading data",
     "noData": "No data available",

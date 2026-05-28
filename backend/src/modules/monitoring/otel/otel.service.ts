@@ -43,9 +43,9 @@ export class OtelService implements OnModuleInit, OnModuleDestroy {
       // TODO: Uncomment when OpenTelemetry packages are installed
       /*
       const resource = new Resource({
-        [SemanticResourceAttributes.SERVICE_NAME]: 'zaytuna-backend',
+        [SemanticResourceAttributes.SERVICE_NAME]: 'zaytun-soft-backend',
         [SemanticResourceAttributes.SERVICE_VERSION]: '1.0.0',
-        [SemanticResourceAttributes.SERVICE_NAMESPACE]: 'zaytuna',
+        [SemanticResourceAttributes.SERVICE_NAMESPACE]: 'zaytun-soft',
       });
 
       const traceExporter = new ConsoleSpanExporter();
@@ -168,7 +168,7 @@ export class OtelService implements OnModuleInit, OnModuleDestroy {
    * إنشاء span مخصص
    */
   createSpan(name: string, attributes?: Record<string, any>) {
-    const tracer = this.createTracer('zaytuna-monitoring');
+    const tracer = this.createTracer('zaytun-soft-monitoring');
     return tracer.startSpan(name, {
       attributes,
     });
@@ -182,7 +182,7 @@ export class OtelService implements OnModuleInit, OnModuleDestroy {
     fn: (span: any) => Promise<T>,
     attributes?: Record<string, any>,
   ): Promise<T> {
-    const tracer = this.createTracer('zaytuna-monitoring');
+    const tracer = this.createTracer('zaytun-soft-monitoring');
     return tracer.startActiveSpan(name, async (span) => {
       if (attributes) {
         Object.entries(attributes).forEach(([key, value]) => {
@@ -209,7 +209,7 @@ export class OtelService implements OnModuleInit, OnModuleDestroy {
    */
   getOtelInfo() {
     return {
-      serviceName: 'zaytuna-backend',
+      serviceName: 'zaytun-soft-backend',
       serviceVersion: '1.0.0',
       sdk: this.sdk ? 'initialized' : 'not_initialized',
       instrumentations: ['http', 'express', 'prisma'],

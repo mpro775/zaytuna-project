@@ -1,7 +1,7 @@
 {
   "hero": {
     "title": "Your Complete Store Management System in One Place",
-    "subtitle": "Zaytuna - The Integrated Solution for Managing Your Business Easily and Efficiently",
+    "subtitle": "Zaytun Soft - The Integrated Solution for Managing Your Business Easily and Efficiently",
     "description": "A comprehensive point-of-sale system that supports inventory management, sales, purchases, and accounting. Works offline with automatic synchronization.",
     "cta": {
       "startFree": "Start Free",
@@ -51,7 +51,7 @@
     }
   },
   "benefits": {
-    "title": "Why Choose Zaytuna?",
+    "title": "Why Choose Zaytun Soft?",
     "subtitle": "Real benefits for your business",
     "time": {
       "title": "Save Time & Effort",
@@ -105,10 +105,10 @@
   },
   "testimonials": {
     "title": "What Our Customers Say",
-    "subtitle": "Thousands of stores trust Zaytuna"
+    "subtitle": "Thousands of stores trust Zaytun Soft"
   },
   "demo": {
-    "title": "See Zaytuna in Action",
+    "title": "See Zaytun Soft in Action",
     "subtitle": "Learn how the system works",
     "watchVideo": "Watch Video",
     "requestDemo": "Request Demo"
@@ -118,7 +118,7 @@
     "subtitle": "Answers to the most common questions",
     "q1": {
       "question": "Can I use the system without internet?",
-      "answer": "Yes, Zaytuna works fully offline with automatic synchronization when connected to the internet."
+      "answer": "Yes, Zaytun Soft works fully offline with automatic synchronization when connected to the internet."
     },
     "q2": {
       "question": "How many branches can I manage?",
@@ -126,7 +126,7 @@
     },
     "q3": {
       "question": "Do I need training to use the system?",
-      "answer": "No, Zaytuna's interface is intuitive and easy to use. We also provide full technical support to help you."
+      "answer": "No, Zaytun Soft's interface is intuitive and easy to use. We also provide full technical support to help you."
     },
     "q4": {
       "question": "What payment methods are available?",
@@ -143,11 +143,11 @@
   },
   "cta": {
     "title": "Ready to Get Started?",
-    "subtitle": "Join thousands of stores that trust Zaytuna",
+    "subtitle": "Join thousands of stores that trust Zaytun Soft",
     "button": "Create Free Account"
   },
   "header": {
-    "logo": "Zaytuna",
+    "logo": "Zaytun Soft",
     "nav": {
       "features": "Features",
       "pricing": "Pricing",
@@ -199,7 +199,7 @@
       "linkedin": "LinkedIn",
       "instagram": "Instagram"
     },
-    "copyright": "All rights reserved © 2024 Zaytuna SaaS"
+    "copyright": "All rights reserved © 2024 Zaytun Soft SaaS"
   }
 }
 

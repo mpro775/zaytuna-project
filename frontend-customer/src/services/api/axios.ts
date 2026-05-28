@@ -142,7 +142,7 @@ api.interceptors.response.use(
           return api(originalRequest);
         } catch (refreshError) {
           clearSession();
-          window.dispatchEvent(new Event('zaytuna:session-expired'));
+          window.dispatchEvent(new Event('zaytun-soft:session-expired'));
           if (window.location.pathname !== '/login') {
             window.location.assign('/login');
           }
@@ -151,7 +151,7 @@ api.interceptors.response.use(
       }
 
       clearSession();
-      window.dispatchEvent(new Event('zaytuna:session-expired'));
+      window.dispatchEvent(new Event('zaytun-soft:session-expired'));
       if (window.location.pathname !== '/login') {
         window.location.assign('/login');
       }

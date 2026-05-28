@@ -1,4 +1,4 @@
-# دليل نشر تطبيق زيتون على دومين
+# دليل نشر تطبيق الزيتون سوفت على دومين
 
 ## نظرة عامة
 
@@ -14,7 +14,7 @@
 
 | المتغير | الوصف | مثال (Mock) | مثال (Production) |
 |---------|-------|-------------|-------------------|
-| `VITE_API_BASE_URL` | عنوان API الباك إند | غير مستخدم | `https://api.zaytuna.com/api/v1` |
+| `VITE_API_BASE_URL` | عنوان API الباك إند | غير مستخدم | `https://api.zaytunsoft.com/api/v1` |
 | `VITE_USE_MOCK_DATA` | تفعيل البيانات الوهمية | `true` | `false` |
 | `VITE_API_TIMEOUT` | مهلة الطلبات (ms) | `10000` | `10000` |
 | `VITE_APP_ENV` | بيئة التطبيق | `staging` | `production` |
@@ -42,12 +42,12 @@ VITE_APP_ENV=production
 
 ### Base Path (إذا كان التطبيق في مجلد فرعي)
 
-إذا كان الرابط مثل `https://your-domain.com/zaytuna/`:
+إذا كان الرابط مثل `https://your-domain.com/zaytun-soft/`:
 
 ```ts
 // vite.config.ts
 export default defineConfig({
-  base: '/zaytuna/',
+  base: '/zaytun-soft/',
   // ...
 });
 ```
@@ -199,8 +199,8 @@ npm run build
 docker build \
   --build-arg VITE_USE_MOCK_DATA=true \
   --build-arg VITE_API_BASE_URL=https://your-domain.com/api/v1 \
-  -t zaytuna-frontend .
-docker run -p 80:80 zaytuna-frontend
+  -t zaytun-soft-frontend .
+docker run -p 80:80 zaytun-soft-frontend
 ```
 
 ---

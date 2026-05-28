@@ -1,6 +1,6 @@
-# Zaytuna SaaS Project
+# Zaytun Soft SaaS Project
 
-نظام إدارة الأعمال الشامل - زيتونة SaaS
+نظام إدارة الأعمال الشامل - الزيتون سوفت SaaS
 
 ## نظرة عامة
 
@@ -9,7 +9,7 @@
 ## الهيكل العام
 
 ```
-zaytuna-project/
+zaytun-soft-project/
 ├── backend/           # الخادم الخلفي (NestJS)
 ├── frontend-customer/ # واجهة العملاء (React + TypeScript)
 ├── docs/             # التوثيق
@@ -45,7 +45,7 @@ zaytuna-project/
 ### 1. استنساخ المشروع
 ```bash
 git clone <repository-url>
-cd zaytuna-project
+cd zaytun-soft-project
 ```
 
 ### 2. إعداد الخلفية

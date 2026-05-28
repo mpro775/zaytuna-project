@@ -481,7 +481,7 @@ export class NotificationTemplateService {
       app_name: {
         type: 'string',
         description: 'اسم التطبيق',
-        example: 'نظام زيتونة',
+        example: 'نظام الزيتون سوفت',
       },
       current_date: {
         type: 'date',

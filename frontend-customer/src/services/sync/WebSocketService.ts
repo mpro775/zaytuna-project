@@ -51,7 +51,7 @@ export class WebSocketService {
   constructor(config: WebSocketConfig = {}) {
     this.config = {
       url: config.url || (import.meta.env.NODE_ENV === 'production'
-        ? 'wss://api.zaytuna.com'
+        ? 'wss://api.zaytunsoft.com'
         : 'ws://localhost:3000'),
       autoConnect: config.autoConnect !== false,
       reconnection: config.reconnection !== false,

@@ -1,8 +1,8 @@
-# هيكل الباك إند - نظام نقاط بيع زيتونة
+# هيكل الباك إند - نظام نقاط بيع الزيتون سوفت
 
 ## نظرة عامة على الباك إند
 
-يُبنى باك إند نظام زيتونة باستخدام **NestJS** (إطار عمل Node.js) مع **TypeScript**، ويتبع بنية معيارية واضحة مع فصل المسؤوليات. يتكون النظام من عدة طبقات ووحدات أساسية مصممة لدعم العمليات التجارية الشاملة.
+يُبنى باك إند نظام الزيتون سوفت باستخدام **NestJS** (إطار عمل Node.js) مع **TypeScript**، ويتبع بنية معيارية واضحة مع فصل المسؤوليات. يتكون النظام من عدة طبقات ووحدات أساسية مصممة لدعم العمليات التجارية الشاملة.
 
 ### التقنيات الأساسية المستخدمة
 - **إطار العمل**: NestJS مع TypeScript
@@ -546,12 +546,12 @@ redis-cli --version  # يجب أن يكون 7.0 أو أحدث
 ### 8.2 إعداد قاعدة البيانات (Database Setup)
 ```sql
 -- إنشاء قاعدة البيانات
-CREATE DATABASE zaytuna_pos;
-GRANT ALL PRIVILEGES ON DATABASE zaytuna_pos TO zaytuna_user;
+CREATE DATABASE zaytun_soft_pos;
+GRANT ALL PRIVILEGES ON DATABASE zaytun_soft_pos TO zaytun_soft_user;
 
 -- إنشاء المستخدم
-CREATE USER zaytuna_user WITH ENCRYPTED PASSWORD 'your_password';
-GRANT ALL PRIVILEGES ON DATABASE zaytuna_pos TO zaytuna_user;
+CREATE USER zaytun_soft_user WITH ENCRYPTED PASSWORD 'your_password';
+GRANT ALL PRIVILEGES ON DATABASE zaytun_soft_pos TO zaytun_soft_user;
 ```
 
 ### 8.3 إعداد متغيرات البيئة (.env)
@@ -568,11 +568,11 @@ nano .env
 # تطبيق
 NODE_ENV=development
 PORT=3000
-APP_NAME=Zaytuna POS
+APP_NAME=Zaytun Soft POS
 API_PREFIX=api/v1
 
 # قاعدة البيانات
-DATABASE_URL=postgresql://zaytuna_user:password@localhost:5432/zaytuna_pos
+DATABASE_URL=postgresql://zaytun_soft_user:password@localhost:5432/zaytun_soft_pos
 
 # Redis
 REDIS_URL=redis://localhost:6379
@@ -1180,7 +1180,7 @@ npm run migration:run
 npm run db:reset
 
 # فحص حالة الاتصال
-psql -h localhost -U zaytuna_user -d zaytuna_pos -c "SELECT version();"
+psql -h localhost -U zaytun_soft_user -d zaytun_soft_pos -c "SELECT version();"
 ```
 
 ### 13.2 مشاكل في Redis/Cache

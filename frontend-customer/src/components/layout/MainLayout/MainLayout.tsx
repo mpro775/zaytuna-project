@@ -195,7 +195,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 lineHeight: 1.2
               }}
             >
-              زيتون
+              الزيتون سوفت
             </Typography>
             <Typography
               variant="body2"

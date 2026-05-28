@@ -18,7 +18,7 @@ export interface LocalEntity {
   version: number;
 }
 
-interface ZaytunaDB extends DBSchema {
+interface ZaytunSoftDB extends DBSchema {
   syncOperations: {
     key: string;
     value: SyncOperation;
@@ -51,13 +51,13 @@ interface ZaytunaDB extends DBSchema {
 }
 
 export class IndexedDBService {
-  private db: IDBPDatabase<ZaytunaDB> | null = null;
-  private readonly dbName = 'ZaytunaSyncDB';
+  private db: IDBPDatabase<ZaytunSoftDB> | null = null;
+  private readonly dbName = 'ZaytunSoftSyncDB';
   private readonly version = 1;
 
   async initialize(): Promise<void> {
     try {
-      this.db = await openDB<ZaytunaDB>(this.dbName, this.version, {
+      this.db = await openDB<ZaytunSoftDB>(this.dbName, this.version, {
         upgrade(db) {
           // إنشاء stores للعمليات المزامنة
           if (!db.objectStoreNames.contains('syncOperations')) {
@@ -67,7 +67,7 @@ export class IndexedDBService {
           }
 
           // إنشاء stores للبيانات المحلية
-          const entities: Array<keyof Pick<ZaytunaDB, 'sales' | 'inventory' | 'customers' | 'products'>> = ['sales', 'inventory', 'customers', 'products'];
+          const entities: Array<keyof Pick<ZaytunSoftDB, 'sales' | 'inventory' | 'customers' | 'products'>> = ['sales', 'inventory', 'customers', 'products'];
           entities.forEach(entity => {
             if (!db.objectStoreNames.contains(entity)) {
               const store = db.createObjectStore(entity, { keyPath: 'id' });
@@ -164,7 +164,7 @@ export class IndexedDBService {
   }
 
   // إدارة البيانات المحلية
-  async saveEntity(entityName: keyof Pick<ZaytunaDB, 'sales' | 'inventory' | 'customers' | 'products'>, entity: LocalEntity): Promise<void> {
+  async saveEntity(entityName: keyof Pick<ZaytunSoftDB, 'sales' | 'inventory' | 'customers' | 'products'>, entity: LocalEntity): Promise<void> {
     if (!this.db) throw new Error('Database not initialized');
 
     try {
@@ -175,7 +175,7 @@ export class IndexedDBService {
     }
   }
 
-  async getEntity(entityName: keyof Pick<ZaytunaDB, 'sales' | 'inventory' | 'customers' | 'products'>, id: string): Promise<LocalEntity | undefined> {
+  async getEntity(entityName: keyof Pick<ZaytunSoftDB, 'sales' | 'inventory' | 'customers' | 'products'>, id: string): Promise<LocalEntity | undefined> {
     if (!this.db) throw new Error('Database not initialized');
 
     try {
@@ -186,7 +186,7 @@ export class IndexedDBService {
     }
   }
 
-  async getAllEntities(entityName: keyof Pick<ZaytunaDB, 'sales' | 'inventory' | 'customers' | 'products'>): Promise<LocalEntity[]> {
+  async getAllEntities(entityName: keyof Pick<ZaytunSoftDB, 'sales' | 'inventory' | 'customers' | 'products'>): Promise<LocalEntity[]> {
     if (!this.db) throw new Error('Database not initialized');
 
     try {
@@ -198,7 +198,7 @@ export class IndexedDBService {
     }
   }
 
-  async deleteEntity(entityName: keyof Pick<ZaytunaDB, 'sales' | 'inventory' | 'customers' | 'products'>, id: string): Promise<void> {
+  async deleteEntity(entityName: keyof Pick<ZaytunSoftDB, 'sales' | 'inventory' | 'customers' | 'products'>, id: string): Promise<void> {
     if (!this.db) throw new Error('Database not initialized');
 
     try {
@@ -213,11 +213,11 @@ export class IndexedDBService {
     if (!this.db) throw new Error('Database not initialized');
 
     try {
-      const entityNames = Object.keys(data) as Array<keyof Pick<ZaytunaDB, 'sales' | 'inventory' | 'customers' | 'products'>>;
+      const entityNames = Object.keys(data) as Array<keyof Pick<ZaytunSoftDB, 'sales' | 'inventory' | 'customers' | 'products'>>;
       const transaction = this.db.transaction(entityNames, 'readwrite');
 
       Object.entries(data).forEach(([entityName, entities]) => {
-        const store = transaction.objectStore(entityName as keyof Pick<ZaytunaDB, 'sales' | 'inventory' | 'customers' | 'products'>);
+        const store = transaction.objectStore(entityName as keyof Pick<ZaytunSoftDB, 'sales' | 'inventory' | 'customers' | 'products'>);
         entities.forEach(entity => {
           store.put(entity);
         });
@@ -258,7 +258,7 @@ export class IndexedDBService {
 
     try {
       const cutoffTime = Date.now() - maxAge;
-      const entities: (keyof Pick<ZaytunaDB, 'sales' | 'inventory' | 'customers' | 'products'>)[] = ['sales', 'inventory', 'customers', 'products'];
+      const entities: (keyof Pick<ZaytunSoftDB, 'sales' | 'inventory' | 'customers' | 'products'>)[] = ['sales', 'inventory', 'customers', 'products'];
 
       for (const entityName of entities) {
         const oldEntities = await this.db.getAllFromIndex(entityName, 'by-modified', IDBKeyRange.upperBound(cutoffTime));
@@ -285,7 +285,7 @@ export class IndexedDBService {
 
       const entityCounts: Record<string, number> = {};
       for (const entity of entities) {
-        const count = await this.db.count(entity as keyof Pick<ZaytunaDB, 'sales' | 'inventory' | 'customers' | 'products'>);
+        const count = await this.db.count(entity as keyof Pick<ZaytunSoftDB, 'sales' | 'inventory' | 'customers' | 'products'>);
         entityCounts[entity] = count;
       }
 

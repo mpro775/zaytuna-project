@@ -1,4 +1,4 @@
-// Service Worker لتطبيق زيتون SaaS PWA
+// Service Worker لتطبيق الزيتون سوفت SaaS PWA
 // يدير التخزين المؤقت و background sync
 
 let workbox;

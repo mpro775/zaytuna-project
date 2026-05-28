@@ -23,8 +23,8 @@ export default registerAs('security', () => ({
       : [
           'http://localhost:3000',
           'http://localhost:3001',
-          'https://zaytuna-pos.com',
-          /\.zaytuna-pos\.com$/,
+          'https://zaytunsoft-pos.com',
+          /\.zaytunsoft-pos\.com$/,
         ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: [
@@ -62,7 +62,7 @@ export default registerAs('security', () => ({
         fontSrc: ["'self'", 'https://fonts.gstatic.com'],
         scriptSrc: ["'self'"],
         imgSrc: ["'self'", 'data:', 'https:'],
-        connectSrc: ["'self'", 'https://api.zaytuna-pos.com'],
+        connectSrc: ["'self'", 'https://api.zaytunsoft-pos.com'],
         frameSrc: ["'none'"],
         objectSrc: ["'none'"],
         upgradeInsecureRequests:

@@ -140,4 +140,4 @@
 **📅 تاريخ آخر تحديث**: ديسمبر 2025
 **📊 حالة النظام**: 🟢 مستقر (99.8% uptime)
 **👥 عدد المستخدمين النشطين**: 150+
-**🔗 رابط المراقبة**: [Grafana Dashboard](https://monitoring.zaytuna.com)
+**🔗 رابط المراقبة**: [Grafana Dashboard](https://monitoring.zaytunsoft.com)

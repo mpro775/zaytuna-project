@@ -396,11 +396,11 @@ export class NotificationService {
   }
 
   private getDeviceId(): string {
-    const stored = localStorage.getItem('zaytuna_device_id');
+    const stored = localStorage.getItem('zaytun_soft_device_id');
     if (stored) return stored;
 
     const newId = crypto.randomUUID();
-    localStorage.setItem('zaytuna_device_id', newId);
+    localStorage.setItem('zaytun_soft_device_id', newId);
     return newId;
   }
 

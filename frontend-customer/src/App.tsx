@@ -99,7 +99,7 @@ const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#2e7d32', // Green color for Zaytuna
+      main: '#2e7d32', // Green color for Zaytun Soft
       light: '#60ad5e',
       dark: '#005005',
       contrastText: '#ffffff',
@@ -249,11 +249,11 @@ const SyncProviderWrapper: React.FC<{ children: React.ReactNode }> = ({ children
 
   // إنشاء معرف جهاز فريد
   const deviceId = React.useMemo(() => {
-    const stored = localStorage.getItem('zaytuna_device_id');
+    const stored = localStorage.getItem('zaytun_soft_device_id');
     if (stored) return stored;
 
     const newId = crypto.randomUUID();
-    localStorage.setItem('zaytuna_device_id', newId);
+    localStorage.setItem('zaytun_soft_device_id', newId);
     return newId;
   }, []);
 

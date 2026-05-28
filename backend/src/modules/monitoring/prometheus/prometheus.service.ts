@@ -86,7 +86,7 @@ export class PrometheusService implements OnModuleInit {
       /*
       // جمع المقاييس الافتراضية
       collectDefaultMetrics({
-        prefix: 'zaytuna_backend_',
+        prefix: 'zaytun_soft_backend_',
         gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5],
       });
 
@@ -280,15 +280,15 @@ export class PrometheusService implements OnModuleInit {
 
       // Mock metrics for development
       return `# Mock Prometheus Metrics
-# HELP zaytuna_backend_http_requests_total Total number of HTTP requests
-# TYPE zaytuna_backend_http_requests_total counter
-zaytuna_backend_http_requests_total{method="GET",route="/api/health",status_code="200"} 150
-zaytuna_backend_http_requests_total{method="POST",route="/api/auth/login",status_code="200"} 45
+# HELP zaytun_soft_backend_http_requests_total Total number of HTTP requests
+# TYPE zaytun_soft_backend_http_requests_total counter
+zaytun_soft_backend_http_requests_total{method="GET",route="/api/health",status_code="200"} 150
+zaytun_soft_backend_http_requests_total{method="POST",route="/api/auth/login",status_code="200"} 45
 
-# HELP zaytuna_backend_active_connections Number of active connections
-# TYPE zaytuna_backend_active_connections gauge
-zaytuna_backend_active_connections{type="http"} 12
-zaytuna_backend_active_connections{type="websocket"} 3
+# HELP zaytun_soft_backend_active_connections Number of active connections
+# TYPE zaytun_soft_backend_active_connections gauge
+zaytun_soft_backend_active_connections{type="http"} 12
+zaytun_soft_backend_active_connections{type="websocket"} 3
 
 # HELP business_sales_total Total sales amount
 # TYPE business_sales_total counter

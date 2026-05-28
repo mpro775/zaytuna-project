@@ -1,4 +1,4 @@
-# Zaytuna MVP Phase 1 Completion Report
+# Zaytun Soft MVP Phase 1 Completion Report
 
 Date: 2026-05-26
 
@@ -66,7 +66,7 @@ npx prisma migrate reset
 - Roles: `role_admin`, `role_manager`, `role_cashier`
 - Admin user:
   - username: `admin`
-  - email: `admin@zaytuna.local`
+  - email: `admin@zaytunsoft.local`
   - password: `Admin@123456`
 - Currencies: `currency_yer`, `currency_usd`, `currency_sar`
 - Sample exchange rates are manual seed samples, not live market rates.

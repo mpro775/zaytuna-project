@@ -154,4 +154,4 @@
 **📅 تاريخ آخر تحديث**: ديسمبر 2025
 **📊 إجمالي طلبات الدعم**: 2,450+ (هذا العام)
 **⭐ متوسط رضا العملاء**: 4.7/5
-**🔗 بوابة الدعم**: [Support Portal](https://support.zaytuna.com)
+**🔗 بوابة الدعم**: [Support Portal](https://support.zaytunsoft.com)

@@ -1,14 +1,14 @@
 {
   "company": {
-    "name": "شركة زيتون للتجارة",
-    "nameEn": "Zaytuna Trading Company",
+    "name": "شركة الزيتون سوفت للتجارة",
+    "nameEn": "Zaytun Soft Trading Company",
     "taxNumber": "TAX123456789",
     "registrationNumber": "REG987654321",
     "address": "شارع الزبيري، صنعاء، اليمن",
     "addressEn": "Al-Zubairi Street, Sana'a, Yemen",
     "phone": "+967 1 234 5678",
-    "email": "info@zaytuna.com",
-    "website": "www.zaytuna.com"
+    "email": "info@zaytunsoft.com",
+    "website": "www.zaytunsoft.com"
   },
   "currency": {
     "default": "YER",

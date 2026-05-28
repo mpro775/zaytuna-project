@@ -1,7 +1,7 @@
-# دليل تنفيذ PWA مع المزامنة - مشروع زيتونة
+# دليل تنفيذ PWA مع المزامنة - مشروع الزيتون سوفت
 
 ## نظرة عامة
-هذا الدليل يوضح كيفية تنفيذ Progressive Web App متقدم مع نظام مزامنة كامل مع الباك إند لمشروع لوحة تحكم زيتونة SaaS.
+هذا الدليل يوضح كيفية تنفيذ Progressive Web App متقدم مع نظام مزامنة كامل مع الباك إند لمشروع لوحة تحكم الزيتون سوفت SaaS.
 
 ## البنية المقترحة للفرونت إند
 
@@ -234,7 +234,7 @@ export class OfflineQueue {
 // src/services/sync/IndexedDBService.ts
 export class IndexedDBService {
   private db: IDBDatabase | null = null;
-  private readonly dbName = 'ZaytunaSyncDB';
+  private readonly dbName = 'ZaytunSoftSyncDB';
   private readonly version = 1;
 
   async initialize(): Promise<void> {

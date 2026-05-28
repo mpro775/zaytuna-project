@@ -70,7 +70,7 @@ export class SentryService implements OnModuleInit, OnModuleDestroy {
         // Custom tags
         initialScope: {
           tags: {
-            service: 'zaytuna-backend',
+            service: 'zaytun-soft-backend',
             version: process.env.npm_package_version || '1.0.0',
           },
         },
@@ -212,7 +212,7 @@ export class SentryService implements OnModuleInit, OnModuleDestroy {
         }
 
         // إضافة tags افتراضية
-        scope.setTag('service', 'zaytuna-backend');
+        scope.setTag('service', 'zaytun-soft-backend');
         scope.setTag('component', 'error-handler');
 
         Sentry.captureException(error);

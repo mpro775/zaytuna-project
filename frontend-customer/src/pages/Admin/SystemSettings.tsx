@@ -29,7 +29,7 @@ const SystemSettings: React.FC = () => {
 
   // General Settings
   const [generalSettings, setGeneralSettings] = useState({
-    systemName: 'زيتون',
+    systemName: 'الزيتون سوفت',
     defaultLanguage: 'ar',
     defaultCurrency: 'YER',
     timezone: 'Asia/Aden',

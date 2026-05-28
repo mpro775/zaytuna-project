@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 export class AppService {
   getHello(): { message: string } {
     return {
-      message: 'مرحباً بك في نظام زيتونة POS API! 🚀',
+      message: 'مرحباً بك في نظام الزيتون سوفت API! 🚀',
     };
   }
 }

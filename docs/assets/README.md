@@ -156,4 +156,4 @@ assets/
 **📅 تاريخ آخر تحديث**: ديسمبر 2025
 **📊 إجمالي الملفات**: 150+ ملف
 **💾 حجم التخزين**: ~500MB
-**🔗 مستودع Git LFS**: [GitHub Assets](https://github.com/zaytuna/assets)
+**🔗 مستودع Git LFS**: [GitHub Assets](https://github.com/zaytunsoft/assets)

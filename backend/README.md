@@ -1,4 +1,4 @@
-# نظام زيتونة - الباك إند (Zaytuna POS Backend)
+# نظام الزيتون سوفت - الباك إند (Zaytun Soft POS Backend)
 
 <p align="center">
   <img src="https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" alt="NestJS" />
@@ -65,13 +65,13 @@ choco install postgresql
 sudo -u postgres psql
 
 -- إنشاء قاعدة البيانات
-CREATE DATABASE zaytuna_pos;
+CREATE DATABASE zaytun_soft_pos;
 
 -- إنشاء المستخدم
-CREATE USER zaytuna_user WITH ENCRYPTED PASSWORD 'password';
+CREATE USER zaytun_soft_user WITH ENCRYPTED PASSWORD 'password';
 
 -- منح الصلاحيات
-GRANT ALL PRIVILEGES ON DATABASE zaytuna_pos TO zaytuna_user;
+GRANT ALL PRIVILEGES ON DATABASE zaytun_soft_pos TO zaytun_soft_user;
 
 -- الخروج
 \q
@@ -4925,8 +4925,8 @@ GET /notifications/events
 # Email Configuration
 EMAIL_PROVIDER=sendgrid
 SENDGRID_API_KEY=SG.YourApiKeyHere
-EMAIL_FROM_EMAIL=noreply@zaytuna.com
-EMAIL_FROM_NAME=نظام زيتونة
+EMAIL_FROM_EMAIL=noreply@zaytunsoft.com
+EMAIL_FROM_NAME=نظام الزيتون سوفت
 
 # SMS Configuration
 SMS_PROVIDER=twilio
@@ -5364,7 +5364,7 @@ STORAGE_PROVIDER=s3
 AWS_REGION=us-east-1
 AWS_ACCESS_KEY_ID=your_access_key
 AWS_SECRET_ACCESS_KEY=your_secret_key
-S3_BUCKET_NAME=zaytuna-storage
+S3_BUCKET_NAME=zaytun-soft-storage
 S3_BASE_PATH=uploads/
 
 # Local Storage (افتراضي)
@@ -5598,15 +5598,15 @@ GET /monitoring/health/database
 ```typescript
 // مقاييس بتنسيق Prometheus
 GET /monitoring/metrics
-# HELP zaytuna_backend_http_requests_total Total number of HTTP requests
-# TYPE zaytuna_backend_http_requests_total counter
-zaytuna_backend_http_requests_total{method="GET",route="/api/health",status_code="200"} 150
-zaytuna_backend_http_requests_total{method="POST",route="/api/auth/login",status_code="200"} 45
+# HELP zaytun_soft_backend_http_requests_total Total number of HTTP requests
+# TYPE zaytun_soft_backend_http_requests_total counter
+zaytun_soft_backend_http_requests_total{method="GET",route="/api/health",status_code="200"} 150
+zaytun_soft_backend_http_requests_total{method="POST",route="/api/auth/login",status_code="200"} 45
 
-# HELP zaytuna_backend_active_connections Number of active connections
-# TYPE zaytuna_backend_active_connections gauge
-zaytuna_backend_active_connections{type="http"} 12
-zaytuna_backend_active_connections{type="websocket"} 3
+# HELP zaytun_soft_backend_active_connections Number of active connections
+# TYPE zaytun_soft_backend_active_connections gauge
+zaytun_soft_backend_active_connections{type="http"} 12
+zaytun_soft_backend_active_connections{type="websocket"} 3
 ```
 
 #### السجلات
@@ -5739,7 +5739,7 @@ POST /monitoring/dashboards
 ### متغيرات البيئة
 ```bash
 # OpenTelemetry
-OTEL_SERVICE_NAME=zaytuna-backend
+OTEL_SERVICE_NAME=zaytun-soft-backend
 OTEL_SERVICE_VERSION=1.0.0
 OTEL_TRACES_EXPORTER=console
 OTEL_METRICS_EXPORTER=console
@@ -5747,7 +5747,7 @@ OTEL_NODE_RESOURCE_DETECTORS=env,host,os
 
 # Prometheus
 PROMETHEUS_ENABLED=true
-PROMETHEUS_METRICS_PREFIX=zaytuna_backend_
+PROMETHEUS_METRICS_PREFIX=zaytun_soft_backend_
 PROMETHEUS_DEFAULT_METRICS=true
 PROMETHEUS_GC_METRICS=true
 
@@ -5891,7 +5891,7 @@ console.log(`تم العثور على ${errorLogs.total} خطأ في الدفع 
 # grafana/provisioning/datasources/prometheus.yml
 apiVersion: 1
 datasources:
-  - name: Zaytuna Prometheus
+  - name: Zaytun Soft Prometheus
     type: prometheus
     url: http://prometheus:9090
     access: proxy

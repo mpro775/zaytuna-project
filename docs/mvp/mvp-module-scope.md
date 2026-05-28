@@ -1,4 +1,4 @@
-# Zaytuna MVP Module Scope
+# Zaytun Soft MVP Module Scope
 
 ## Included In Phase 1
 

@@ -7,15 +7,15 @@ async function main() {
   const company = await prisma.company.upsert({
     where: { id: 'company_main' },
     update: {
-      name: 'Zaytuna Soft',
-      email: 'info@zaytuna.local',
+      name: 'Zaytun Soft',
+      email: 'info@zaytunsoft.local',
       phone: '+967000000000',
       address: 'Yemen',
     },
     create: {
       id: 'company_main',
-      name: 'Zaytuna Soft',
-      email: 'info@zaytuna.local',
+      name: 'Zaytun Soft',
+      email: 'info@zaytunsoft.local',
       phone: '+967000000000',
       address: 'Yemen',
       taxNumber: 'TAX-DEV',
@@ -110,12 +110,12 @@ async function main() {
 
   const passwordHash = await bcrypt.hash('Admin@123456', 12);
   await prisma.user.upsert({
-    where: { email: 'admin@zaytuna.local' },
+    where: { email: 'admin@zaytunsoft.local' },
     update: { passwordHash, roleId: roleAdmin.id, branchId: branch.id, isActive: true },
     create: {
       id: 'user_admin',
       username: 'admin',
-      email: 'admin@zaytuna.local',
+      email: 'admin@zaytunsoft.local',
       passwordHash,
       roleId: roleAdmin.id,
       branchId: branch.id,
@@ -254,7 +254,7 @@ async function main() {
     create: { scope: 'global', scopeId: '', key: 'company.defaultCurrencyId', value: yer.id },
   });
 
-  console.log('Seed completed. Admin: admin / admin@zaytuna.local / Admin@123456');
+  console.log('Seed completed. Admin: admin / admin@zaytunsoft.local / Admin@123456');
 }
 
 main()

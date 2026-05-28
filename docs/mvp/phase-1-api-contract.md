@@ -1,4 +1,4 @@
-# Zaytuna MVP Phase 1 API Contract
+# Zaytun Soft MVP Phase 1 API Contract
 
 ## Base
 

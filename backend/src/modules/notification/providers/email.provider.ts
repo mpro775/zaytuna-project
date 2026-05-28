@@ -341,11 +341,11 @@ export class EmailProvider {
       provider,
       fromEmail: this.configService.get<string>(
         'EMAIL_FROM_EMAIL',
-        'noreply@zaytuna.com',
+        'noreply@zaytunsoft.com',
       ),
       fromName: this.configService.get<string>(
         'EMAIL_FROM_NAME',
-        'نظام زيتونة',
+        'نظام الزيتون سوفت',
       ),
       replyTo: this.configService.get<string>('EMAIL_REPLY_TO'),
       timeout: 30000, // 30 ثانية

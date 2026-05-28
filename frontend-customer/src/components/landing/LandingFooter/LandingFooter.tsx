@@ -140,7 +140,7 @@ export const LandingFooter: React.FC = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Email sx={{ fontSize: 20 }} />
                 <Typography variant="body2" sx={{ color: 'grey.300' }}>
-                  support@zaytuna.com
+                  support@zaytunsoft.com
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

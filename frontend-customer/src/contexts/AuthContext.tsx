@@ -76,8 +76,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(null);
     };
 
-    window.addEventListener('zaytuna:session-expired', handleSessionExpired);
-    return () => window.removeEventListener('zaytuna:session-expired', handleSessionExpired);
+    window.addEventListener('zaytun-soft:session-expired', handleSessionExpired);
+    return () => window.removeEventListener('zaytun-soft:session-expired', handleSessionExpired);
   }, [setUser]);
 
   // Login function - delegates to store

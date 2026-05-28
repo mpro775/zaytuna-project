@@ -113,4 +113,4 @@
 
 **📅 تاريخ آخر تحديث**: ديسمبر 2025
 **📊 حالة الإكمال**: 60% (قيد التطوير المستمر)
-**🔗 رابط API**: [Swagger UI](https://api.zaytuna.com/docs)
+**🔗 رابط API**: [Swagger UI](https://api.zaytunsoft.com/docs)

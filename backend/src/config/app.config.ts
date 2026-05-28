@@ -3,7 +3,7 @@ import { registerAs } from '@nestjs/config';
 export default registerAs('app', () => ({
   nodeEnv: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '3000', 10),
-  name: process.env.APP_NAME || 'Zaytuna POS',
+  name: process.env.APP_NAME || 'Zaytun Soft POS',
   apiPrefix: process.env.API_PREFIX || 'api/v1',
   encryptionKey:
     process.env.ENCRYPTION_KEY || 'dev_encryption_key_32_characters_long',
@@ -50,6 +50,6 @@ export default registerAs('app', () => ({
   cache: {
     enabled: process.env.CACHE_ENABLED === 'true',
     defaultTtl: parseInt(process.env.CACHE_DEFAULT_TTL || '300', 10),
-    prefix: process.env.CACHE_PREFIX || 'zaytuna:',
+    prefix: process.env.CACHE_PREFIX || 'zaytun-soft:',
   },
 }));

@@ -48,7 +48,7 @@ async function testBranchesAndWarehouses() {
       code: 'BR-RIYADH',
       address: 'الرياض، المملكة العربية السعودية',
       phone: '+966112345678',
-      email: 'riyadh@zaytuna-pos.com',
+      email: 'riyadh@zaytunsoft-pos.com',
       companyId: 'company_main', // من البيانات الأولية
       managerId: null, // سيتم تعيينه لاحقاً
     };
@@ -118,7 +118,7 @@ async function testBranchesAndWarehouses() {
       code: 'WH-RIYADH-MAIN',
       address: 'مخزن الرياض، المملكة العربية السعودية',
       phone: '+966119876543',
-      email: 'warehouse.riyadh@zaytuna-pos.com',
+      email: 'warehouse.riyadh@zaytunsoft-pos.com',
       branchId: testBranchId,
       managerId: null,
     };

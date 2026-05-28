@@ -6,31 +6,31 @@ services:
   # ============================================
   postgres:
     image: postgres:15-alpine
-    container_name: zaytuna_postgres
+    container_name: zaytun_soft_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${DB_USER:-zaytuna}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-zaytuna_secret}
-      POSTGRES_DB: ${DB_NAME:-zaytuna_db}
+POSTGRES_USER: ${DB_USER:-zaytun_soft}
+POSTGRES_PASSWORD: ${DB_PASSWORD:-zaytun_soft_secret}
+POSTGRES_DB: ${DB_NAME:-zaytun_soft_db}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/prisma/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-zaytuna} -d ${DB_NAME:-zaytuna_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-zaytun_soft} -d ${DB_NAME:-zaytun_soft_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - zaytuna_network
+      - zaytun_soft_network
 
   # ============================================
   # Redis Cache
   # ============================================
   redis:
     image: redis:7-alpine
-    container_name: zaytuna_redis
+    container_name: zaytun_soft_redis
     restart: unless-stopped
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_secret}
     volumes:
@@ -43,7 +43,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - zaytuna_network
+      - zaytun_soft_network
 
   # ============================================
   # Backend API (NestJS)
@@ -53,12 +53,12 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       target: production
-    container_name: zaytuna_backend
+    container_name: zaytun_soft_backend
     restart: unless-stopped
     environment:
       NODE_ENV: production
       PORT: 3000
-      DATABASE_URL: postgresql://${DB_USER:-zaytuna}:${DB_PASSWORD:-zaytuna_secret}@postgres:5432/${DB_NAME:-zaytuna_db}
+      DATABASE_URL: postgresql://${DB_USER:-zaytun_soft}:${DB_PASSWORD:-zaytun_soft_secret}@postgres:5432/${DB_NAME:-zaytun_soft_db}
       REDIS_URL: redis://:${REDIS_PASSWORD:-redis_secret}@redis:6379
       JWT_SECRET: ${JWT_SECRET:-your_super_secret_jwt_key_change_in_production}
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:-your_32_char_encryption_key_here}
@@ -79,7 +79,7 @@ services:
       timeout: 10s
       retries: 3
     networks:
-      - zaytuna_network
+      - zaytun_soft_network
 
   # ============================================
   # Frontend (React + Vite)
@@ -89,7 +89,7 @@ services:
       context: ./frontend-customer
       dockerfile: Dockerfile
       target: production
-    container_name: zaytuna_frontend
+    container_name: zaytun_soft_frontend
     restart: unless-stopped
     environment:
       NODE_ENV: production
@@ -103,14 +103,14 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
     networks:
-      - zaytuna_network
+      - zaytun_soft_network
 
   # ============================================
   # Nginx Reverse Proxy (Optional for production)
   # ============================================
   nginx:
     image: nginx:alpine
-    container_name: zaytuna_nginx
+    container_name: zaytun_soft_nginx
     restart: unless-stopped
     ports:
       - "80:80"
@@ -122,7 +122,7 @@ services:
       - backend
       - frontend
     networks:
-      - zaytuna_network
+      - zaytun_soft_network
     profiles:
       - production
 
@@ -131,14 +131,14 @@ services:
   # ============================================
   adminer:
     image: adminer:latest
-    container_name: zaytuna_adminer
+    container_name: zaytun_soft_adminer
     restart: unless-stopped
     ports:
       - "8080:8080"
     depends_on:
       - postgres
     networks:
-      - zaytuna_network
+      - zaytun_soft_network
     profiles:
       - development
 
@@ -146,7 +146,7 @@ services:
 # Networks
 # ============================================
 networks:
-  zaytuna_network:
+  zaytun_soft_network:
     driver: bridge
 
 # ============================================

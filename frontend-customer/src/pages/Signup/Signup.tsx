@@ -159,7 +159,7 @@ const Signup: React.FC = () => {
                   lineHeight: 1.5,
                 }}
               >
-                {t('auth.signup.description', 'قم بإدخال بياناتك لإنشاء حساب جديد في نظام زيتون.')}
+                {t('auth.signup.description', 'قم بإدخال بياناتك لإنشاء حساب جديد في نظام الزيتون سوفت.')}
               </Typography>
 
               {error && (

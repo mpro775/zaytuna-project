@@ -274,7 +274,7 @@ export const openShift = async (openingCash: number): Promise<POSShift> => {
     totalTransactions: 0,
     status: 'open',
   };
-  localStorage.setItem('zaytuna_current_shift', JSON.stringify(shift));
+  localStorage.setItem('zaytun_soft_current_shift', JSON.stringify(shift));
   return shift;
 };
 
@@ -288,12 +288,12 @@ export const closeShift = async (shiftId: string, closingCash: number, notes?: s
     status: 'closed',
   };
   if (notes) shift.notes = notes;
-  localStorage.removeItem('zaytuna_current_shift');
+  localStorage.removeItem('zaytun_soft_current_shift');
   return shift;
 };
 
 export const getCurrentShift = async (): Promise<POSShift | null> => {
-  const stored = localStorage.getItem('zaytuna_current_shift');
+  const stored = localStorage.getItem('zaytun_soft_current_shift');
   if (!stored) return null;
   return JSON.parse(stored) as POSShift;
 };

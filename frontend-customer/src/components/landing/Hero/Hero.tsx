@@ -185,7 +185,7 @@ export const Hero: React.FC = () => {
                     px: 4,
                   }}
                 >
-                  لوحة تحكم زيتون
+                  لوحة تحكم الزيتون سوفت
                 </Typography>
               </Box>
             </Box>
